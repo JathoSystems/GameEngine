@@ -38,7 +38,14 @@ void SpriteRenderer::loadTexture(const std::unique_ptr<Window>& window) {
     }
 
     // Standaard rect — hele texture
-    SDL_QueryTexture(_texture, nullptr, nullptr, &_rect.w, &_rect.h);
+    int width;
+    int height;
+    SDL_QueryTexture(_texture, nullptr, nullptr, &width, &height);
+
+    if (_parent->getTransform()) {
+        _parent->getTransform()->getSize()->setWidth(width);
+        _parent->getTransform()->getSize()->setHeight(height);
+    }
 }
 
 void SpriteRenderer::update() {
