@@ -11,6 +11,7 @@
 
 class GameObject {
 private:
+    int _layer = 1;
     std::unique_ptr<GameObject> _parent;
     std::vector<std::unique_ptr<Component>> _components;
     std::unique_ptr<Transform> _transform = std::make_unique<Transform>();
@@ -19,6 +20,8 @@ public:
     void addComponent(std::unique_ptr<Component> component);
     void render(const std::unique_ptr<Window> &window);
     void update();
+    void setLayer(int layer);
+    int getLayer();
     const std::unique_ptr<Transform>& getTransform();
 };
 

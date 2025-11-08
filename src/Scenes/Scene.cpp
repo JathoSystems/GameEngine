@@ -3,14 +3,20 @@
 //
 #include "Scenes/Scene.h"
 
+#include <algorithm>
 #include <iostream>
 
 Scene::Scene(std::string name) {
     _name = name;
 }
 
-void Scene::addObject(std::unique_ptr<GameObject> object) {
-    _objects.push_back(std::move(object));
+void Scene::addObject(std::unique_ptr<GameObject> newObject) {
+    auto pos = std::lower_bound(_objects.begin(), _objects.end(), newObject,
+        [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
+            return a->getLayer() < b->getLayer();
+        });
+
+    _objects.insert(pos, std::move(newObject));
 }
 
 const std::vector<std::unique_ptr<GameObject>> & Scene::getObjects() const {
