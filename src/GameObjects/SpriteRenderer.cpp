@@ -14,7 +14,7 @@ SpriteRenderer::SpriteRenderer(std::string path) {
     _texture = std::make_unique<Texture>(path);
 }
 
-void SpriteRenderer::update() {
+void SpriteRenderer::update(float delta) {
     Transform *transform = _parent->getTransform().get();
     if (!transform || !_texture) return;
 

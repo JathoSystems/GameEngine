@@ -16,7 +16,7 @@ private:
     std::vector<std::unique_ptr<Scene>> _scenes;
 
 public:
-    void render(const std::unique_ptr<Window> &window);
+    void render(const std::unique_ptr<Window> &window, float delta);
 
     void addScene(std::unique_ptr<Scene> scene);
 };

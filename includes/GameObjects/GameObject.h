@@ -19,7 +19,7 @@ private:
 public:
     void addComponent(std::unique_ptr<Component> component);
     void render(const std::unique_ptr<Window> &window);
-    void update();
+    void update(float delta);
     void setLayer(int layer);
     int getLayer();
     const std::unique_ptr<Transform>& getTransform();

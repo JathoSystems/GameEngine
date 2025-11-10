@@ -3,7 +3,7 @@
 //
 #include "GameObjects/Behaviour.h"
 
-void Behaviour::update() {
+void Behaviour::update(float deltaTime) {
     onUpdate();
 }
 

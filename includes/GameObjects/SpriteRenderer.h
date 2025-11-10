@@ -20,7 +20,7 @@ private:
 public:
     SpriteRenderer(std::string path);
 
-    void update() override;
+    void update(float delta) override;
     void render(const std::unique_ptr<Window> &window) override;
 };
 

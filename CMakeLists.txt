@@ -34,7 +34,11 @@ add_executable(GameEngine ${SOURCES}
         includes/GameObjects/Spritesheet/Spritesheet.h
         includes/GameObjects/Spritesheet/Frame.h
         includes/GameObjects/Texture.h
-        src/GameObjects/Texture.cpp)
+        src/GameObjects/Texture.cpp
+        src/GameObjects/Spritesheet/Frame.cpp
+        src/GameObjects/Spritesheet/SpriteSheet.cpp
+        includes/GameObjects/Spritesheet/Animator.h
+        src/GameObjects/Spritesheet/Animator.cpp)
 
 # Link libraries - gebruik expliciet de static versies
 target_link_libraries(GameEngine PRIVATE

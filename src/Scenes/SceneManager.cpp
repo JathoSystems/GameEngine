@@ -1,7 +1,7 @@
 #include "Scenes/SceneManager.h"
 #include <chrono>
 
-void SceneManager::render(const std::unique_ptr<Window>& window) {
+void SceneManager::render(const std::unique_ptr<Window>& window, float delta) {
     Scene* currentScene = nullptr;
     for (const auto& scene : _scenes) {
         if (scene->getName() == _activeScene) {
@@ -11,7 +11,7 @@ void SceneManager::render(const std::unique_ptr<Window>& window) {
     }
 
     if (currentScene) {
-        currentScene->render(window);
+        currentScene->render(window, delta);
     }
 }
 

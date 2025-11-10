@@ -14,9 +14,10 @@ void Texture::load(Window *window) {
 
 
     SDL_Surface *surface = IMG_Load(_path.c_str());
-    if (!surface)
+    if (!surface) {
+        std::cerr << "Failed to load image!" << std::endl;
         return;
-
+    }
 
     _texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!_texture) {
@@ -55,6 +56,26 @@ void Texture::render(Window *window) {
         load(window);
 
     SDL_RenderTexture(renderer, _texture, nullptr, &_rectangle);
+}
+
+void Texture::render(Window* window, Frame* frame) {
+    if (!_texture || !frame) {
+        load(window);
+    }
+
+    SDL_FRect dstRect;
+    dstRect.x = frame->getPosition()->getX();
+    dstRect.y = frame->getPosition()->getY();
+    dstRect.w = frame->getWidth();
+    dstRect.h = frame->getHeight();
+
+    SDL_FRect srcRect;
+    srcRect.x = frame->getX();
+    srcRect.y = frame->getY();
+    srcRect.w = frame->getWidth();
+    srcRect.h = frame->getHeight();
+
+    SDL_RenderTexture(window->getRenderer(), _texture, &srcRect, &dstRect);
 }
 
 void Texture::transform(Transform *transform) {

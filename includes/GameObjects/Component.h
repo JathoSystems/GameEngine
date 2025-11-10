@@ -6,6 +6,7 @@
 #define GAMEENGINE_COMPONENT_H
 
 #include "SDL/Window.h"
+#include <memory>
 
 class GameObject;
 
@@ -17,7 +18,7 @@ protected:
 public:
     virtual ~Component() = default;
 
-    virtual void update() = 0;
+    virtual void update(float deltaTime) = 0;
     virtual void render(const std::unique_ptr<Window> & window) = 0;
 
     // ToDo: move to seperate CPP file

@@ -18,9 +18,9 @@ void GameObject::render(const std::unique_ptr<Window>& window) {
         component->render(window);
 }
 
-void GameObject::update() {
+void GameObject::update(float delta) {
     for (const std::unique_ptr<Component> & component : _components) {
-        component->update();
+        component->update(delta);
     }
 }
 

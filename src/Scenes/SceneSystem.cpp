@@ -9,7 +9,7 @@ SceneSystem::SceneSystem(const std::unique_ptr<Window> &window) : _window(window
 }
 
 void SceneSystem::update(float deltaTime) {
-    _sceneManager.render(_window);
+    _sceneManager.render(_window, deltaTime);
 }
 
 void SceneSystem::addScene(std::unique_ptr<Scene> scene) {
