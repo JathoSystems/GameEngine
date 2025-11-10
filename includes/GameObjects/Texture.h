@@ -1,0 +1,33 @@
+//
+// Created by jusra on 10-11-2025.
+//
+
+#ifndef GAMEENGINE_TEXTURE_H
+#define GAMEENGINE_TEXTURE_H
+#include <memory>
+#include <string>
+
+#include "SDL/Window.h"
+#include "SDL3/SDL_render.h"
+#include "Transform/Transform.h"
+
+class Texture {
+private:
+    std::string _path;
+    SDL_Texture* _texture;
+    SDL_FRect _rectangle;
+
+    void load(Window* window);
+public:
+    Texture(std::string path);
+    ~Texture();
+
+    void render(Window* window);
+    void transform(Transform* transform);
+    SDL_Texture* getTexture(Window* window);
+
+    int getWidth();
+    int getHeight();
+};
+
+#endif //GAMEENGINE_TEXTURE_H
