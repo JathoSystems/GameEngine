@@ -21,7 +21,6 @@ void GameEngine::init(std::string name, int width, int height) {
     _window->openWindow(width, height, name);
 
     _systems.emplace_back(std::make_unique<SceneSystem>(_window));
-
 }
 
 void GameEngine::start() {
@@ -51,13 +50,13 @@ void GameEngine::stop() {
     _isRunning = false;
 }
 
-void GameEngine::addScene(std::unique_ptr<Scene> scene) {
-    for (std::unique_ptr<ISystem>& system : _systems) {
-        if (dynamic_cast<SceneSystem*>(system.get())) {
-            SceneSystem* sceneSystem = dynamic_cast<SceneSystem*>(system.get());
-            sceneSystem->addScene(std::move(scene));
+template<typename T>  T* GameEngine::getSystem() {
+    for (auto& system : _systems) {
+        if (T* casted = dynamic_cast<T*>(system.get())) {
+            return casted;
         }
     }
+    return nullptr;
 }
 
 const std::unique_ptr<Window> & GameEngine::getWindow() const {

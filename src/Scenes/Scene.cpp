@@ -19,8 +19,12 @@ void Scene::addObject(std::unique_ptr<GameObject> newObject) {
     _objects.insert(pos, std::move(newObject));
 }
 
-const std::vector<std::unique_ptr<GameObject>> & Scene::getObjects() const {
+std::vector<std::unique_ptr<GameObject>> & Scene::getObjects() {
     return _objects;
+}
+
+std::unique_ptr<GameObject> & Scene::getObject(size_t index) {
+    return _objects.at(index);
 }
 
 const std::string & Scene::getName() const {

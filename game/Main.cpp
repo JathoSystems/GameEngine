@@ -1,10 +1,12 @@
 #include <memory>
 
+#include "../external/SDL3/src/video/khronos/vulkan/vulkan_core.h"
 #include "Engine/GameEngine.h"
 #include "GameObjects/GameObject.h"
 #include "Scenes/Scene.h"
 #include "GameObjects/Behaviour.h"
 #include "GameObjects/SpriteRenderer.h"
+#include "Scenes/SceneSystem.h"
 
 class SpriteMovement : public Behaviour {
 private:
@@ -32,25 +34,55 @@ private:
     };
 };
 
-int main() {
+#include <thread>
+void sceneTest() {
     std::unique_ptr<GameEngine> engine = std::make_unique<GameEngine>();
-    engine->init("Vuurjongen en watermeisje", 1000, 500);
+    engine->init("scene tests", 1000, 500);
+    SceneSystem* scene_system = engine->getSystem<SceneSystem>();
 
-    std::unique_ptr<Scene> scene = std::make_unique<Scene>("main");
-    std::unique_ptr<GameObject> object = std::make_unique<GameObject>();
+    std::unique_ptr<Scene> scene1 = std::make_unique<Scene>("scene 1");
+    std::unique_ptr<GameObject> object1 = std::make_unique<GameObject>();
+    std::unique_ptr<SpriteRenderer> watergirl = std::make_unique<SpriteRenderer>("../resources/Watergirl.png");
+    object1->addComponent(std::move(watergirl));
+    object1->addComponent(std::make_unique<SpriteRotator>());
+    scene1->addObject(std::move(object1));
 
-    std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>("../resources/Watergirl.png");
-    object->addComponent(std::move(sprite));
-    object->addComponent(std::make_unique<SpriteRotator>());
-    scene->addObject(std::move(object));
-
+    std::unique_ptr<Scene> scene2 = std::make_unique<Scene>("scene 2");
     std::unique_ptr<GameObject> object2 = std::make_unique<GameObject>();
-    std::unique_ptr<SpriteRenderer> watergirl = std::make_unique<SpriteRenderer>("../resources/sprite.jpeg");
+    std::unique_ptr<SpriteRenderer> fireboy = std::make_unique<SpriteRenderer>("../resources/sprite.jpeg");
     object2->addComponent(std::make_unique<SpriteMovement>());
-    object2->addComponent(std::move(watergirl));
-    scene->addObject(std::move(object2));
+    object2->addComponent(std::move(fireboy));
+    scene2->addObject(std::move(object2));
 
-    engine->addScene(std::move(scene));
-
+    scene_system->setScene("scene1");
     engine->start();
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    scene_system->setScene("scene2");
 }
+
+int main() {
+    sceneTest();
+    // std::unique_ptr<GameEngine> engine = std::make_unique<GameEngine>();
+    // engine->init("Vuurjongen en watermeisje", 1000, 500);
+    //
+    // std::unique_ptr<Scene> scene = std::make_unique<Scene>("main");
+    // std::unique_ptr<GameObject> object = std::make_unique<GameObject>();
+    //
+    // std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>("../resources/Watergirl.png");
+    // object->addComponent(std::move(sprite));
+    // object->addComponent(std::make_unique<SpriteRotator>());
+    // scene->addObject(std::move(object));
+    //
+    // std::unique_ptr<GameObject> object2 = std::make_unique<GameObject>();
+    // std::unique_ptr<SpriteRenderer> watergirl = std::make_unique<SpriteRenderer>("../resources/sprite.jpeg");
+    // object2->addComponent(std::make_unique<SpriteMovement>());
+    // object2->addComponent(std::move(watergirl));
+    // scene->addObject(std::move(object2));
+    //
+    // engine->addScene(std::move(scene));
+    //
+    // engine->start();
+}
+

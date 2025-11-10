@@ -23,6 +23,8 @@ public:
     void update(float deltaTime) override;
 
     void addScene(std::unique_ptr<Scene> scene);
+
+    void setScene(std::string name);
 };
 
 #endif //GAMEENGINE_SCENESYSTEM_H

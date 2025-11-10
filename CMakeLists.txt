@@ -30,7 +30,15 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 )
 
 # Executable
-add_executable(GameEngine ${SOURCES})
+add_executable(GameEngine ${SOURCES}
+        src/Scenes/Camera/Camera.cpp
+        includes/Scenes/Camera/Camera.h
+        src/Scenes/Camera/FixedCamera.cpp
+        includes/Scenes/Camera/FixedCamera.h
+        src/Scenes/Camera/AttachedCamera.cpp
+        includes/Scenes/Camera/AttachedCamera.h
+        src/Scenes/Camera/Viewport.cpp
+        includes/Scenes/Camera/Viewport.h)
 
 # Link libraries - gebruik expliciet de static versies
 target_link_libraries(GameEngine PRIVATE

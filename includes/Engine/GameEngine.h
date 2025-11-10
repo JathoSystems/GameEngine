@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "ISystem.h"
-#include "../Scenes/Scene.h"
 #include "SDL/Window.h"
 
 class GameEngine {
@@ -23,9 +22,7 @@ public:
 	void init(std::string name, int width, int height);
 	void start();
 	void stop();
-
-	void addScene(std::unique_ptr<Scene> scene);
-
+	template<typename T> T* getSystem();
 	const std::unique_ptr<Window>& getWindow() const;
 };
 

@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-#include "../GameObjects/GameObject.h"
+#include "GameObjects/GameObject.h"
 
 class Scene {
 private:
@@ -18,7 +18,8 @@ public:
     Scene(std::string name);
     void addObject(std::unique_ptr<GameObject> object);
 
-    const std::vector<std::unique_ptr<GameObject>>& getObjects() const;
+    std::vector<std::unique_ptr<GameObject>>& getObjects() ;
+    std::unique_ptr<GameObject>& getObject(size_t index) ;
 
     const std::string& getName() const;
 

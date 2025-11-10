@@ -1,11 +1,7 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
 #include "Scenes/SceneSystem.h"
-
 #include <iostream>
 
-SceneSystem::SceneSystem(const std::unique_ptr<Window> &window) : _window(window) {
+SceneSystem::SceneSystem(const std::unique_ptr<Window> &window) : _sceneManager(), _window(window) {
 }
 
 void SceneSystem::update(float deltaTime) {
@@ -14,4 +10,8 @@ void SceneSystem::update(float deltaTime) {
 
 void SceneSystem::addScene(std::unique_ptr<Scene> scene) {
     _sceneManager.addScene(std::move(scene));
+}
+
+void SceneSystem::setScene(std::string name) {
+    _sceneManager.setScene(name);
 }
