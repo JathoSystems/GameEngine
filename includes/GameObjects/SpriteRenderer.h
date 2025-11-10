@@ -6,7 +6,7 @@
 #define GAMEENGINE_SPRITERENDERER_H
 
 #include <string>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <memory>
 
 #include "Component.h"
@@ -16,7 +16,7 @@ class SpriteRenderer : public Component {
 private:
     std::string _spritePath;
     SDL_Texture* _texture = nullptr;
-    SDL_Rect _rect{};
+    SDL_FRect _rect{};
 
 public:
     SpriteRenderer(std::string path);

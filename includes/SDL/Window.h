@@ -5,8 +5,7 @@
 #ifndef GAMEENGINE_WINDOW_H
 #define GAMEENGINE_WINDOW_H
 
-#include <SDL_render.h>
-#include <SDL_video.h>
+#include <SDL3/SDL.h>
 #include <string>
 
 class Window {

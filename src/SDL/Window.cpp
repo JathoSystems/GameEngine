@@ -1,20 +1,18 @@
 #include "SDL/Window.h"
-#include <SDL.h>
 #include <iostream>
+#include <SDL3/SDL_init.h>
 
 void Window::openWindow(int width, int height, std::string name) {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return;
     }
 
     _window = SDL_CreateWindow(
         name.c_str(),
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
         width,
         height,
-        SDL_WINDOW_SHOWN
+        0
     );
 
     if (!_window) {
@@ -22,18 +20,18 @@ void Window::openWindow(int width, int height, std::string name) {
         return;
     }
 
-    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    _renderer = SDL_CreateRenderer(_window, nullptr);
     if (!_renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         return;
     }
 }
 
-SDL_Window* Window::getWindow() {
+SDL_Window *Window::getWindow() {
     return _window;
 }
 
-SDL_Renderer* Window::getRenderer() {
+SDL_Renderer *Window::getRenderer() {
     return _renderer;
 }
 

@@ -5,10 +5,8 @@
 
 #include <iostream>
 #include <memory>
-#include <ostream>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <cmath>
-#include <X11/Xproto.h>
 
 #include "Engine/TimeManager.h"
 #include "Scenes/SceneSystem.h"
@@ -38,7 +36,7 @@ void GameEngine::start() {
         float deltaTime = timeManager.update();
 
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+            if (event.type == SDL_EVENT_QUIT) {
                 stop();
             }
         }

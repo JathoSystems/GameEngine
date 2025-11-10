@@ -1,8 +1,8 @@
 #include <memory>
 
-#include "../includes/Engine/GameEngine.h"
-#include "../includes/GameObjects/GameObject.h"
-#include "../includes/Scenes/Scene.h"
+#include "Engine/GameEngine.h"
+#include "GameObjects/GameObject.h"
+#include "Scenes/Scene.h"
 #include "GameObjects/Behaviour.h"
 #include "GameObjects/SpriteRenderer.h"
 
