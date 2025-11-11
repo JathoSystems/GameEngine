@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "GameObjects/Component.h"
+#include "../../includes/GameObjects/Component/Component.h"
 
 void GameObject::addComponent(std::unique_ptr<Component> component) {
     component->setParent(this);

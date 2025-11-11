@@ -5,7 +5,7 @@
 #ifndef GAMEENGINE_ANIMATOR_H
 #define GAMEENGINE_ANIMATOR_H
 #include "Spritesheet.h"
-#include "GameObjects/Component.h"
+#include "../Component/Component.h"
 #include <memory>
 
 class Animator : public Component {

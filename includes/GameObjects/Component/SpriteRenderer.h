@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "Component.h"
-#include "Texture.h"
+#include "../Texture.h"
 #include "SDL/Window.h"
 
 class SpriteRenderer : public Component {

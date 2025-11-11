@@ -6,7 +6,7 @@
 #define GAMEENGINE_GAMEOBJECT_H
 #include <memory>
 #include <vector>
-#include "Component.h"
+#include "Component/Component.h"
 #include "Transform/Transform.h"
 
 class GameObject {
