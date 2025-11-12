@@ -14,9 +14,12 @@ private:
     int _srcY;
 
 public:
+    // ToDo: move to seperate CPP file
     Frame(int x, int y, int width, int height)
-        : _srcX(x), _srcY(y), _size(std::make_unique<Size>(width, height)),
-          _position(std::make_unique<Position>(0,0)) {}
+        : _size(std::make_unique<Size>(width, height)),
+          _position(std::make_unique<Position>(0,0)),
+          _srcX(x), _srcY(y) {}
+
 
     Size* getSize() { return _size.get(); }
     Position* getPosition() { return _position.get(); }

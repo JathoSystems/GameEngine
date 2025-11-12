@@ -25,5 +25,6 @@ void Button::render(const std::unique_ptr<Window> &window) {
     }
 
     std::cerr << "Attempt to render text" <<std::endl;
+    _text->setParent(_parent);
     _text->render(window);
 }

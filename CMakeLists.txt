@@ -15,30 +15,25 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# --- Force shared libraries voor SDL ---
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries" FORCE)
-set(SDL_SHARED ON CACHE BOOL "Enable shared SDL build" FORCE)
-set(SDL_STATIC OFF CACHE BOOL "Disable static SDL build" FORCE)
+# --- SDL3 shared ---
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+set(SDL_SHARED ON CACHE BOOL "" FORCE)
+set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
 set(SDL_TESTS OFF CACHE BOOL "" FORCE)
 
-# --- SDL_image configuratie ---
+# --- SDL3_image shared ---
 set(SDL3IMAGE_BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 set(SDL3IMAGE_BUILD_STATIC_LIBS OFF CACHE BOOL "" FORCE)
 set(SDL3IMAGE_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL3IMAGE_TESTS OFF CACHE BOOL "" FORCE)
 
-# --- SDL_ttf configuratie ---
-set(SDL3TTF_VENDORED ON CACHE BOOL "Use vendored dependencies" FORCE)
+# --- SDL3_ttf shared, **niet vendored** ---
+set(SDL3TTF_BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+set(SDL3TTF_VENDORED OFF CACHE BOOL "" FORCE)       # <-- systeem libraries gebruiken
 set(SDL3TTF_INSTALL OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_TESTS OFF CACHE BOOL "" FORCE)
-set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
-set(SDL3TTF_DEPS_VENDORED ON CACHE BOOL "" FORCE)
-
-# Schakel system libraries uit
-set(CMAKE_DISABLE_FIND_PACKAGE_Freetype TRUE)
-set(CMAKE_DISABLE_FIND_PACKAGE_harfbuzz TRUE)
 
 # --- Externe libraries ---
 add_subdirectory(external/SDL3 EXCLUDE_FROM_ALL)
@@ -88,6 +83,8 @@ target_link_libraries(Engine
         SDL3::SDL3
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
+        freetype
+        harfbuzz
 )
 
 # --- Game executable ---
@@ -109,7 +106,7 @@ target_include_directories(GameEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
 )
 
-# --- Post-build: SDL DLLs kopiëren naar exe-folder ---
+# --- Post-build: DLLs kopiëren ---
 add_custom_command(TARGET GameEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
