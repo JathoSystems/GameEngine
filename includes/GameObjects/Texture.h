@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 
+#include "GameObject.h"
 #include "SDL/Window.h"
 #include "SDL3/SDL_render.h"
 #include "Spritesheet/Frame.h"
@@ -24,7 +25,7 @@ public:
 
     void load(Window* window);
     void render(Window* window);
-    void render(Window* window, Frame* frame);
+    void render(Window* window, Frame* frame, GameObject* parent);
     void transform(Transform* transform);
     SDL_Texture* getTexture(Window* window);
 

@@ -12,15 +12,18 @@ Text::Text(const std::string& text, std::unique_ptr<Font> font, std::unique_ptr<
 Text::~Text() {
 }
 
+void Text::setFontSize(int size) {
+    _font->setSize(size);
+}
+
 void Text::render(const std::unique_ptr<Window> &window) {
     if (!window || !window->getRenderer() || !_font) {
         return;
     }
 
     TTF_Font* sdlFont = _font->getSdlFont();
-    if (!sdlFont) {
+    if (!sdlFont)
         return;
-    }
 
     SDL_Surface* surface = TTF_RenderText_Blended(sdlFont, _text.c_str(), 0, _color->toSdlColor());
 
@@ -34,18 +37,15 @@ void Text::render(const std::unique_ptr<Window> &window) {
 
     SDL_DestroySurface(surface);
 
-    if (!texture) {
+    if (!texture)
         return;
-    }
 
-    SDL_FRect destRect = {
-        10.0f,
-        10.0f,
-        static_cast<float>(surfaceWidth),
-        static_cast<float>(surfaceHeight)
-    };
+    Size* size = _parent->getTransform()->getSize();
+    if (size->getWidth() == 0) size->setWidth(surfaceWidth);
+    if (size->getHeight() == 0) size->setHeight(surfaceHeight);
 
-    SDL_RenderTexture(window->getRenderer(), texture, nullptr, &destRect);
+    SDL_FRect dest = _parent->getTransform()->toFRect();
+    SDL_RenderTexture(window->getRenderer(), texture, nullptr, &dest);
     SDL_DestroyTexture(texture);
 }
 

@@ -5,6 +5,7 @@
 
 #include <iostream>
 
+#include "GameObjects/GameObject.h"
 #include "SDL3_image/SDL_image.h"
 
 void Texture::load(Window *window) {
@@ -58,16 +59,19 @@ void Texture::render(Window *window) {
     SDL_RenderTexture(renderer, _texture, nullptr, &_rectangle);
 }
 
-void Texture::render(Window* window, Frame* frame) {
+void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     if (!_texture || !frame) {
         load(window);
     }
+    if (!frame) return;
 
+
+    Size* size = parent->getTransform()->getSize();
     SDL_FRect dstRect;
-    dstRect.x = frame->getPosition()->getX();
-    dstRect.y = frame->getPosition()->getY();
-    dstRect.w = frame->getWidth();
-    dstRect.h = frame->getHeight();
+    dstRect.x = parent->getTransform()->getPosition()->getX();
+    dstRect.y = parent->getTransform()->getPosition()->getY();
+    dstRect.w = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
+    dstRect.h = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
 
     SDL_FRect srcRect;
     srcRect.x = frame->getX();

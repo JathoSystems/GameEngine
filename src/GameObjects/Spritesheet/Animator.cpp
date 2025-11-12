@@ -8,6 +8,8 @@
 
 Animator::Animator(std::string path, int rows, int cols) {
     _sheet = std::make_unique<SpriteSheet>(path, rows, cols);
+    _min = 0;
+    _max = rows * cols;
 }
 
 void Animator::update(float deltaTime) {
@@ -25,7 +27,7 @@ void Animator::update(float deltaTime) {
 
 
 void Animator::render(const std::unique_ptr<Window> &window) {
-    _sheet->renderFrame(window.get(), _currentFrame);
+    _sheet->renderFrame(window.get(), _currentFrame, _parent);
 }
 
 void Animator::setMin(int min) {

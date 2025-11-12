@@ -13,7 +13,7 @@ private:
     std::string _path;
     std::string _name;
     TTF_Font *_font;
-    int _size = 16;
+    int _size = 40;
 
 public:
     Font(const std::string& path, const std::string& name);
@@ -21,6 +21,7 @@ public:
     bool load();
 
     TTF_Font * getSdlFont();
+    void setSize(int size);
 };
 
 #endif //GAMEENGINE_FONT_H
