@@ -23,7 +23,8 @@ void Text::render(const std::unique_ptr<Window>& window) {
     if (!sdlFont) return;
 
     SDL_Color color = _color->toSdlColor();
-    SDL_Surface* surface = TTF_RenderText_Blended(sdlFont, _text.c_str(),0, color);
+    SDL_Surface* surface = TTF_RenderText_Blended(sdlFont, _text.c_str(), _text.size(), color);
+
     if (!surface) {
         std::cerr << "TTF_RenderText_Blended failed: " << SDL_GetError() << "\n";
         return;
@@ -36,7 +37,13 @@ void Text::render(const std::unique_ptr<Window>& window) {
         return;
     }
 
-    SDL_FRect dest = _parent->getTransform()->toFRect();
+
+    // ToDo: deze kkr zooi fixen
+    float surfaceW = surface->w;
+    float surfaceH = surface->h;
+    SDL_FRect dest = {
+        0, 0, surfaceW, surfaceH
+    };
     SDL_RenderTexture(window->getRenderer(), texture, nullptr, &dest);
 
     SDL_DestroyTexture(texture);
