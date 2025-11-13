@@ -20,7 +20,10 @@ void Text::render(const std::unique_ptr<Window>& window) {
     if (!window || !window->getRenderer() || !_font || !_color || !_parent) return;
 
     TTF_Font* sdlFont = _font->getSdlFont();
-    if (!sdlFont) return;
+    if (!sdlFont) {
+        std::cerr << "Kanker zooi" << std::endl;
+        return;
+    }
 
     SDL_Color color = _color->toSdlColor();
     SDL_Surface* surface = TTF_RenderText_Blended(sdlFont, _text.c_str(), _text.size(), color);
@@ -31,7 +34,6 @@ void Text::render(const std::unique_ptr<Window>& window) {
     }
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(window->getRenderer(), surface);
-    SDL_DestroySurface(surface);
     if (!texture) {
         std::cerr << "SDL_CreateTextureFromSurface failed: " << SDL_GetError() << "\n";
         return;
@@ -44,8 +46,9 @@ void Text::render(const std::unique_ptr<Window>& window) {
     SDL_FRect dest = {
         0, 0, surfaceW, surfaceH
     };
-    SDL_RenderTexture(window->getRenderer(), texture, nullptr, &dest);
-
+    if (!SDL_RenderTexture(window->getRenderer(), texture, nullptr, &dest))
+        std::cerr << "Aids 2" << std::endl;
+    SDL_DestroySurface(surface);
     SDL_DestroyTexture(texture);
 }
 
