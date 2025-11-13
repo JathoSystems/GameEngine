@@ -5,9 +5,15 @@
 #include <iostream>
 
 Font::Font(const std::string& path, const std::string& name)
-    : _path(path), _name(name) {}
+    : _path(path), _name(name) {
+    load(); // Laad font direct bij constructie
+}
 
 Font::~Font() {
+    cleanup();
+}
+
+void Font::cleanup() {
     if (_font) {
         TTF_CloseFont(_font);
         _font = nullptr;
@@ -15,17 +21,26 @@ Font::~Font() {
 }
 
 bool Font::load() {
+    cleanup(); // Sluit eerst het oude font!
+
     _font = TTF_OpenFont(_path.c_str(), _size);
-    return _font;
+    if (!_font) {
+        std::cerr << "TTF_OpenFont failed: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    return true;
 }
 
 TTF_Font* Font::getSdlFont() {
-    if (!_font) load();
-
+    if (!_font) {
+        load();
+    }
     return _font;
 }
 
 void Font::setSize(int size) {
-    _size = size;
-    load();
+    if (_size != size) {
+        _size = size;
+        load(); // Nu wordt het oude font eerst gesloten
+    }
 }

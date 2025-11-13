@@ -12,16 +12,20 @@ class Font {
 private:
     std::string _path;
     std::string _name;
-    TTF_Font *_font;
-    int _size = 40;
+    TTF_Font* _font = nullptr;
+    float _size = 24;
+
+    void cleanup();
 
 public:
     Font(const std::string& path, const std::string& name);
     ~Font();
-    bool load();
 
-    TTF_Font * getSdlFont();
+    bool load();
+    TTF_Font* getSdlFont();
     void setSize(int size);
+    Font(const Font&) = delete;
+    Font& operator=(const Font&) = delete;
 };
 
 #endif //GAMEENGINE_FONT_H
