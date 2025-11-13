@@ -9,13 +9,6 @@
 #include "UI/Text.h"
 
 int main() {
-    if (!TTF_Init()) {
-        std::cerr << "TTF_Init failed: " << SDL_GetError() << std::endl;
-        return -1;
-    }
-
-    std::atexit(TTF_Quit);
-
     try {
         std::unique_ptr<GameEngine> engine = std::make_unique<GameEngine>();
         engine->init("Vuurjongen en watermeisje", 1000, 500);

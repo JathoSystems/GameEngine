@@ -22,6 +22,7 @@ void GameEngine::init(std::string name, int width, int height) {
 
     _systems.emplace_back(std::make_unique<SceneSystem>(_window));
 
+    TTF_Init();
 }
 
 void GameEngine::start() {
@@ -38,6 +39,7 @@ void GameEngine::start() {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 stop();
+                break;
             }
         }
 
