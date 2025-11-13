@@ -5,11 +5,22 @@
 #include <iostream>
 #include <cstring>
 
-Text::Text(const std::string& text, std::unique_ptr<Font> font, std::unique_ptr<Color> color)
-    : _text(text), _font(std::move(font)), _color(std::move(color)) {
+
+Text::Text(const std::string &text) {
+    _text = text;
+    _color = std::make_unique<Color>(255, 255, 255);
+    _font = std::make_unique<Font>("C:\\\\Users\\jusra\\CLionProjects\\GameEngine\\resources\\fonts\\default.ttf", "test");
 }
 
 Text::~Text() {
+}
+
+void Text::setFont(std::string path, std::string fontName) {
+    _font = std::make_unique<Font>(path, fontName);
+}
+
+void Text::setColor(std::unique_ptr<Color> color) {
+    _color = std::move(color);
 }
 
 void Text::setFontSize(int size) {

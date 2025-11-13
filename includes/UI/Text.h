@@ -11,14 +11,16 @@
 class Text : public UiElement {
 private:
     std::unique_ptr<Font> _font;
-    std::string _text = "Tiffieeeeee";
+    std::string _text;
     std::unique_ptr<Color> _color;
 
 public:
-    Text(const std::string& text, std::unique_ptr<Font> font, std::unique_ptr<Color> color);
+    Text(const std::string& text);
 
     ~Text();
 
+    void setFont(std::string path, std::string fontName);
+    void setColor(std::unique_ptr<Color> color);
     void setFontSize(int size);
     void render(const std::unique_ptr<Window> &window) override;
     void update(float deltaTime) override;
