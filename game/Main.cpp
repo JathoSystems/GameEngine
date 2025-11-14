@@ -20,7 +20,7 @@ int main() {
         loader->getTransform()->getPosition()->setY(100);
 
         std::unique_ptr<Animator> animator = std::make_unique<Animator>(
-            "C:\\\\Users\\jusra\\CLionProjects\\GameEngine\\resources\\robot.png", 4, 4);
+            "..\\resources\\robot.png", 4, 4);
         animator->setMin(0);
         animator->setMax(3);
 

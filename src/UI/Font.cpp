@@ -46,5 +46,5 @@ void Font::setSize(int size) {
 }
 
 std::unique_ptr<Font> Font::getDefaultFont() {
-    return std::make_unique<Font>("C:\\\\Users\\jusra\\CLionProjects\\GameEngine\\resources\\fonts\\default.ttf", "test");
+    return std::make_unique<Font>("..\\resources\\fonts\\default.ttf", "test");
 }
