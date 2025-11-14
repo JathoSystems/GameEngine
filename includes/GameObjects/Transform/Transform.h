@@ -1,7 +1,3 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #ifndef GAMEENGINE_TRANSFORM_H
 #define GAMEENGINE_TRANSFORM_H
 #include <memory>

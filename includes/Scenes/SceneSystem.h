@@ -1,7 +1,3 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #ifndef GAMEENGINE_SCENESYSTEM_H
 #define GAMEENGINE_SCENESYSTEM_H
 #include <memory>
@@ -25,6 +21,8 @@ public:
     void addScene(std::unique_ptr<Scene> scene);
 
     void setScene(std::string name);
+
+    Scene* getActiveSceneObj();
 };
 
 #endif //GAMEENGINE_SCENESYSTEM_H

@@ -38,6 +38,20 @@ void GameEngine::start() {
             if (event.type == SDL_EVENT_QUIT) {
                 stop();
             }
+
+            // INPUT HANDLING FOR SCENE TEST SWITCHING LATER ON WILL BE REPLACED BY INPUTSYSTEM
+            if (event.type == SDL_EVENT_KEY_DOWN) {
+                auto* sceneSystem = getSystem<SceneSystem>();
+
+                if (event.key.key == SDLK_1) {
+                    sceneSystem->setScene("scene1");
+                    std::cout << "Switched to scene1" << std::endl;
+                }
+                if (event.key.key == SDLK_2) {
+                    sceneSystem->setScene("scene2");
+                    std::cout << "Switched to scene2" << std::endl;
+                }
+            }
         }
 
         for (const std::unique_ptr<ISystem>& system : _systems) {
@@ -48,15 +62,6 @@ void GameEngine::start() {
 
 void GameEngine::stop() {
     _isRunning = false;
-}
-
-template<typename T>  T* GameEngine::getSystem() {
-    for (auto& system : _systems) {
-        if (T* casted = dynamic_cast<T*>(system.get())) {
-            return casted;
-        }
-    }
-    return nullptr;
 }
 
 const std::unique_ptr<Window> & GameEngine::getWindow() const {

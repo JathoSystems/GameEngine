@@ -14,4 +14,9 @@ void SceneSystem::addScene(std::unique_ptr<Scene> scene) {
 
 void SceneSystem::setScene(std::string name) {
     _sceneManager.setScene(name);
+
+}
+
+Scene * SceneSystem::getActiveSceneObj() {
+    _sceneManager.getActiveSceneObj();
 }

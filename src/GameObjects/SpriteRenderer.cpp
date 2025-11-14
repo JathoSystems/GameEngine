@@ -50,14 +50,14 @@ void SpriteRenderer::loadTexture(const std::unique_ptr<Window>& window) {
         return;
     }
 
-    if (_parent->getTransform()) {
-        _parent->getTransform()->getSize()->setWidth(static_cast<int>(width));
-        _parent->getTransform()->getSize()->setHeight(static_cast<int>(height));
-    }
+    Transform* transform = _parent->getTransform();
+    transform->getSize()->setWidth(static_cast<int>(width));
+    transform->getSize()->setHeight(static_cast<int>(height));
 }
 
 void SpriteRenderer::update() {
-    Transform* transform = _parent->getTransform().get();
+    Transform* transform = _parent->getTransform();
+
     if (!transform || !_texture) return;
 
     _rect.x = transform->getPosition()->getX();

@@ -1,13 +1,15 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
 #include "Scenes/Scene.h"
 
 #include <algorithm>
 #include <iostream>
 
+
 Scene::Scene(std::string name) {
     _name = name;
+}
+
+void Scene::setCamera(std::unique_ptr<Camera> camera) {
+    _camera = std::move(camera);
 }
 
 void Scene::addObject(std::unique_ptr<GameObject> newObject) {

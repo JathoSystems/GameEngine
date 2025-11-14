@@ -9,8 +9,9 @@ void AttachedCamera::switchAttachedObject(GameObject* object) {
 }
 
 Position AttachedCamera::getPosition() const {
-    if (_following) {
-        return _following->getPosition();  // Assuming GameObject has getPosition()
+    Position* pos = _following->getTransform()->getPosition();
+    if (pos) {
+        return *pos;  // Dereference to copy
     }
     return Position{0, 0};  // Default position if no object
 }

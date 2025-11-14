@@ -7,17 +7,17 @@ Viewport::Viewport(Size size, Position position)
     : _size(size), _position(position) {
 }
 
-bool Viewport::isInViewPort(const GameObject* object) const {
+bool Viewport::isInViewPort(GameObject* object) const {
     if (!object) return false;
 
-    Position objPos = object->getPosition();
-    Size objSize = object->getSize();
+    Position *objPos = object->getTransform()->getPosition();
+    Size *objSize = object->getTransform()->getSize();
 
     // Check if object overlaps with viewport
-    return !(objPos.x + objSize.width < _position.x ||
-             objPos.x > _position.x + _size.width ||
-             objPos.y + objSize.height < _position.y ||
-             objPos.y > _position.y + _size.height);
+    return !(objPos->getX() + objSize->getWidth() < _position.getX() ||
+             objPos->getX() > _position.getX() + _size.getWidth() ||
+             objPos->getY() + objSize->getHeight() < _position.getY() ||
+             objPos->getY() > _position.getY() + _size.getHeight());
 }
 
 void Viewport::setPosition(Position position) {

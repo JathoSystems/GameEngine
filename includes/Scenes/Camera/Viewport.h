@@ -12,7 +12,7 @@ public:
     Viewport();
     Viewport(Size size, Position position);
 
-    bool isInViewPort(const GameObject* object) const;
+    bool isInViewPort(GameObject* object) const;
 
     void setPosition(Position position);
     void setSize(Size size);

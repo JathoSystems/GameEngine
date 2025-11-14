@@ -32,6 +32,6 @@ int GameObject::getLayer() {
     return _layer;
 }
 
-const std::unique_ptr<Transform> & GameObject::getTransform() {
-    return _transform;
+Transform* GameObject::getTransform() {
+    return _transform.get();
 }

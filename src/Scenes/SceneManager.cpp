@@ -1,21 +1,23 @@
 #include "Scenes/SceneManager.h"
 #include <chrono>
+#include <iostream>
 
 SceneManager::SceneManager() {
-    _camera = std::make_unique<Camera>(std::make_unique<Viewport>());
+
 }
 
 void SceneManager::render(const std::unique_ptr<Window>& window) {
-    Scene* currentScene = nullptr;
+    Scene* activeScene = nullptr;
     for (const auto& scene : _scenes) {
+
         if (scene->getName() == _activeScene) {
-            currentScene = scene.get();
+            activeScene = scene.get();
             break;
         }
     }
 
-    if (currentScene) {
-        currentScene->render(window);
+    if (activeScene) {
+        activeScene->render(window);
     }
 }
 
@@ -25,4 +27,19 @@ void SceneManager::addScene(std::unique_ptr<Scene> scene) {
 
 void SceneManager::setScene(std::string name) {
     _activeScene = name;
+}
+
+std::string SceneManager::getActiveScene() {
+    return _activeScene;
+}
+
+Scene * SceneManager::getActiveSceneObj() {
+    for (auto & scene : _scenes)
+    {
+        if (scene->getName() == _activeScene) {
+            return scene.get();
+        }
+    }
+    std::cout << "Failed to fetch scene object: no scene name corresponds to: " <<  _activeScene << "in _scenes vector\n";
+    return nullptr;
 }
