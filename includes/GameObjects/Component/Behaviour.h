@@ -10,7 +10,7 @@
 
 class Behaviour : public Component {
 public:
-    void update() override;
+    void update(float delta) override;
     void render(const std::unique_ptr<Window> &window) override;
 
     virtual void onUpdate() = 0;

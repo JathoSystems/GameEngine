@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "GameObjects/Component.h"
+#include "../../includes/GameObjects/Component/Component.h"
 
 void GameObject::addComponent(std::unique_ptr<Component> component) {
     component->setParent(this);
@@ -18,9 +18,9 @@ void GameObject::render(const std::unique_ptr<Window>& window) {
         component->render(window);
 }
 
-void GameObject::update() {
+void GameObject::update(float delta) {
     for (const std::unique_ptr<Component> & component : _components) {
-        component->update();
+        component->update(delta);
     }
 }
 
@@ -32,6 +32,6 @@ int GameObject::getLayer() {
     return _layer;
 }
 
-const std::unique_ptr<Transform> & GameObject::getTransform() {
-    return _transform;
+Transform *GameObject::getTransform() {
+    return _transform.get();
 }
