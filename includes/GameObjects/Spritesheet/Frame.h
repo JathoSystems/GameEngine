@@ -14,20 +14,15 @@ private:
     int _srcY;
 
 public:
-    // ToDo: move to seperate CPP file
-    Frame(int x, int y, int width, int height)
-        : _size(std::make_unique<Size>(width, height)),
-          _position(std::make_unique<Position>(0,0)),
-          _srcX(x), _srcY(y) {}
+    Frame(int x, int y, int width, int height);
 
-
-    Size* getSize() { return _size.get(); }
+    Size* getSize();
     Position* getPosition() { return _position.get(); }
 
-    int getX() const { return _srcX; }
-    int getY() const { return _srcY; }
-    int getWidth() const { return _size->getWidth(); }
-    int getHeight() const { return _size->getHeight(); }
+    int getX() const;
+    int getY() const;
+    int getWidth() const;
+    int getHeight() const;
 };
 
 #endif //GAMEENGINE_FRAME_H

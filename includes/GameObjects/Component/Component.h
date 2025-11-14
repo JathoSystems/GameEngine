@@ -21,7 +21,6 @@ public:
     virtual void update(float deltaTime) = 0;
     virtual void render(const std::unique_ptr<Window> & window) = 0;
 
-    // ToDo: move to seperate CPP file
     void setParent(GameObject *game_object) {
         _parent = game_object;
     }
