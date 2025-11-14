@@ -4,6 +4,7 @@
 
 #ifndef GAMEENGINE_FONT_H
 #define GAMEENGINE_FONT_H
+#include <memory>
 #include <string>
 
 #include "SDL3_ttf/SDL_ttf.h"
@@ -26,6 +27,8 @@ public:
     void setSize(int size);
     Font(const Font&) = delete;
     Font& operator=(const Font&) = delete;
+
+    static std::unique_ptr<Font> getDefaultFont();
 };
 
 #endif //GAMEENGINE_FONT_H

@@ -6,7 +6,7 @@
 
 Font::Font(const std::string& path, const std::string& name)
     : _path(path), _name(name) {
-    load(); // Laad font direct bij constructie
+    load();
 }
 
 Font::~Font() {
@@ -41,6 +41,10 @@ TTF_Font* Font::getSdlFont() {
 void Font::setSize(int size) {
     if (_size != size) {
         _size = size;
-        load(); // Nu wordt het oude font eerst gesloten
+        load();
     }
+}
+
+std::unique_ptr<Font> Font::getDefaultFont() {
+    return std::make_unique<Font>("C:\\\\Users\\jusra\\CLionProjects\\GameEngine\\resources\\fonts\\default.ttf", "test");
 }

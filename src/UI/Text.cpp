@@ -9,7 +9,7 @@
 Text::Text(const std::string &text) {
     _text = text;
     _color = std::make_unique<Color>(255, 255, 255);
-    _font = std::make_unique<Font>("C:\\\\Users\\jusra\\CLionProjects\\GameEngine\\resources\\fonts\\default.ttf", "test");
+    _font = Font::getDefaultFont();
 }
 
 Text::~Text() {
@@ -48,13 +48,10 @@ void Text::render(const std::unique_ptr<Window>& window) {
         return;
     }
 
-
-    // ToDo: deze kkr zooi fixen
-    float surfaceW = surface->w;
-    float surfaceH = surface->h;
-    SDL_FRect dest = {
-        0, 0, surfaceW, surfaceH
-    };
+    Size* size = _parent->getTransform()->getSize();
+    if (size->getWidth() == 0) size->setWidth(surface->w);
+    if (size->getHeight() == 0) size->setWidth(surface->h);
+    SDL_FRect dest = _parent->getTransform()->toFRect();
 
     SDL_RenderTexture(window->getRenderer(), texture, nullptr, &dest);
     SDL_DestroySurface(surface);

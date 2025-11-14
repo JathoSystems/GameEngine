@@ -15,7 +15,7 @@ SpriteRenderer::SpriteRenderer(std::string path) {
 }
 
 void SpriteRenderer::update(float delta) {
-    Transform *transform = _parent->getTransform().get();
+    Transform *transform = _parent->getTransform();
     if (!transform || !_texture) return;
 
     Size* size = _parent->getTransform()->getSize();
@@ -26,7 +26,7 @@ void SpriteRenderer::update(float delta) {
     if (size->getWidth() == 0)
         size->setWidth(_texture->getWidth());
 
-    _texture->transform(_parent->getTransform().get());
+    _texture->transform(_parent->getTransform());
 }
 
 void SpriteRenderer::render(const std::unique_ptr<Window> &window) {

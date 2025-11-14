@@ -38,3 +38,35 @@ void Color::setFromHex(const std::string& hex) {
 SDL_Color Color::toSdlColor() {
     return SDL_Color{_r, _g, _b, 255};
 }
+
+int Color::getR() const {
+    return _r;
+}
+
+void Color::setR(int r) {
+    _r = r;
+}
+
+int Color::getG() const {
+    return _g;
+}
+
+void Color::setG(int g) {
+    _g = g;
+}
+
+int Color::getB() const {
+    return _b;
+}
+
+void Color::setB(int b) {
+    _b = b;
+}
+
+int Color::getA() const {
+    return _a;
+}
+
+void Color::setA(int a) {
+    _a = a;
+}

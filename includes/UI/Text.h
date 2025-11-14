@@ -15,14 +15,18 @@ private:
     std::unique_ptr<Color> _color;
 
 public:
-    Text(const std::string& text);
+    Text(const std::string &text);
 
     ~Text();
 
     void setFont(std::string path, std::string fontName);
+
     void setColor(std::unique_ptr<Color> color);
+
     void setFontSize(int size);
+
     void render(const std::unique_ptr<Window> &window) override;
+
     void update(float deltaTime) override;
 };
 
