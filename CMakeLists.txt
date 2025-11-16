@@ -58,6 +58,9 @@ add_library(Engine SHARED
         src/GameObjects/Transform/Scale.cpp
         src/GameObjects/Transform/Size.cpp
         src/GameObjects/Transform/Transform.cpp
+        src/Input/InputSystem.cpp
+        src/Input/KeyInputComponent.cpp
+        src/Input/MouseInputComponent.cpp
         src/Scenes/Scene.cpp
         src/Scenes/SceneManager.cpp
         src/Scenes/SceneSystem.cpp

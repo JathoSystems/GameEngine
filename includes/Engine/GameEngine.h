@@ -25,6 +25,7 @@ public:
 	void stop();
 
 	void addScene(std::unique_ptr<Scene> scene);
+	void addSystem(std::unique_ptr<ISystem> system);
 
 	const std::unique_ptr<Window>& getWindow() const;
 };

@@ -31,22 +31,17 @@ void GameEngine::start() {
     TimeManager timeManager;
     timeManager.start();
 
-    SDL_Event event;
-
     while (_isRunning) {
         float deltaTime = timeManager.update();
-
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                stop();
-                break;
-            }
-        }
 
         for (const std::unique_ptr<ISystem>& system : _systems) {
             system->update(deltaTime);
         }
     }
+}
+
+void GameEngine::addSystem(std::unique_ptr<ISystem> system) {
+    _systems.emplace_back(std::move(system));
 }
 
 void GameEngine::stop() {

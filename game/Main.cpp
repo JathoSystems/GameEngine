@@ -8,6 +8,41 @@
 #include "GameObjects/Spritesheet/Animator.h"
 #include "UI/Button.h"
 #include "UI/Text.h"
+#include "Input/InputSystem.h"
+#include "GameObjects/Component/KeyInputComponent.h"
+#include "GameObjects/Component/MouseInputComponent.h"
+#include "Input/IKeyListener.h"
+#include "Input/IMouseListener.h"
+
+class TestKeyListener : public IKeyListener {
+public:
+    void onKeyPress(Key key) override {
+        std::cout << "Key pressed: " << static_cast<int>(key) << std::endl;
+    }
+
+    void onKeyRelease(Key key) override {
+        std::cout << "Key released: " << static_cast<int>(key) << std::endl;
+    }
+};
+
+class TestMouseListener : public IMouseListener {
+public:
+    void onMouseMoved(MouseButton button) override {
+        std::cout << "Mouse moved" << std::endl;
+    }
+
+    void onMouseClicked(MouseButton button) override {
+        std::cout << "Mouse clicked: " << static_cast<int>(button) << std::endl;
+    }
+
+    void onMousePressed(MouseButton button) override {
+        std::cout << "Mouse pressed: " << static_cast<int>(button) << std::endl;
+    }
+
+    void onMouseReleased(MouseButton button) override {
+        std::cout << "Mouse released: " << static_cast<int>(button) << std::endl;
+    }
+};
 
 int main() {
     try {
@@ -43,11 +78,32 @@ int main() {
         loader->addComponent(std::move(animator));
         object->addComponent(std::move(btn));
 
+        std::unique_ptr<GameObject> inputTestObject = std::make_unique<GameObject>();
+        std::unique_ptr<KeyInputComponent> keyInput = std::make_unique<KeyInputComponent>(inputTestObject.get());
+        std::unique_ptr<MouseInputComponent> mouseInput = std::make_unique<MouseInputComponent>(inputTestObject.get());
+
+        TestKeyListener keyListener;
+        TestMouseListener mouseListener;
+        keyInput->setListener(&keyListener);
+        mouseInput->setListener(&mouseListener);
+
+        KeyInputComponent *keyInputPtr = keyInput.get();
+        MouseInputComponent *mouseInputPtr = mouseInput.get();
+
+        inputTestObject->addComponent(std::move(keyInput));
+        inputTestObject->addComponent(std::move(mouseInput));
+
         std::unique_ptr<Scene> scene = std::make_unique<Scene>("main");
         scene->addObject(std::move(object));
         scene->addObject(std::move(loader));
+        scene->addObject(std::move(inputTestObject));
+
+        std::unique_ptr<InputSystem> inputSystem = std::make_unique<InputSystem>();
+        inputSystem->registerKeyComponent(keyInputPtr);
+        inputSystem->registerMouseComponent(mouseInputPtr);
 
         engine->addScene(std::move(scene));
+        engine->addSystem(std::move(inputSystem));
         engine->start();
     } catch (const std::exception &e) {
         std::cerr << "Exception: " << e.what() << std::endl;
