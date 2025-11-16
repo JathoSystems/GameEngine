@@ -66,6 +66,9 @@ add_library(Engine SHARED
         src/UI/Color.cpp
         src/UI/Font.cpp
         src/UI/Text.cpp
+        src/Events/EventManager.cpp
+        src/Events/EventRegistry.cpp
+        game/Main.cpp
 )
 
 target_precompile_headers(Engine
