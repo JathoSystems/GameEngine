@@ -10,6 +10,7 @@
 
 #include "Engine/TimeManager.h"
 #include "Scenes/SceneSystem.h"
+#include "Input/InputSystem.h"
 #include "SDL/Window.h"
 
 
@@ -21,6 +22,7 @@ void GameEngine::init(std::string name, int width, int height) {
     _window->openWindow(width, height, name);
 
     _systems.emplace_back(std::make_unique<SceneSystem>(_window));
+    _systems.emplace_back(std::make_unique<InputSystem>());
 
     TTF_Init();
 }
@@ -38,10 +40,6 @@ void GameEngine::start() {
             system->update(deltaTime);
         }
     }
-}
-
-void GameEngine::addSystem(std::unique_ptr<ISystem> system) {
-    _systems.emplace_back(std::move(system));
 }
 
 void GameEngine::stop() {

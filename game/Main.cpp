@@ -98,12 +98,11 @@ int main() {
         scene->addObject(std::move(loader));
         scene->addObject(std::move(inputTestObject));
 
-        std::unique_ptr<InputSystem> inputSystem = std::make_unique<InputSystem>();
-        inputSystem->registerKeyComponent(keyInputPtr);
-        inputSystem->registerMouseComponent(mouseInputPtr);
-
         engine->addScene(std::move(scene));
-        engine->addSystem(std::move(inputSystem));
+
+        engine->getSystem<InputSystem>()->registerKeyComponent(keyInputPtr);
+        engine->getSystem<InputSystem>()->registerMouseComponent(mouseInputPtr);
+
         engine->start();
     } catch (const std::exception &e) {
         std::cerr << "Exception: " << e.what() << std::endl;
