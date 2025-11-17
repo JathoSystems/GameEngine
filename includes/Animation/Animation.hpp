@@ -23,7 +23,7 @@ private:
     float getMaxTime() const;
 
 public:
-    Animation(AnimationType type);
+    Animation(AnimationType type = AnimationType::EIEO);
     void addKeyframe(float time, std::unique_ptr<Keyframe> frame);
     void update(float deltaTime) override;
     void render(const std::unique_ptr<Window> &window) override;
