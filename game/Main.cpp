@@ -16,8 +16,26 @@
 
 class TestKeyListener : public IKeyListener {
 public:
+    Animator *tempAnimator;
     void onKeyPress(Key key) override {
         std::cout << "Key pressed: " << static_cast<int>(key) << std::endl;
+        if (key == Key::ESCAPE) {
+            std::cout << "Escape key pressed, exiting..." << std::endl;
+            exit(0);
+        }
+        if (key == Key::Q) {
+            int newMin = tempAnimator->getMin() + 4;
+            int newMax = tempAnimator->getMax() + 4;
+            int totalFrames = tempAnimator->getTotalFrames();
+
+            if (newMax >= totalFrames) {
+                newMin = 0;
+                newMax = 3;
+            }
+
+            tempAnimator->setMin(newMin);
+            tempAnimator->setMax(newMax);
+        }
     }
 
     void onKeyRelease(Key key) override {
@@ -55,7 +73,7 @@ int main() {
         loader->getTransform()->getPosition()->setY(100);
 
         std::unique_ptr<Animator> animator = std::make_unique<Animator>(
-            "..\\resources\\robot.png", 4, 4);
+            "resources/robot.png", 4, 4);
         animator->setMin(0);
         animator->setMax(3);
 
@@ -83,6 +101,7 @@ int main() {
         std::unique_ptr<MouseInputComponent> mouseInput = std::make_unique<MouseInputComponent>(inputTestObject.get());
 
         TestKeyListener keyListener;
+        keyListener.tempAnimator = tempAnimator;
         TestMouseListener mouseListener;
         keyInput->setListener(&keyListener);
         mouseInput->setListener(&mouseListener);

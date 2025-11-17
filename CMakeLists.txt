@@ -117,3 +117,10 @@ add_custom_command(TARGET GameEngine POST_BUILD
         $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
         $<TARGET_FILE_DIR:GameEngine>
 )
+
+# --- copy resources directory ---
+add_custom_command(TARGET GameEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        $<TARGET_FILE_DIR:GameEngine>/resources
+)
