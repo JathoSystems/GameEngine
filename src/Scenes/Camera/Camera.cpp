@@ -6,6 +6,6 @@ Camera::Camera(std::unique_ptr<Viewport> port) {
     }
 }
 
-const Viewport* Camera::getViewPort() const {
+Viewport * Camera::getViewPort() {
     return _viewport.get();
 }

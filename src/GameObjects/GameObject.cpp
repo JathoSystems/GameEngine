@@ -4,18 +4,14 @@
 
 #include "GameObjects/GameObject.h"
 
-#include <memory>
-
-#include "GameObjects/Component.h"
-
 void GameObject::addComponent(std::unique_ptr<Component> component) {
     component->setParent(this);
     _components.emplace_back(std::move(component));
 }
 
-void GameObject::render(const std::unique_ptr<Window>& window) {
+void GameObject::render(const std::unique_ptr<Window>& window, const Viewport* viewport) {
     for (const std::unique_ptr<Component> & component : _components)
-        component->render(window);
+        component->render(window, viewport);
 }
 
 void GameObject::update() {

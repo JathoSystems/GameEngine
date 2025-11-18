@@ -67,23 +67,29 @@ void SpriteRenderer::update() {
     _rect.h = transform->getSize()->getHeight();
 }
 
-void SpriteRenderer::render(const std::unique_ptr<Window>& window) {
+void SpriteRenderer::render(const std::unique_ptr<Window>& window, const Viewport* viewport) {
     if (!_texture) {
         loadTexture(window);
     }
 
     SDL_Renderer* renderer = window->getRenderer();
     if (renderer && _texture) {
-        // SDL3: SDL_FPoint instead of SDL_Point (uses float)
-        SDL_FPoint center = { _rect.w / 2.0f, _rect.h / 2.0f };
+        // Calculate screen position by subtracting viewport offset
+        SDL_FRect screenRect = _rect;
 
-        // SDL3: SDL_RenderTextureRotated instead of SDL_RenderCopyEx
-        // Note: SDL_FLIP_NONE is now SDL_FLIP_NONE (same name, but check enum)
+        if (viewport) {
+            Position viewportPos = viewport->getPosition();
+            screenRect.x = _rect.x - viewportPos.getX();
+            screenRect.y = _rect.y - viewportPos.getY();
+        }
+
+        SDL_FPoint center = { screenRect.w / 2.0f, screenRect.h / 2.0f };
+
         SDL_RenderTextureRotated(
             renderer,
             _texture,
-            nullptr,           // source rect
-            &_rect,            // destination rect
+            nullptr,
+            &screenRect,  // Use screen position instead of world position
             _parent->getTransform()->getRotation()->getRotation(),
             &center,
             SDL_FLIP_NONE

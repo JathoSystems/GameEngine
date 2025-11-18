@@ -1,12 +1,11 @@
-#ifndef GAMEENGINE_SCENE_H
-#define GAMEENGINE_SCENE_H
+#pragma once
+
 #include <memory>
 #include <vector>
 
 #include "GameObjects/GameObject.h"
 #include "Scenes/Camera/Camera.h"
-
-class Camera;
+#include "SDL/Window.h"
 
 class Scene {
 private:
@@ -26,5 +25,3 @@ public:
 
     void render(const std::unique_ptr<Window> &window);
 };
-
-#endif //GAMEENGINE_SCENE_H

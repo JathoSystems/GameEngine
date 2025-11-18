@@ -1,5 +1,6 @@
 #include "Scenes/Camera/AttachedCamera.h"
 
+
 AttachedCamera::AttachedCamera(std::unique_ptr<Viewport> viewport, GameObject* following)
     : Camera(std::move(viewport)), _following(following) {
 }

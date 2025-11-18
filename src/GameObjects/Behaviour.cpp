@@ -7,5 +7,5 @@ void Behaviour::update() {
     onUpdate();
 }
 
-void Behaviour::render(const std::unique_ptr<Window> &window) {
+void Behaviour::render(const std::unique_ptr<Window> &window, const Viewport *viewport) {
 }

@@ -44,12 +44,20 @@ void GameEngine::start() {
                 auto* sceneSystem = getSystem<SceneSystem>();
 
                 if (event.key.key == SDLK_1) {
-                    sceneSystem->setScene("scene1");
-                    std::cout << "Switched to scene1" << std::endl;
+                    sceneSystem->setScene("fixed_camera_origin");
+                    std::cout << "Switched to: Fixed camera at origin" << std::endl;
                 }
                 if (event.key.key == SDLK_2) {
-                    sceneSystem->setScene("scene2");
-                    std::cout << "Switched to scene2" << std::endl;
+                    sceneSystem->setScene("fixed_camera_offset");
+                    std::cout << "Switched to: Fixed camera with offset" << std::endl;
+                }
+                if (event.key.key == SDLK_3) {
+                    sceneSystem->setScene("attached_camera_moving");
+                    std::cout << "Switched to: Attached camera following moving object" << std::endl;
+                }
+                if (event.key.key == SDLK_4) {
+                    sceneSystem->setScene("attached_camera_rotating");
+                    std::cout << "Switched to: Attached camera with rotation" << std::endl;
                 }
             }
         }

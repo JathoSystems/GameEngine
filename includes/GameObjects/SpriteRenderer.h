@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "Component.h"
+#include "Scenes/Camera/Viewport.h"
 #include "SDL/Window.h"
 
 class SpriteRenderer : public Component {
@@ -24,7 +25,7 @@ public:
 
     void loadTexture(const std::unique_ptr<Window>& window);
     void update() override;
-    void render(const std::unique_ptr<Window> &window) override;
+    void render(const std::unique_ptr<Window> &window, const Viewport* viewport) override;
 };
 
 #endif //GAMEENGINE_SPRITERENDERER_H

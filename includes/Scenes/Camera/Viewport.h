@@ -1,7 +1,8 @@
 #pragma once
-#include "GameObjects/GameObject.h"
+
 #include "GameObjects/Transform/Position.h"
 #include "GameObjects/Transform/Size.h"
+#include "GameObjects/GameObject.h"
 
 class Viewport {
 private:

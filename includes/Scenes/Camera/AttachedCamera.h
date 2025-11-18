@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "GameObjects/GameObject.h"
 
 class AttachedCamera : public Camera {
 private:
