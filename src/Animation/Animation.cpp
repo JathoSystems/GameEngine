@@ -42,7 +42,6 @@ void Animation::update(float deltaTime) {
 void Animation::render(const std::unique_ptr<Window> &window) {
     if (_keyFrames.empty()) return;
 
-    // Tijd binnen de animatie houden (loop)
     float maxTime = getMaxTime();
     float animTime = fmod(_time, maxTime);
 
@@ -53,31 +52,24 @@ void Animation::render(const std::unique_ptr<Window> &window) {
 
     auto it = _keyFrames.lower_bound(animTime);
 
-    // Case 1: animTime valt exact op een keyframe
     if (it != _keyFrames.end() && it->first == animTime) {
         current = it->second.get();
         next = current;
         currentTime = nextTime = animTime;
-    }
-    // Case 2: animTime valt tussen twee keyframes
-    else {
-        // NEXT = eerste keyframe die groter is dan animTime
+    }else {
         if (it != _keyFrames.end()) {
             next = it->second.get();
             nextTime = it->first;
         } else {
-            // Geen volgende → loop naar begin
             next = _keyFrames.begin()->second.get();
             nextTime = _keyFrames.begin()->first;
         }
 
-        // CURRENT = vorige keyframe
         if (it != _keyFrames.begin()) {
             auto prev = std::prev(it);
             current = prev->second.get();
             currentTime = prev->first;
         } else {
-            // animTime < eerste keyframe → current = laatste keyframe (looping)
             auto last = std::prev(_keyFrames.end());
             current = last->second.get();
             currentTime = last->first;

@@ -35,6 +35,13 @@ void Keyframe::transition(IConverter *converter, Transform *prev, Transform *tar
     if (beginScale->getScale() != targetScale->getScale()) {
         currentScale->setScale(converter->convert(beginScale->getScale(), targetScale->getScale(), time));
     }
+
+    Rotation* currentRotation = currentTransform->getRotation();
+    Rotation* beginRotation = prev->getRotation();
+    Rotation* targetRotation = target->getRotation();
+    if (beginRotation->getRotation() != targetRotation->getRotation()) {
+        currentRotation->setRotation(converter->convert(beginRotation->getRotation(), targetRotation->getRotation(), time));
+    }
 }
 
 Transform * Keyframe::getTransform() {
