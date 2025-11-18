@@ -27,7 +27,6 @@ int BounceConverter::convert(int start, int end, float t) {
         v = n1 * t * t + 0.984375f;
     }
 
-    // Map v (0..1) naar start..end en rond netjes af
     float out = static_cast<float>(start) + (static_cast<float>(end) - static_cast<float>(start)) * v;
-    return static_cast<int>(std::lround(out)); // of use floor/cast als je dat wil
+    return static_cast<int>(std::lround(out));
 }
