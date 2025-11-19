@@ -6,6 +6,7 @@
 #include "Rotation.h"
 #include "Scale.h"
 #include "Size.h"
+#include "SDL3/SDL_rect.h"
 
 class Transform {
 private:
@@ -21,6 +22,7 @@ public:
     Rotation* getRotation();
     Scale* getScale();
     Size* getSize();
+    SDL_FRect toFRect();
 };
 
 #endif //GAMEENGINE_TRANSFORM_H

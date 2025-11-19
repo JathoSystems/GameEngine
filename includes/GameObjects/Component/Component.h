@@ -1,6 +1,9 @@
 #ifndef GAMEENGINE_COMPONENT_H
 #define GAMEENGINE_COMPONENT_H
 
+#include "SDL/Window.h"
+#include <memory>
+
 class GameObject;
 class Viewport;
 class Window;
@@ -13,10 +16,9 @@ protected:
 public:
     virtual ~Component() = default;
 
-    virtual void update() = 0;
+    virtual void update(float deltaTime) = 0;
     virtual void render(const std::unique_ptr<Window> &window, const Viewport* viewport) = 0;
 
-    // ToDo: move to seperate CPP file
     void setParent(GameObject *game_object) {
         _parent = game_object;
     }

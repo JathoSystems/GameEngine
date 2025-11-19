@@ -1,39 +1,42 @@
 #include <iostream>
+#include <memory>
+
+#include "Animation/Animation.hpp"
+#include "Engine/GameEngine.h"
 #include "GameObjects/GameObject.h"
-#include "GameObjects/Behaviour.h"
-#include "Scenes/Camera/FixedCamera.h"
-
-class FixedCamera;
-
-class SpriteMovement : public Behaviour {
-private:
-    int _direction = 1;
-
-    void onUpdate() override {
-        Size* size = _parent->getTransform()->getSize();
-        Position* pos = _parent->getTransform()->getPosition();
-        pos->setX(pos->getX() + _direction);
-
-        if ((pos->getX() + size->getWidth()) >= 1000 || pos->getX() <= 0)
-            _direction = -_direction;
-    };
-};
-
-class SpriteRotator : public Behaviour {
-private:
-    int _rot = 0;
-
-    void onUpdate() override {
-        Rotation* rotation = _parent->getTransform()->getRotation();
-        _rot++;
-        if (_rot >= 360) _rot = 0;
-        rotation->setRotation(_rot);
-    };
-};
+#include "Scenes/Scene.h"
+#include "GameObjects/Component/SpriteRenderer.h"
+#include "GameObjects/Spritesheet/Animator.h"
 
 int main() {
     std::cout << "hello Game Engine" << std::endl;
 
+    std::unique_ptr<GameObject> object = std::make_unique<GameObject>();
+    std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>("../resources/sprite.jpeg");
+    object->getTransform()->getSize()->setWidth(100);
+    object->getTransform()->getSize()->setHeight(150);
+    std::unique_ptr<Animation> animation = std::make_unique<Animation>(AnimationType::LERP);
+    std::unique_ptr<Transform> transformA = std::make_unique<Transform>();
+    std::unique_ptr<Transform> transformB = std::make_unique<Transform>();
+    transformB->getPosition()->setX(400);
+    std::unique_ptr<Transform> transformE = std::make_unique<Transform>();
+    transformE->getPosition()->setX(0);
+
+    std::unique_ptr<Keyframe> keyframeA = std::make_unique<Keyframe>(std::move(transformA));
+    std::unique_ptr<Keyframe> keyframeB = std::make_unique<Keyframe>(std::move(transformB));
+    std::unique_ptr<Keyframe> keyframeE = std::make_unique<Keyframe>(std::move(transformE));
+
+    animation->addKeyframe(0, std::move(keyframeA));
+    animation->addKeyframe(1.5, std::move(keyframeB));
+    animation->addKeyframe(5, std::move(keyframeE));
+
+    object->addComponent(std::move(sprite));
+    object->addComponent(std::move(animation));
+
+    std::unique_ptr<Scene> scene = std::make_unique<Scene>("main");
+    scene->addObject(std::move(object));
+    engine->addScene(std::move(scene));
+    engine->start();
+
     return 0;
 }
-

@@ -1,9 +1,9 @@
 //
 // Created by kikker234 on 08-11-2025.
 //
-#include "GameObjects/Behaviour.h"
+#include "../../../includes/GameObjects/Component/Behaviour.h"
 
-void Behaviour::update() {
+void Behaviour::update(float deltaTime) {
     onUpdate();
 }
 

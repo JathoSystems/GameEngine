@@ -3,6 +3,8 @@
 //
 
 #include "GameObjects/GameObject.h"
+#include <memory>
+#include "GameObjects/Component/Component.h"
 
 void GameObject::addComponent(std::unique_ptr<Component> component) {
     component->setParent(this);
@@ -14,9 +16,9 @@ void GameObject::render(const std::unique_ptr<Window>& window, const Viewport* v
         component->render(window, viewport);
 }
 
-void GameObject::update() {
+void GameObject::update(float delta) {
     for (const std::unique_ptr<Component> & component : _components) {
-        component->update();
+        component->update(delta);
     }
 }
 
@@ -28,6 +30,6 @@ int GameObject::getLayer() {
     return _layer;
 }
 
-Transform* GameObject::getTransform() {
+Transform *GameObject::getTransform() {
     return _transform.get();
 }

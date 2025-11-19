@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <vector>
-#include "Component.h"
 #include "Scenes/Camera/Viewport.h"
+#include "Component/Component.h"
 #include "Transform/Transform.h"
 
 class GameObject {
@@ -18,7 +18,7 @@ private:
 public:
     void addComponent(std::unique_ptr<Component> component);
     void render(const std::unique_ptr<Window> &window, const Viewport* viewport);
-    void update();
+    void update(float delta);
     void setLayer(int layer);
     int getLayer();
     Transform* getTransform();

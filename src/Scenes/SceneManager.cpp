@@ -6,8 +6,8 @@ SceneManager::SceneManager() {
 
 }
 
-void SceneManager::render(const std::unique_ptr<Window>& window) {
-    Scene* activeScene = nullptr;
+void SceneManager::render(const std::unique_ptr<Window>& window, float delta) {
+    Scene* currentScene = nullptr;
     for (const auto& scene : _scenes) {
 
         if (scene->getName() == _activeScene) {
@@ -16,8 +16,8 @@ void SceneManager::render(const std::unique_ptr<Window>& window) {
         }
     }
 
-    if (activeScene) {
-        activeScene->render(window);
+    if (currentScene) {
+        currentScene->render(window, delta);
     }
 }
 

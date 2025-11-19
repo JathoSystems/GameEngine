@@ -33,7 +33,7 @@ const std::string & Scene::getName() const {
     return _name;
 }
 
-void Scene::render(const std::unique_ptr<Window> &window) {
+void Scene::render(const std::unique_ptr<Window> &window, float delta) {
     SDL_Renderer* renderer = window->getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -54,7 +54,7 @@ void Scene::render(const std::unique_ptr<Window> &window) {
     }
 
     for (const std::unique_ptr<GameObject> & obj : _objects) {
-        obj->update();
+        obj->update(delta);
         obj->render(window, viewport);
 
         auto cameraPosition = _camera.get()->getPosition();
