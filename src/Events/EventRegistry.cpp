@@ -1,4 +1,5 @@
-#include "EventRegistry.h"
+// src/Events/EventRegistry.cpp
+#include "Events/EventRegistry.h"
 
 EventRegistry* EventRegistry::instance = nullptr;
 

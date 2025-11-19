@@ -2,12 +2,14 @@
 #include "IEvent.h"
 #include <functional>
 
+class NetworkMiddleware;
+
 class EventManager {
 private:
-//    NetworkMiddleware* networkMiddleware;
+    NetworkMiddleware* networkMiddleware = nullptr;
 
 public:
-//    EventManager(NetworkMiddleware* network);
-    
+    EventManager(NetworkMiddleware* network = nullptr);
+
     bool broadcast(IEvent* event);
 };

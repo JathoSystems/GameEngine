@@ -38,9 +38,12 @@ set(SDL3TTF_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_TESTS OFF CACHE BOOL "" FORCE)
 
 # --- Externe libraries ---
-add_subdirectory(external/SDL3 EXCLUDE_FROM_ALL)
-add_subdirectory(external/SDL3_image EXCLUDE_FROM_ALL)
-add_subdirectory(external/SDL3_TTF EXCLUDE_FROM_ALL)
+#add_subdirectory(external/SDL3 EXCLUDE_FROM_ALL)
+#add_subdirectory(external/SDL3_image EXCLUDE_FROM_ALL)
+#add_subdirectory(external/SDL3_TTF EXCLUDE_FROM_ALL)
+find_package(SDL3 REQUIRED CONFIG)
+find_package(SDL3_image REQUIRED CONFIG)
+find_package(SDL3_ttf REQUIRED CONFIG)
 
 # --- Engine library ---
 add_library(Engine SHARED
