@@ -22,7 +22,7 @@ private:
 public:
     SpriteSheet(const std::string &path, int rows, int cols);
 
-    void renderFrame(Window *window, int current_frame, GameObject *parent);
+    void renderFrame(Window *window, int current_frame, GameObject *parent, const Viewport* viewport);
 };
 
 #endif //GAMEENGINE_SPRITESHEET_H

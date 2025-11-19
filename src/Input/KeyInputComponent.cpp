@@ -23,5 +23,5 @@ void KeyInputComponent::handleKeyRelease(Key key) {
 void KeyInputComponent::update(float delta) {
 }
 
-void KeyInputComponent::render(const std::unique_ptr<Window> &window) {
+void KeyInputComponent::render(const std::unique_ptr<Window> &window, const Viewport* viewport) {
 }

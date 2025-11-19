@@ -25,7 +25,7 @@ public:
 
     void setFontSize(int size);
 
-    void render(const std::unique_ptr<Window> &window) override;
+    void render(const std::unique_ptr<Window> &window, const Viewport* viewport) override;
 
     void update(float deltaTime) override;
 };

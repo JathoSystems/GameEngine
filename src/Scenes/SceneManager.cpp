@@ -11,7 +11,7 @@ void SceneManager::render(const std::unique_ptr<Window>& window, float delta) {
     for (const auto& scene : _scenes) {
 
         if (scene->getName() == _activeScene) {
-            activeScene = scene.get();
+            currentScene = scene.get();
             break;
         }
     }

@@ -35,5 +35,5 @@ void MouseInputComponent::handleMouseReleased(MouseButton button) {
 void MouseInputComponent::update(float delta) {
 }
 
-void MouseInputComponent::render(const std::unique_ptr<Window> &window) {
+void MouseInputComponent::render(const std::unique_ptr<Window> &window, const Viewport* viewport) {
 }

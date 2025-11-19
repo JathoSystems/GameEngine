@@ -30,7 +30,7 @@ public:
 
     void update(float deltaTime) override;
 
-    void render(const std::unique_ptr<Window> &window) override;
+    void render(const std::unique_ptr<Window> &window, const Viewport* viewport) override;
 
     void setOnClick(std::function<void()> callback);
 

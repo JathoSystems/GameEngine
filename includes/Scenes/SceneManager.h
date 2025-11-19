@@ -1,8 +1,4 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
 #pragma once
-
 
 #include <memory>
 
@@ -15,8 +11,8 @@ private:
     std::vector<std::unique_ptr<Scene>> _scenes;
 
 public:
+    SceneManager();
     void render(const std::unique_ptr<Window> &window, float delta);
-
     void addScene(std::unique_ptr<Scene> scene);
     void setScene(std::string name);
     std::string getActiveScene();

@@ -2,7 +2,8 @@
 
 #include "GameObjects/Transform/Position.h"
 #include "GameObjects/Transform/Size.h"
-#include "GameObjects/GameObject.h"
+
+class GameObject;
 
 class Viewport {
 private:

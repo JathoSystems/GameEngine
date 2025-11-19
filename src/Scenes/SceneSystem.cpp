@@ -18,5 +18,5 @@ void SceneSystem::setScene(std::string name) {
 }
 
 Scene * SceneSystem::getActiveSceneObj() {
-    _sceneManager.getActiveSceneObj();
+   return _sceneManager.getActiveSceneObj();
 }

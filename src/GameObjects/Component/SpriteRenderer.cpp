@@ -1,7 +1,4 @@
-//
-// Created by kikker234 on 08-11-2025.
-//
-#include "../../../includes/GameObjects/Component/SpriteRenderer.h"
+#include "GameObjects/Component/SpriteRenderer.h"
 #include "SDL/Window.h"
 
 #include <iostream>
@@ -29,6 +26,6 @@ void SpriteRenderer::update(float delta) {
     _texture->transform(_parent->getTransform());
 }
 
-void SpriteRenderer::render(const std::unique_ptr<Window> &window) {
-    _texture->render(window.get());
+void SpriteRenderer::render(const std::unique_ptr<Window> &window, const Viewport* viewport) {
+    _texture->render(window.get(), viewport);
 }

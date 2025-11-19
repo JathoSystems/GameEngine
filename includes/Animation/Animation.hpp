@@ -26,7 +26,7 @@ public:
     Animation(AnimationType type = AnimationType::EIEO);
     void addKeyframe(float time, std::unique_ptr<Keyframe> frame);
     void update(float deltaTime) override;
-    void render(const std::unique_ptr<Window> &window) override;
+    void render(const std::unique_ptr<Window> &window, const Viewport* viewport) override;
 };
 
 #endif //GAMEENGINE_ANIMATION_HPP

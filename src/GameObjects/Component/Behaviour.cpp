@@ -1,7 +1,7 @@
 //
 // Created by kikker234 on 08-11-2025.
 //
-#include "../../../includes/GameObjects/Component/Behaviour.h"
+#include "GameObjects/Component/Behaviour.h"
 
 void Behaviour::update(float deltaTime) {
     onUpdate();

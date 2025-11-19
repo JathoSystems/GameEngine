@@ -25,5 +25,3 @@ public:
 
     void render(const std::unique_ptr<Window> &window, float delta);
 };
-
-#endif //GAMEENGINE_SCENE_H

@@ -1,18 +1,13 @@
-//
-// Created by jusra on 10-11-2025.
-//
 #include "GameObjects/Texture.h"
-
-#include <iostream>
-
 #include "GameObjects/GameObject.h"
+#include "Scenes/Camera/Viewport.h"
 #include "SDL3_image/SDL_image.h"
+#include <iostream>
 
 void Texture::load(Window *window) {
     SDL_Renderer *renderer = window->getRenderer();
     if (!renderer)
         return;
-
 
     SDL_Surface *surface = IMG_Load(_path.c_str());
     if (!surface) {
@@ -47,7 +42,7 @@ Texture::~Texture() {
     }
 }
 
-void Texture::render(Window *window) {
+void Texture::render(Window *window, const Viewport* viewport) {
     SDL_Renderer *renderer = window->getRenderer();
     if (!renderer) {
         return;
@@ -56,15 +51,22 @@ void Texture::render(Window *window) {
     if (!_texture)
         load(window);
 
-    SDL_RenderTexture(renderer, _texture, nullptr, &_rectangle);
+    // Apply viewport offset
+    SDL_FRect screenRect = _rectangle;
+    if (viewport) {
+        Position viewportPos = viewport->getPosition();
+        screenRect.x = _rectangle.x - viewportPos.getX();
+        screenRect.y = _rectangle.y - viewportPos.getY();
+    }
+
+    SDL_RenderTexture(renderer, _texture, nullptr, &screenRect);
 }
 
-void Texture::render(Window* window, Frame* frame, GameObject* parent) {
+void Texture::render(Window* window, Frame* frame, GameObject* parent, const Viewport* viewport) {
     if (!_texture || !frame) {
         load(window);
     }
     if (!frame) return;
-
 
     Size* size = parent->getTransform()->getSize();
     SDL_FRect dstRect;
@@ -72,6 +74,13 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     dstRect.y = parent->getTransform()->getPosition()->getY();
     dstRect.w = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
     dstRect.h = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
+
+    // Apply viewport offset
+    if (viewport) {
+        Position viewportPos = viewport->getPosition();
+        dstRect.x -= viewportPos.getX();
+        dstRect.y -= viewportPos.getY();
+    }
 
     SDL_FRect srcRect;
     srcRect.x = frame->getX();

@@ -57,10 +57,11 @@ void Scene::render(const std::unique_ptr<Window> &window, float delta) {
         obj->update(delta);
         obj->render(window, viewport);
 
-        auto cameraPosition = _camera.get()->getPosition();
-        auto viewPort = _camera->getViewPort()->getPosition();
-        std::cout <<  "Scene: " << _name << " Camera Position: "<< cameraPosition.getX()  << ", " << cameraPosition.getY() << "        ";
-        std::cout << " Viewport Position: "<< viewPort.getX()  << ", " << viewPort.getY() << std::endl;
+        // Debug
+        // auto cameraPosition = _camera.get()->getPosition();
+        // auto viewPort = _camera->getViewPort()->getPosition();
+        // std::cout <<  "Scene: " << _name << " Camera Position: "<< cameraPosition.getX()  << ", " << cameraPosition.getY() << "        ";
+        // std::cout << " Viewport Position: "<< viewPort.getX()  << ", " << viewPort.getY() << std::endl;
     }
 
     SDL_RenderPresent(renderer);
