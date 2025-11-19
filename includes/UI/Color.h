@@ -19,10 +19,10 @@ public:
     Color(int r, int g, int b);
     Color(const std::string& hex);
 
-    std::string toHex();
+    std::string toHex() const;
     void setFromHex(const std::string& hex);
 
-    SDL_Color toSdlColor();
+    SDL_Color toSdlColor() const;
 
     int getR() const;
     void setR(int r);
