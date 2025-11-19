@@ -3,10 +3,6 @@
 #include <vector>
 #include <cstdint>
 
-// Forward declarations
-class GameObject;
-
-// Type alias for serialized data
 using Package = std::vector<uint8_t>;
 using Data = std::vector<uint8_t>;
 

@@ -11,11 +11,9 @@ EventRegistry* EventRegistry::getInstance() {
 }
 
 void EventRegistry::registerEvent(const std::string& name) {
-    // Registration logic - stores event types for later creation
 }
 
 void EventRegistry::createEvent(const std::string& name) {
-    // Create event instance and add to events list
 }
 
 IEvent* EventRegistry::getEvent(const std::string& name) {
