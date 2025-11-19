@@ -10,6 +10,7 @@
 
 #include "Engine/TimeManager.h"
 #include "Scenes/SceneSystem.h"
+#include "Input/InputSystem.h"
 #include "SDL/Window.h"
 
 
@@ -21,6 +22,7 @@ void GameEngine::init(std::string name, int width, int height) {
     _window->openWindow(width, height, name);
 
     _systems.emplace_back(std::make_unique<SceneSystem>(_window));
+    _systems.emplace_back(std::make_unique<InputSystem>());
 
     TTF_Init();
 }
@@ -31,17 +33,8 @@ void GameEngine::start() {
     TimeManager timeManager;
     timeManager.start();
 
-    SDL_Event event;
-
     while (_isRunning) {
         float deltaTime = timeManager.update();
-
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                stop();
-                break;
-            }
-        }
 
         for (const std::unique_ptr<ISystem>& system : _systems) {
             system->update(deltaTime);

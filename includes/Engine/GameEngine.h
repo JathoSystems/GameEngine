@@ -27,6 +27,16 @@ public:
 	void addScene(std::unique_ptr<Scene> scene);
 
 	const std::unique_ptr<Window>& getWindow() const;
+
+	template<typename T>
+	T* getSystem() const {
+		for (const auto& system : _systems) {
+			if (T* castedSystem = dynamic_cast<T*>(system.get())) {
+				return castedSystem;
+			}
+		}
+		return nullptr;
+	}
 };
 
 #endif //GAMEENGINE_GAMEENGINE_H
