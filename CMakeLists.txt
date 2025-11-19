@@ -58,6 +58,9 @@ add_library(Engine SHARED
         src/GameObjects/Transform/Scale.cpp
         src/GameObjects/Transform/Size.cpp
         src/GameObjects/Transform/Transform.cpp
+        src/Input/InputSystem.cpp
+        src/Input/KeyInputComponent.cpp
+        src/Input/MouseInputComponent.cpp
         src/Scenes/Scene.cpp
         src/Scenes/SceneManager.cpp
         src/Scenes/SceneSystem.cpp
@@ -113,4 +116,11 @@ add_custom_command(TARGET GameEngine POST_BUILD
         $<TARGET_FILE:SDL3_image::SDL3_image>
         $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
         $<TARGET_FILE_DIR:GameEngine>
+)
+
+# --- copy resources directory ---
+add_custom_command(TARGET GameEngine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        $<TARGET_FILE_DIR:GameEngine>/resources
 )
