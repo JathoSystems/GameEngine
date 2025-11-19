@@ -69,7 +69,13 @@ add_library(Engine SHARED
         src/UI/Color.cpp
         src/UI/Font.cpp
         src/UI/Text.cpp
-)
+        src/Animation/Animation.cpp
+        src/Animation/Keyframe.cpp
+        src/Animation/Converter/ConverterFactory.cpp
+        src/Animation/Converter/LerpConverter.cpp
+        src/Animation/Converter/EieoConverter.cpp
+        src/Animation/Converter/BounceConverter.cpp
+        src/Animation/Converter/ElasticConvert.cpp)
 
 target_precompile_headers(Engine
         PRIVATE
