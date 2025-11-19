@@ -38,28 +38,6 @@ void GameEngine::start() {
             if (event.type == SDL_EVENT_QUIT) {
                 stop();
             }
-
-            // INPUT HANDLING FOR SCENE TEST SWITCHING LATER ON WILL BE REPLACED BY INPUTSYSTEM
-            if (event.type == SDL_EVENT_KEY_DOWN) {
-                auto* sceneSystem = getSystem<SceneSystem>();
-
-                if (event.key.key == SDLK_1) {
-                    sceneSystem->setScene("fixed_camera_origin");
-                    std::cout << "Switched to: Fixed camera at origin" << std::endl;
-                }
-                if (event.key.key == SDLK_2) {
-                    sceneSystem->setScene("fixed_camera_offset");
-                    std::cout << "Switched to: Fixed camera with offset" << std::endl;
-                }
-                if (event.key.key == SDLK_3) {
-                    sceneSystem->setScene("attached_camera_moving");
-                    std::cout << "Switched to: Attached camera following moving object" << std::endl;
-                }
-                if (event.key.key == SDLK_4) {
-                    sceneSystem->setScene("attached_camera_rotating");
-                    std::cout << "Switched to: Attached camera with rotation" << std::endl;
-                }
-            }
         }
 
         for (const std::unique_ptr<ISystem>& system : _systems) {
