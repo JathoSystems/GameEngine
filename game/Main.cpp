@@ -7,8 +7,6 @@
 #include "Scenes/Scene.h"
 #include "GameObjects/Component/SpriteRenderer.h"
 #include "GameObjects/Spritesheet/Animator.h"
-#include "UI/Button.h"
-#include "UI/Text.h"
 
 int main() {
     std::unique_ptr<GameEngine> engine = std::make_unique<GameEngine>();
