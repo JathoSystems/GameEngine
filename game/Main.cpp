@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 
+#include "Animation/Animation.hpp"
 #include "Engine/GameEngine.h"
 #include "Events/EventManager.h"
 #include "Events/EventRegistry.h"

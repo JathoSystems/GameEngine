@@ -13,9 +13,9 @@ public:
     Color(const std::string& hex);
 
     std::string toHex() const;
-    SDL_Color toSdlColor() const;
-
     void setFromHex(const std::string& hex);
+
+    SDL_Color toSdlColor() const;
 
     int getR() const;
     void setR(int r);

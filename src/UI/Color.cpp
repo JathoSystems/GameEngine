@@ -74,4 +74,3 @@ void Color::setA(int a) {
 int Color::getR() const {
     return _r;
 }
-
