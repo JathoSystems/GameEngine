@@ -1,32 +1,28 @@
-// src/Events/EventRegistry.cpp
 #include "Events/EventRegistry.h"
 
-EventRegistry* EventRegistry::instance = nullptr;
+std::unique_ptr<EventRegistry> EventRegistry::instance = nullptr;
 
 EventRegistry* EventRegistry::getInstance() {
     if (instance == nullptr) {
-        instance = new EventRegistry();
+        instance = std::unique_ptr<EventRegistry>(new EventRegistry());
     }
-    return instance;
+    return instance.get();
 }
 
-void EventRegistry::registerEvent(const std::string& name) {
+void EventRegistry::registerEvent(const std::string& name, std::function<std::shared_ptr<IEvent>()> factory) {
+    factories[name] = factory;
 }
 
 void EventRegistry::createEvent(const std::string& name) {
+    auto factoryIterator = factories.find(name);
+    if (factoryIterator != factories.end()) {
+        events.push_back(factoryIterator->second());
+    }
 }
 
-IEvent* EventRegistry::getEvent(const std::string& name) {
-    for (auto* event : events) {
-        if (event->getName() == name) {
-            return event;
-        }
+std::shared_ptr<IEvent> EventRegistry::getEvent(const std::string& name) {
+    if (!events.empty() && events.back()->getName() == name) {
+        return events.back();
     }
     return nullptr;
-}
-
-EventRegistry::~EventRegistry() {
-    for (auto* event : events) {
-        delete event;
-    }
 }

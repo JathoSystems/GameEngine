@@ -1,7 +1,9 @@
-#pragma once
+#ifndef EVENTS_IEVENT_H
+#define EVENTS_IEVENT_H
 #include <string>
 #include <vector>
-#include <cstdint>
+#include <memory>
+#include "GameObjects/GameObject.h"
 
 using Package = std::vector<uint8_t>;
 using Data = std::vector<uint8_t>;
@@ -12,9 +14,10 @@ protected:
 
 public:
     virtual ~IEvent() = default;
-    
+
     virtual std::string getName() const = 0;
     virtual Package serialize() const = 0;
     virtual Data deserialize(const Package& package) const = 0;
-    virtual void apply(GameObject* gameObject) = 0;
+    virtual void apply(std::shared_ptr<GameObject> gameObject) = 0;
 };
+#endif

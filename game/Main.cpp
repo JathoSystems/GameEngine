@@ -5,9 +5,13 @@
 #include "Events/EventManager.h"
 #include "Events/EventRegistry.h"
 #include "Events/IEvent.h"
+#include "GameObjects/GameObject.h"
 
-// Inline ButtonClickEvent for demonstration
 class ButtonClickEvent : public IEvent {
+private:
+    std::string buttonName;
+    int clickCount;
+
 public:
     ButtonClickEvent(const std::string& btnName, int count)
         : buttonName(btnName), clickCount(count) {
@@ -17,54 +21,99 @@ public:
     std::string getName() const override { return name; }
 
     Package serialize() const override {
-        Package p;
-        uint32_t cnt = static_cast<uint32_t>(clickCount);
-        const uint8_t* cntPtr = reinterpret_cast<const uint8_t*>(&cnt);
-        p.insert(p.end(), cntPtr, cntPtr + sizeof(cnt));
-        return p;
+        Package package;
+        uint32_t count = static_cast<uint32_t>(clickCount);
+        const uint8_t* countPointer = reinterpret_cast<const uint8_t*>(&count);
+        package.insert(package.end(), countPointer, countPointer + sizeof(count));
+        return package;
     }
 
-    Data deserialize(const Package& package) const override { return package; }
-    void apply(GameObject* /*gameObject*/) override { /* no-op */ }
+    Data deserialize(const Package& package) const override {
+        return package;
+    }
+
+    void apply(std::shared_ptr<GameObject> gameObject) override {
+        std::cout << "Applying ButtonClickEvent: " << buttonName
+                  << " clicked " << clickCount << " times" << std::endl;
+    }
 
     const std::string& getButtonName() const { return buttonName; }
     int getClickCount() const { return clickCount; }
+};
 
+class PlayerMoveEvent : public IEvent {
 private:
-    std::string buttonName;
-    int clickCount;
+    float positionX;
+    float positionY;
+
+public:
+    PlayerMoveEvent(float posX, float posY)
+        : positionX(posX), positionY(posY) {
+        name = "PlayerMoveEvent";
+    }
+
+    std::string getName() const override { return name; }
+
+    Package serialize() const override {
+        Package package;
+        const uint8_t* xPointer = reinterpret_cast<const uint8_t*>(&positionX);
+        const uint8_t* yPointer = reinterpret_cast<const uint8_t*>(&positionY);
+        package.insert(package.end(), xPointer, xPointer + sizeof(positionX));
+        package.insert(package.end(), yPointer, yPointer + sizeof(positionY));
+        return package;
+    }
+
+    Data deserialize(const Package& package) const override {
+        return package;
+    }
+
+    void apply(std::shared_ptr<GameObject> gameObject) override {
+        std::cout << "Applying PlayerMoveEvent: Moving to position ("
+                  << positionX << ", " << positionY << ")" << std::endl;
+    }
+
+    float getX() const { return positionX; }
+    float getY() const { return positionY; }
 };
 
 int main() {
     try {
-        std::unique_ptr<GameEngine> engine = std::make_unique<GameEngine>();
-        engine->init("Event System Demo", 800, 600);
+        auto gameEngine = std::make_unique<GameEngine>();
+        gameEngine->init("Event System Demo", 800, 600);
 
-        // Initialize Event System
-        EventManager* eventManager = new EventManager(nullptr);
-        EventRegistry* registry = EventRegistry::getInstance();
+        auto eventManager = std::make_unique<EventManager>(nullptr);
+        EventRegistry* eventRegistry = EventRegistry::getInstance();
 
-        // Create and broadcast an event
-        ButtonClickEvent* testEvent = new ButtonClickEvent("TestButton", 1);
-        eventManager->broadcast(testEvent);
-        std::cout << "Event broadcasted: " << testEvent->getName()
-                  << " for button '" << testEvent->getButtonName()
-                  << "' - Click #" << testEvent->getClickCount() << std::endl;
-        delete testEvent;
+        eventRegistry->registerEvent("ButtonClickEvent", []() {
+            return std::make_shared<ButtonClickEvent>("PlayButton", 1);
+        });
 
-        // Broadcast another event
-        ButtonClickEvent* secondEvent = new ButtonClickEvent("AnotherButton", 2);
-        eventManager->broadcast(secondEvent);
-        std::cout << "Event broadcasted: " << secondEvent->getName()
-                  << " for button '" << secondEvent->getButtonName()
-                  << "' - Click #" << secondEvent->getClickCount() << std::endl;
-        delete secondEvent;
+        eventRegistry->registerEvent("PlayerMoveEvent", []() {
+            return std::make_shared<PlayerMoveEvent>(100.0f, 250.0f);
+        });
 
-        engine->start();
+        eventRegistry->createEvent("ButtonClickEvent");
+        auto buttonClickEvent = eventRegistry->getEvent("ButtonClickEvent");
+        if (buttonClickEvent) {
+            std::cout << "Broadcasting: " << buttonClickEvent->getName() << std::endl;
+            buttonClickEvent->apply(nullptr);
+            eventManager->broadcast(buttonClickEvent);
+        }
 
-        delete eventManager;
-    } catch (const std::exception &e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        std::cout << std::endl;
+
+        eventRegistry->createEvent("PlayerMoveEvent");
+        auto playerMoveEvent = eventRegistry->getEvent("PlayerMoveEvent");
+        if (playerMoveEvent) {
+            std::cout << "Broadcasting: " << playerMoveEvent->getName() << std::endl;
+            playerMoveEvent->apply(nullptr);
+            eventManager->broadcast(playerMoveEvent);
+        }
+
+        gameEngine->start();
+
+    } catch (const std::exception &exception) {
+        std::cerr << "Exception: " << exception.what() << std::endl;
     }
 
     return 0;
