@@ -18,6 +18,14 @@ public:
 
     int getY() const;
     void setY(int y);
+
+    bool operator==(const Position& other) const {
+        return _x == other._x && _y == other._y;
+    }
+
+    bool operator!=(const Position& other) const {
+        return !(*this == other);
+    }
 };
 
 #endif //GAMEENGINE_POSITION_H

@@ -1,120 +1,207 @@
+#include <filesystem>
 #include <iostream>
 #include <memory>
+#include <vector>
+#include <random>
+#include <stack>
+#include <unordered_set>
+#include <algorithm>
+#include <chrono>
 
+#include "AI/pathfinding/IPathfinder.hpp"
+#include "AI/pathfinding/PathfinderFactory.hpp"
 #include "Animation/Animation.hpp"
 #include "Engine/GameEngine.h"
-#include "Events/EventManager.h"
 #include "Events/EventRegistry.h"
-#include "Events/IEvent.h"
 #include "GameObjects/GameObject.h"
+#include "GameObjects/Component/SpriteRenderer.h"
 
-class ButtonClickEvent : public IEvent {
-private:
-    std::string buttonName;
-    int clickCount;
+// ------------------------------
+// CONFIG
+// ------------------------------
+const int MAZE_WIDTH  = 99; // moet oneven zijn
+const int MAZE_HEIGHT = 99; // moet oneven zijn
+const int CELL_SIZE   = 10;
 
-public:
-    ButtonClickEvent(const std::string& btnName, int count)
-        : buttonName(btnName), clickCount(count) {
-        name = "ButtonClickEvent";
+std::vector<std::vector<int>> maze;
+
+// ------------------------------
+// RESOURCE PATH HELPER
+// ------------------------------
+std::string getResourcePath(const std::string& filename) {
+    namespace fs = std::filesystem;
+    static std::unordered_map<std::string, std::string> pathCache;
+
+    auto it = pathCache.find(filename);
+    if (it != pathCache.end()) return it->second;
+
+    std::vector<std::string> searchPaths = {
+        "resources/" + filename,
+        "../resources/" + filename,
+        "../../resources/" + filename,
+        "./GameEngine/resources/" + filename,
+        "../GameEngine/resources/" + filename,
+        fs::current_path().string() + "/resources/" + filename
+    };
+
+    for (const auto& path : searchPaths) {
+        if (fs::exists(path)) {
+            pathCache[filename] = path;
+            return path;
+        }
     }
 
-    std::string getName() const override { return name; }
+    pathCache[filename] = "resources/" + filename;
+    return "resources/" + filename;
+}
 
-    Package serialize() const override {
-        Package package;
-        uint32_t count = static_cast<uint32_t>(clickCount);
-        const uint8_t* countPointer = reinterpret_cast<const uint8_t*>(&count);
-        package.insert(package.end(), countPointer, countPointer + sizeof(count));
-        return package;
+// ------------------------------
+// MAZE GENERATOR
+// ------------------------------
+void generateMaze() {
+    std::cout << "[MAZE] Generating maze...\n";
+    maze.assign(MAZE_HEIGHT, std::vector<int>(MAZE_WIDTH, 1));
+
+    std::stack<std::pair<int,int>> stack;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    int startX = 1, startY = 1;
+    maze[startY][startX] = 0;
+    stack.push({startX, startY});
+
+    int dx[] = {2, -2, 0, 0};
+    int dy[] = {0, 0, 2, -2};
+
+    while (!stack.empty()) {
+        auto [x, y] = stack.top();
+        std::vector<int> dirs;
+
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx > 0 && nx < MAZE_WIDTH-1 && ny > 0 && ny < MAZE_HEIGHT-1 && maze[ny][nx] == 1)
+                dirs.push_back(i);
+        }
+
+        if (dirs.empty()) {
+            stack.pop();
+            continue;
+        }
+
+        std::uniform_int_distribution<int> dist(0, dirs.size() - 1);
+        int dir = dirs[dist(gen)];
+        int nx = x + dx[dir];
+        int ny = y + dy[dir];
+
+        maze[y + dy[dir]/2][x + dx[dir]/2] = 0; // verwijder muur
+        maze[ny][nx] = 0;
+
+        stack.push({nx, ny});
     }
+}
 
-    Data deserialize(const Package& package) const override {
-        return package;
+// ------------------------------
+// CLEAR MAZE FROM SCENE
+// ------------------------------
+void clearMaze(Scene* scene) {
+    auto& objects = scene->getObjects();
+    objects.erase(
+        std::remove_if(objects.begin(), objects.end(),
+            [](const std::unique_ptr<GameObject>& obj){
+                return obj->hasComponent<SpriteRenderer>(); // veronderstel dat walls/path SpriteRenderer hebben
+            }),
+        objects.end()
+    );
+}
+
+// ------------------------------
+// CREATE MAZE IN SCENE
+// ------------------------------
+void createMaze(Scene* scene, const std::string& wallTexture) {
+    for (int y = 0; y < MAZE_HEIGHT; y++) {
+        for (int x = 0; x < MAZE_WIDTH; x++) {
+            if (maze[y][x] == 1) {
+                auto wall = std::make_unique<GameObject>();
+                auto renderer = std::make_unique<SpriteRenderer>(wallTexture);
+
+                wall->getTransform()->getPosition()->setX(x * CELL_SIZE);
+                wall->getTransform()->getPosition()->setY(y * CELL_SIZE);
+                wall->getTransform()->getSize()->setWidth(CELL_SIZE);
+                wall->getTransform()->getSize()->setHeight(CELL_SIZE);
+
+                wall->addComponent(std::move(renderer));
+                scene->addObject(std::move(wall));
+            }
+        }
     }
+}
 
-    void apply(std::shared_ptr<GameObject> gameObject) override {
-        std::cout << "Applying ButtonClickEvent: " << buttonName
-                  << " clicked " << clickCount << " times" << std::endl;
+// ------------------------------
+// VISUALIZE PATH
+// ------------------------------
+void visualizePath(Scene* scene,
+                   const std::vector<std::unique_ptr<Position>>& path,
+                   const std::string& pathTexture) {
+    for (const auto& pos : path) {
+        auto marker = std::make_unique<GameObject>();
+        auto renderer = std::make_unique<SpriteRenderer>(pathTexture);
+
+        marker->getTransform()->getPosition()->setX(pos->getX() * CELL_SIZE);
+        marker->getTransform()->getPosition()->setY(pos->getY() * CELL_SIZE);
+        marker->getTransform()->getSize()->setWidth(CELL_SIZE);
+        marker->getTransform()->getSize()->setHeight(CELL_SIZE);
+
+        marker->addComponent(std::move(renderer));
+        scene->addObject(std::move(marker));
     }
+}
 
-    const std::string& getButtonName() const { return buttonName; }
-    int getClickCount() const { return clickCount; }
-};
-
-class PlayerMoveEvent : public IEvent {
-private:
-    float positionX;
-    float positionY;
-
-public:
-    PlayerMoveEvent(float posX, float posY)
-        : positionX(posX), positionY(posY) {
-        name = "PlayerMoveEvent";
-    }
-
-    std::string getName() const override { return name; }
-
-    Package serialize() const override {
-        Package package;
-        const uint8_t* xPointer = reinterpret_cast<const uint8_t*>(&positionX);
-        const uint8_t* yPointer = reinterpret_cast<const uint8_t*>(&positionY);
-        package.insert(package.end(), xPointer, xPointer + sizeof(positionX));
-        package.insert(package.end(), yPointer, yPointer + sizeof(positionY));
-        return package;
-    }
-
-    Data deserialize(const Package& package) const override {
-        return package;
-    }
-
-    void apply(std::shared_ptr<GameObject> gameObject) override {
-        std::cout << "Applying PlayerMoveEvent: Moving to position ("
-                  << positionX << ", " << positionY << ")" << std::endl;
-    }
-
-    float getX() const { return positionX; }
-    float getY() const { return positionY; }
-};
-
+// ------------------------------
+// MAIN
+// ------------------------------
 int main() {
     try {
-        auto gameEngine = std::make_unique<GameEngine>();
-        gameEngine->init("Event System Demo", 800, 600);
+        auto engine = std::make_unique<GameEngine>();
+        engine->init("A* Pathfinding Maze Demo", 1800, 1000);
 
-        auto eventManager = std::make_unique<EventManager>(nullptr);
-        EventRegistry* eventRegistry = EventRegistry::getInstance();
+        auto scene = std::make_unique<Scene>("main");
 
-        eventRegistry->registerEvent("ButtonClickEvent", []() {
-            return std::make_shared<ButtonClickEvent>("PlayButton", 1);
+        std::string wallTexture = getResourcePath("square_blue.png");
+        std::string pathTexture = getResourcePath("square.png");
+
+        generateMaze();
+        Position start(1,1);
+        Position end(MAZE_WIDTH-2, MAZE_HEIGHT-2);
+        maze[start.getY()][start.getX()] = 0;
+        maze[end.getY()][end.getX()] = 0;
+
+        createMaze(scene.get(), wallTexture);
+
+        auto pathfinder = PathfinderFactory::getPathfinder();
+        auto path = pathfinder->getPath(scene.get(), start, end, CELL_SIZE);
+        if (!path.empty()) visualizePath(scene.get(), path, pathTexture);
+
+        // Voeg keypress callback toe
+        engine->setKeyPressedCallback([&](int key){
+            if (key == 'Q' || key == 'q') {
+                std::cout << "[INPUT] Q pressed - regenerating maze\n";
+                clearMaze(scene.get());
+                generateMaze();
+                maze[start.getY()][start.getX()] = 0;
+                maze[end.getY()][end.getX()] = 0;
+                createMaze(scene.get(), wallTexture);
+
+                auto newPath = pathfinder->getPath(scene.get(), start, end, CELL_SIZE);
+                if (!newPath.empty()) visualizePath(scene.get(), newPath, pathTexture);
+            }
         });
 
-        eventRegistry->registerEvent("PlayerMoveEvent", []() {
-            return std::make_shared<PlayerMoveEvent>(100.0f, 250.0f);
-        });
-
-        eventRegistry->createEvent("ButtonClickEvent");
-        auto buttonClickEvent = eventRegistry->getEvent("ButtonClickEvent");
-        if (buttonClickEvent) {
-            std::cout << "Broadcasting: " << buttonClickEvent->getName() << std::endl;
-            buttonClickEvent->apply(nullptr);
-            eventManager->broadcast(buttonClickEvent);
-        }
-
-        std::cout << std::endl;
-
-        eventRegistry->createEvent("PlayerMoveEvent");
-        auto playerMoveEvent = eventRegistry->getEvent("PlayerMoveEvent");
-        if (playerMoveEvent) {
-            std::cout << "Broadcasting: " << playerMoveEvent->getName() << std::endl;
-            playerMoveEvent->apply(nullptr);
-            eventManager->broadcast(playerMoveEvent);
-        }
-
-        gameEngine->start();
-
-    } catch (const std::exception &exception) {
-        std::cerr << "Exception: " << exception.what() << std::endl;
+        engine->addScene(std::move(scene));
+        engine->start();
+    }
+    catch (const std::exception &e) {
+        std::cerr << "[EXCEPTION] " << e.what() << "\n";
     }
 
     return 0;
