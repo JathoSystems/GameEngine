@@ -1,15 +1,14 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #ifndef GAMEENGINE_GAMEOBJECT_H
 #define GAMEENGINE_GAMEOBJECT_H
+
 #include <memory>
 #include <vector>
+#include "Scenes/Camera/Viewport.h"
 #include "Component/Component.h"
 #include "Transform/Transform.h"
 
 class GameObject {
+
 private:
     int _layer = 1;
     std::unique_ptr<GameObject> _parent;
@@ -22,8 +21,7 @@ public:
     void update(float delta);
     void setLayer(int layer);
     int getLayer();
-
-    Transform *getTransform();
+    Transform* getTransform();
 };
 
 #endif //GAMEENGINE_GAMEOBJECT_H

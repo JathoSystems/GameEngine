@@ -1,7 +1,4 @@
-//
-// Created by kikker234 on 08-11-2025.
-//
-#include "../../../includes/GameObjects/Component/SpriteRenderer.h"
+#include "GameObjects/Component/SpriteRenderer.h"
 #include "SDL/Window.h"
 
 #include <iostream>

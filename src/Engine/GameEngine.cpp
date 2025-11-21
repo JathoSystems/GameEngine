@@ -46,15 +46,6 @@ void GameEngine::stop() {
     _isRunning = false;
 }
 
-void GameEngine::addScene(std::unique_ptr<Scene> scene) {
-    for (std::unique_ptr<ISystem>& system : _systems) {
-        if (dynamic_cast<SceneSystem*>(system.get())) {
-            SceneSystem* sceneSystem = dynamic_cast<SceneSystem*>(system.get());
-            sceneSystem->addScene(std::move(scene));
-        }
-    }
-}
-
 const std::unique_ptr<Window> & GameEngine::getWindow() const {
     return _window;
 }

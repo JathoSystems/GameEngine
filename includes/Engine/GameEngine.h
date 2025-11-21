@@ -1,14 +1,9 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #ifndef GAMEENGINE_GAMEENGINE_H
 #define GAMEENGINE_GAMEENGINE_H
 #include <memory>
 #include <vector>
 
 #include "ISystem.h"
-#include "../Scenes/Scene.h"
 #include "SDL/Window.h"
 
 class GameEngine {
@@ -23,16 +18,13 @@ public:
 	void init(std::string name, int width, int height);
 	void start();
 	void stop();
-
-	void addScene(std::unique_ptr<Scene> scene);
-
 	const std::unique_ptr<Window>& getWindow() const;
 
-	template<typename T>
-	T* getSystem() const {
-		for (const auto& system : _systems) {
-			if (T* castedSystem = dynamic_cast<T*>(system.get())) {
-				return castedSystem;
+
+	template<typename T>  T* getSystem() {
+		for (auto& system : _systems) {
+			if (T* casted = dynamic_cast<T*>(system.get())) {
+				return casted;
 			}
 		}
 		return nullptr;

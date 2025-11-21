@@ -35,6 +35,14 @@ SDL_Renderer *Window::getRenderer() {
     return _renderer;
 }
 
+void Window::setActiveViewport(const Viewport *viewport) {
+    _activeViewport = viewport;
+}
+
+const Viewport * Window::getActiveViewport() const {
+    return _activeViewport;
+}
+
 Window::~Window() {
     if (_renderer) SDL_DestroyRenderer(_renderer);
     if (_window) SDL_DestroyWindow(_window);

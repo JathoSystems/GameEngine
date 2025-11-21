@@ -30,7 +30,6 @@ void SpriteSheet::renderFrame(Window *window, int current_frame, GameObject *par
         initFrames(_texture);
     }
 
-
     try {
         Frame &frame = *_frames.at(current_frame);
 

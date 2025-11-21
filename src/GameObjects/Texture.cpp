@@ -1,18 +1,13 @@
-//
-// Created by jusra on 10-11-2025.
-//
 #include "GameObjects/Texture.h"
-
-#include <iostream>
-
 #include "GameObjects/GameObject.h"
+#include "Scenes/Camera/Viewport.h"
 #include "SDL3_image/SDL_image.h"
+#include <iostream>
 
 void Texture::load(Window *window) {
     SDL_Renderer *renderer = window->getRenderer();
     if (!renderer)
         return;
-
 
     SDL_Surface *surface = IMG_Load(_path.c_str());
     if (!surface) {
@@ -53,10 +48,24 @@ void Texture::render(Window *window) {
         return;
     }
 
+    const Viewport* viewport = window->getActiveViewport();
+    if (!viewport) {
+        std::cout << "ViewPort null" << std::endl;
+        return;
+    }
+
     if (!_texture)
         load(window);
 
-    SDL_RenderTexture(renderer, _texture, nullptr, &_rectangle);
+
+    SDL_FRect screenRect = _rectangle;
+    if (viewport) {
+        Position viewportPos = viewport->getPosition();
+        screenRect.x = _rectangle.x - viewportPos.getX();
+        screenRect.y = _rectangle.y - viewportPos.getY();
+    }
+
+    SDL_RenderTexture(renderer, _texture, nullptr, &screenRect);
 }
 
 void Texture::render(Window* window, Frame* frame, GameObject* parent) {
@@ -65,11 +74,22 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     }
     if (!frame) return;
 
+    const Viewport* viewport = window->getActiveViewport();
 
     Size* size = parent->getTransform()->getSize();
+    Position* pos = parent->getTransform()->getPosition();
+
     SDL_FRect dstRect;
-    dstRect.x = parent->getTransform()->getPosition()->getX();
-    dstRect.y = parent->getTransform()->getPosition()->getY();
+    dstRect.x = pos->getX();
+    dstRect.y = pos->getY();
+
+    // Apply viewport offset
+    if (viewport) {
+        Position viewportPos = viewport->getPosition();
+        dstRect.x -= viewportPos.getX();
+        dstRect.y -= viewportPos.getY();
+    }
+
     dstRect.w = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
     dstRect.h = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
 

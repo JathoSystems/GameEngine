@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "Component.h"
+#include "Scenes/Camera/Viewport.h"
 #include "../Texture.h"
 #include "SDL/Window.h"
 
@@ -20,6 +21,7 @@ private:
 public:
     SpriteRenderer(std::string path);
 
+    void loadTexture(const std::unique_ptr<Window>& window);
     void update(float delta) override;
     void render(const std::unique_ptr<Window> &window) override;
 };
