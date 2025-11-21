@@ -7,5 +7,5 @@ void Behaviour::update(float deltaTime) {
     onUpdate();
 }
 
-void Behaviour::render(const std::unique_ptr<Window> &window, const Viewport *viewport) {
+void Behaviour::render(const std::unique_ptr<Window> &window) {
 }

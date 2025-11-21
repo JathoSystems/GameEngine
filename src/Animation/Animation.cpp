@@ -39,7 +39,7 @@ void Animation::update(float deltaTime) {
     }
 }
 
-void Animation::render(const std::unique_ptr<Window> &window , const Viewport* viewport) {
+void Animation::render(const std::unique_ptr<Window> &window) {
     if (_keyFrames.empty()) return;
 
     float maxTime = getMaxTime();

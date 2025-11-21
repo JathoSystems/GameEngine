@@ -23,7 +23,7 @@ public:
 
     void loadTexture(const std::unique_ptr<Window>& window);
     void update(float delta) override;
-    void render(const std::unique_ptr<Window> &window, const Viewport* viewport) override;
+    void render(const std::unique_ptr<Window> &window) override;
 };
 
 #endif //GAMEENGINE_SPRITERENDERER_H

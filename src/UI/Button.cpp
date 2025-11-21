@@ -69,7 +69,7 @@ void Button::update(float deltaTime) {
     wasPressed = isPressed;
 }
 
-void Button::render(const std::unique_ptr<Window> &window, const Viewport* viewport) {
+void Button::render(const std::unique_ptr<Window> &window) {
     if (!window || !_backgroundColor) return;
 
     SDL_Renderer *renderer = window->getRenderer();

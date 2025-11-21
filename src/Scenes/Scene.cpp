@@ -38,30 +38,28 @@ void Scene::render(const std::unique_ptr<Window> &window, float delta) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    // Update viewport position based on camera
-    Viewport* viewport = nullptr;
+    const Viewport* viewport = nullptr;
     if (_camera) {
         auto cameraPosition = _camera->getPosition();
-        viewport = _camera->getViewPort();
+        Viewport* vp = _camera->getViewPort();
 
-        if (viewport) {
+        if (vp) {
             Position viewportPos(
-                cameraPosition.getX() - viewport->getSize().getWidth() / 2,
-                cameraPosition.getY() - viewport->getSize().getHeight() / 2
+                cameraPosition.getX() - vp->getSize().getWidth() / 2,
+                cameraPosition.getY() - vp->getSize().getHeight() / 2
             );
-            viewport->setPosition(viewportPos);
+            vp->setPosition(viewportPos);
+            viewport = vp;
+            window->setActiveViewport(viewport);
         }
     }
 
     for (const std::unique_ptr<GameObject> & obj : _objects) {
         obj->update(delta);
-        obj->render(window, viewport);
 
-        // Debug
-        // auto cameraPosition = _camera.get()->getPosition();
-        // auto viewPort = _camera->getViewPort()->getPosition();
-        // std::cout <<  "Scene: " << _name << " Camera Position: "<< cameraPosition.getX()  << ", " << cameraPosition.getY() << "        ";
-        // std::cout << " Viewport Position: "<< viewPort.getX()  << ", " << viewPort.getY() << std::endl;
+        if (!viewport || viewport->isInViewPort(obj.get())) {
+            obj->render(window);
+        }
     }
 
     SDL_RenderPresent(renderer);

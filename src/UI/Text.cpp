@@ -27,7 +27,7 @@ void Text::setFontSize(int size) {
     _font->setSize(size);
 }
 
-void Text::render(const std::unique_ptr<Window>& window, const Viewport* viewport) {
+void Text::render(const std::unique_ptr<Window>& window) {
     if (!window || !window->getRenderer() || !_font || !_color || !_parent) return;
 
     TTF_Font* sdlFont = _font->getSdlFont();

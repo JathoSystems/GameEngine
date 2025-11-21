@@ -26,6 +26,6 @@ void SpriteRenderer::update(float delta) {
     _texture->transform(_parent->getTransform());
 }
 
-void SpriteRenderer::render(const std::unique_ptr<Window> &window, const Viewport* viewport) {
-    _texture->render(window.get(), viewport);
+void SpriteRenderer::render(const std::unique_ptr<Window> &window) {
+    _texture->render(window.get());
 }

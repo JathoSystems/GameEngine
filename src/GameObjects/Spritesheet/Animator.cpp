@@ -28,8 +28,8 @@ void Animator::update(float deltaTime) {
 }
 
 
-void Animator::render(const std::unique_ptr<Window> &window, const Viewport* viewport) {
-    _sheet->renderFrame(window.get(), _currentFrame, _parent, viewport);
+void Animator::render(const std::unique_ptr<Window> &window) {
+    _sheet->renderFrame(window.get(), _currentFrame, _parent);
 }
 
 void Animator::setMin(int min) {

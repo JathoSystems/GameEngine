@@ -17,7 +17,7 @@ private:
 
 public:
     void addComponent(std::unique_ptr<Component> component);
-    void render(const std::unique_ptr<Window> &window, const Viewport* viewport);
+    void render(const std::unique_ptr<Window> &window);
     void update(float delta);
     void setLayer(int layer);
     int getLayer();

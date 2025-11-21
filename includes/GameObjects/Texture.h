@@ -24,8 +24,8 @@ public:
     ~Texture();
 
     void load(Window* window);
-    void render(Window* window, const Viewport* viewport = nullptr);
-    void render(Window* window, Frame* frame, GameObject* parent, const Viewport* viewport = nullptr);
+    void render(Window* window);
+    void render(Window* window, Frame* frame, GameObject* parent);
     void transform(Transform* transform);
     SDL_Texture* getTexture(Window* window);
 

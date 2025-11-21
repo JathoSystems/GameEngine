@@ -11,9 +11,9 @@ void GameObject::addComponent(std::unique_ptr<Component> component) {
     _components.emplace_back(std::move(component));
 }
 
-void GameObject::render(const std::unique_ptr<Window>& window, const Viewport* viewport) {
+void GameObject::render(const std::unique_ptr<Window>& window) {
     for (const std::unique_ptr<Component> & component : _components)
-        component->render(window, viewport);
+        component->render(window);
 }
 
 void GameObject::update(float delta) {
