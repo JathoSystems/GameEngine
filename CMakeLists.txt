@@ -76,10 +76,14 @@ add_library(Engine SHARED
         src/Animation/Converter/EieoConverter.cpp
         src/Animation/Converter/BounceConverter.cpp
         src/Animation/Converter/ElasticConvert.cpp
+        src/Events/EventManager.cpp
+        src/Events/EventRegistry.cpp
         src/Scenes/Camera/Camera.cpp
         src/Scenes/Camera/FixedCamera.cpp
         src/Scenes/Camera/AttachedCamera.cpp
-        src/Scenes/Camera/Viewport.cpp)
+        src/Scenes/Camera/Viewport.cpp
+        game/Main.cpp
+)
 
 target_precompile_headers(Engine
         PRIVATE

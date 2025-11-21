@@ -5,16 +5,9 @@
 #ifndef GAMEENGINE_COLOR_H
 #define GAMEENGINE_COLOR_H
 #include <string>
-
-#include "SDL3/SDL_pixels.h"
+#include <SDL3/SDL.h>
 
 class Color {
-private:
-    int _r = 255;
-    int _g = 0;
-    int _b = 0;
-    int _a = 255;
-
 public:
     Color(int r, int g, int b);
     Color(const std::string& hex);
@@ -26,12 +19,21 @@ public:
 
     int getR() const;
     void setR(int r);
+
     int getG() const;
     void setG(int g);
+
     int getB() const;
     void setB(int b);
+
     int getA() const;
     void setA(int a);
+
+private:
+    int _r;
+    int _g;
+    int _b;
+    int _a;
 };
 
 #endif //GAMEENGINE_COLOR_H
