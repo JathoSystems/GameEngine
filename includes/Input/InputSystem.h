@@ -8,6 +8,8 @@
 #include <vector>
 #include <memory>
 
+#include "GameObjects/Transform/Position.h"
+
 class KeyInputComponent;
 class MouseInputComponent;
 
@@ -34,6 +36,8 @@ public:
     void processInput();
 
     void update(float deltaTime) override;
+
+    std::unique_ptr<Position> getMousePosition() const;
 };
 
 #endif

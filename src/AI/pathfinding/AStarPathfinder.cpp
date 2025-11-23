@@ -6,209 +6,273 @@
 #include <cmath>
 #include <unordered_set>
 #include <queue>
-
-// --- Optimized Node struct ---
-struct Node {
-    Position pos;
-    int gCost;
-    int hCost;
-    int fCost;
-    Node* parent;
-
-    Node(const Position& p, int g, int h, Node* par = nullptr)
-        : pos(p), gCost(g), hCost(h), fCost(g + h), parent(par) {}
-};
-
-// Priority queue comparator
-struct NodeCmp {
-    bool operator()(Node* a, Node* b) const {
-        return (a->fCost > b->fCost) || (a->fCost == b->fCost && a->hCost > b->hCost);
-    }
-};
-
-// Position hash for unordered_set
-struct PosHash {
-    std::size_t operator()(const Position& p) const {
-        return std::hash<int>()(p.getX()) ^ (std::hash<int>()(p.getY()) << 1);
-    }
-};
-
-struct PosEqual {
-    bool operator()(const Position& a, const Position& b) const {
-        return a.getX() == b.getX() && a.getY() == b.getY();
-    }
-};
+#include <iostream>
+#include <unordered_map>
 
 // Fast manhattan distance
 static inline int manhattan(const Position& a, const Position& b) {
     return std::abs(a.getX() - b.getX()) + std::abs(a.getY() - b.getY());
 }
 
-// Build spatial grid for faster collision detection
-struct SpatialGrid {
-    std::vector<std::vector<bool>> blocked;
-    int width, height, cellSize;
+// Node voor A* algoritme
+struct Node {
+    Position pos;
+    int g;  // Cost from start
+    int h;  // Heuristic to end
+    int f;  // Total cost (g + h)
+    Node* parent;
 
-    SpatialGrid(Scene* scene, int w, int h, int cs) : width(w), height(h), cellSize(cs) {
-        blocked.resize(h, std::vector<bool>(w, false));
+    Node(const Position& p, int gCost, int hCost, Node* par = nullptr)
+        : pos(p), g(gCost), h(hCost), f(gCost + hCost), parent(par) {}
 
-        for(auto& obj : scene->getObjects()) {
-            Position* objPos = obj->getTransform()->getPosition();
-            Size* objSize = obj->getTransform()->getSize();
-
-            int ox = objPos->getX();
-            int oy = objPos->getY();
-            int ow = objSize->getWidth();
-            int oh = objSize->getHeight();
-
-            // Calculate grid cell range that could overlap with this object
-            // Grid position (gx, gy) corresponds to pixel position (gx * cellSize, gy * cellSize)
-            int minGx = ox / cellSize;
-            int maxGx = (ox + ow + cellSize - 1) / cellSize;
-            int minGy = oy / cellSize;
-            int maxGy = (oy + oh + cellSize - 1) / cellSize;
-
-            // Clamp to grid bounds
-            minGx = std::max(0, minGx);
-            maxGx = std::min(width, maxGx);
-            minGy = std::max(0, minGy);
-            maxGy = std::min(height, maxGy);
-
-            // Mark cells that overlap with the object
-            for(int gy = minGy; gy < maxGy; ++gy) {
-                for(int gx = minGx; gx < maxGx; ++gx) {
-                    int px = gx * cellSize;
-                    int py = gy * cellSize;
-
-                    // Check if this grid cell (which represents a point at px,py)
-                    // overlaps with the object bounds
-                    bool overlaps = px < ox + ow &&
-                                   px + cellSize > ox &&
-                                   py < oy + oh &&
-                                   py + cellSize > oy;
-
-                    if(overlaps) {
-                        blocked[gy][gx] = true;
-                    }
-                }
-            }
-        }
-    }
-
-    inline bool isBlocked(int x, int y) const {
-        return x < 0 || x >= width || y < 0 || y >= height || blocked[y][x];
+    // Voor priority queue (min-heap)
+    bool operator>(const Node& other) const {
+        return f > other.f;
     }
 };
 
-// Calculate maze bounds
-static void getMazeBounds(Scene* scene, int& maxX, int& maxY, int cellSize) {
-    maxX = 0;
-    maxY = 0;
+// Hash functie voor Position in unordered_set
+struct PositionHash {
+    size_t operator()(const Position& p) const {
+        return std::hash<int>()(p.getX()) ^ (std::hash<int>()(p.getY()) << 1);
+    }
+};
 
-    for(auto& obj : scene->getObjects()) {
-        int gridX = obj->getTransform()->getPosition()->getX() / cellSize;
-        int gridY = obj->getTransform()->getPosition()->getY() / cellSize;
-        maxX = std::max(maxX, gridX);
-        maxY = std::max(maxY, gridY);
+// Equality voor Position
+struct PositionEqual {
+    bool operator()(const Position& a, const Position& b) const {
+        return a.getX() == b.getX() && a.getY() == b.getY();
+    }
+};
+
+// Check of een positie walkable is
+static bool isWalkable(Scene* scene, const Position& pos, int cellSize) {
+    return true;
+    if (!scene) {
+        std::cout << "  [isWalkable] Scene is null!" << std::endl;
+        return false;
     }
 
-    maxX += 2;
-    maxY += 2;
+    // Haal alle GameObjects op de scene
+    const auto& objects = scene->getObjects();
+
+    std::cout << "  [isWalkable] Checking grid (" << pos.getX() << ", " << pos.getY()
+              << ") -> world (" << pos.getX() * cellSize << ", " << pos.getY() * cellSize
+              << ") against " << objects.size() << " objects" << std::endl;
+
+    for (const auto& obj : objects) {
+        if (!obj) continue;
+
+        // if (!obj->isSolid()) {
+            // std::cout << "    Object at (" << obj->getPosition().getX() << ", "
+                      // << obj->getPosition().getY() << ") is NOT solid, skipping" << std::endl;
+            // continue;
+        // }
+
+        const Position& objPos = *obj->getTransform()->getPosition();
+        int objX = objPos.getX();
+        int objY = objPos.getY();
+        int objWidth = obj->getTransform()->getSize()->getWidth();
+        int objHeight = obj->getTransform()->getSize()->getHeight();
+
+        // Check overlap met grid cell
+        int cellX = pos.getX() * cellSize;
+        int cellY = pos.getY() * cellSize;
+
+        std::cout << "    Checking solid object: pos(" << objX << ", " << objY
+                  << ") size(" << objWidth << "x" << objHeight << ")" << std::endl;
+        std::cout << "      Cell: (" << cellX << ", " << cellY
+                  << ") to (" << cellX + cellSize << ", " << cellY + cellSize << ")" << std::endl;
+
+        if (cellX < objX + objWidth &&
+            cellX + cellSize > objX &&
+            cellY < objY + objHeight &&
+            cellY + cellSize > objY) {
+            std::cout << "      COLLISION! Cell is blocked" << std::endl;
+            return false;
+        }
+    }
+
+    std::cout << "  [isWalkable] Cell is WALKABLE" << std::endl;
+    return true;
 }
 
-// --- Optimized A* implementation ---
 std::vector<std::unique_ptr<Position>> AStarPathfinder::getPath(Scene* scene,
                                                                 const Position& start,
                                                                 const Position& end,
                                                                 int cellSize) {
-    int mazeWidth, mazeHeight;
-    getMazeBounds(scene, mazeWidth, mazeHeight, cellSize);
+    std::vector<std::unique_ptr<Position>> path;
 
-    // Validate bounds
-    if(start.getX() < 0 || start.getX() >= mazeWidth ||
-       start.getY() < 0 || start.getY() >= mazeHeight ||
-       end.getX() < 0 || end.getX() >= mazeWidth ||
-       end.getY() < 0 || end.getY() >= mazeHeight) {
-        return {};
+    std::cout << "\n=== A* Pathfinding Debug ===" << std::endl;
+    std::cout << "Start: (" << start.getX() << ", " << start.getY() << ")" << std::endl;
+    std::cout << "End: (" << end.getX() << ", " << end.getY() << ")" << std::endl;
+    std::cout << "Cell size: " << cellSize << std::endl;
+
+    if (!scene) {
+        std::cout << "ERROR: Scene is null!" << std::endl;
+        return path;
     }
 
-    // Build spatial grid once
-    SpatialGrid grid(scene, mazeWidth, mazeHeight, cellSize);
-
-    if(grid.isBlocked(start.getX(), start.getY()) ||
-       grid.isBlocked(end.getX(), end.getY())) {
-        return {};
+    if (cellSize <= 0) {
+        std::cout << "ERROR: Invalid cell size: " << cellSize << std::endl;
+        return path;
     }
 
-    // Use priority queue instead of linear search
-    std::priority_queue<Node*, std::vector<Node*>, NodeCmp> openList;
-    std::unordered_set<Position, PosHash, PosEqual> closedSet;
-    std::vector<Node*> allNodes;
-    allNodes.reserve(mazeWidth * mazeHeight / 4); // Reserve reasonable size
+    // Converteer world coordinates naar grid coordinates
+    Position gridStart(start.getX() / cellSize, start.getY() / cellSize);
+    Position gridEnd(end.getX() / cellSize, end.getY() / cellSize);
 
-    Node* startNode = new Node(start, 0, manhattan(start, end));
-    openList.push(startNode);
-    allNodes.push_back(startNode);
+    std::cout << "Grid start: (" << gridStart.getX() << ", " << gridStart.getY() << ")" << std::endl;
+    std::cout << "Grid end: (" << gridEnd.getX() << ", " << gridEnd.getY() << ")" << std::endl;
 
-    // 2D grid for fast node lookup
-    std::vector<std::vector<Node*>> nodeGrid(mazeHeight, std::vector<Node*>(mazeWidth, nullptr));
-    nodeGrid[start.getY()][start.getX()] = startNode;
+    // Check of start walkable is
+    std::cout << "\nChecking START walkability:" << std::endl;
+    bool startWalkable = isWalkable(scene, gridStart, cellSize);
 
-    static constexpr int dx[4] = {1, -1, 0, 0};
-    static constexpr int dy[4] = {0, 0, 1, -1};
+    // Check of end walkable is
+    std::cout << "\nChecking END walkability:" << std::endl;
+    bool endWalkable = isWalkable(scene, gridEnd, cellSize);
 
-    while(!openList.empty()) {
-        Node* current = openList.top();
-        openList.pop();
+    if (!startWalkable) {
+        std::cout << "\nERROR: Start position is not walkable!" << std::endl;
+        return path;
+    }
 
-        // Skip if already processed
-        if(closedSet.count(current->pos)) continue;
-        closedSet.insert(current->pos);
+    if (!endWalkable) {
+        std::cout << "\nERROR: End position is not walkable!" << std::endl;
+        return path;
+    }
 
-        // Goal reached
-        if(current->pos.getX() == end.getX() && current->pos.getY() == end.getY()) {
-            std::vector<std::unique_ptr<Position>> path;
-            path.reserve(current->gCost + 1);
+    // Als start == end, return direct
+    if (gridStart.getX() == gridEnd.getX() && gridStart.getY() == gridEnd.getY()) {
+        std::cout << "Start == End, returning direct path" << std::endl;
+        path.push_back(std::make_unique<Position>(end));
+        return path;
+    }
 
-            for(Node* node = current; node != nullptr; node = node->parent) {
-                path.push_back(std::make_unique<Position>(node->pos));
-            }
+    std::cout << "\nStarting A* search..." << std::endl;
 
-            std::reverse(path.begin(), path.end());
+    // Priority queue voor open set (min-heap op f-waarde)
+    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openSet;
 
-            // Cleanup
-            for(auto n : allNodes) delete n;
-            return path;
+    // Closed set voor bezochte nodes
+    std::unordered_set<Position, PositionHash, PositionEqual> closedSet;
+
+    // Map voor node tracking (voor parent pointers)
+    std::unordered_map<Position, std::unique_ptr<Node>, PositionHash, PositionEqual> nodeMap;
+
+    // Start node toevoegen
+    int h = manhattan(gridStart, gridEnd);
+    auto startNode = std::make_unique<Node>(gridStart, 0, h);
+    Node* startPtr = startNode.get();
+    nodeMap[gridStart] = std::move(startNode);
+    openSet.push(*startPtr);
+
+    // 4-richting beweging (up, down, left, right)
+    const int dx[] = {0, 0, -1, 1};
+    const int dy[] = {-1, 1, 0, 0};
+
+    Node* endNode = nullptr;
+    int iterations = 0;
+    int maxIterations = 10000; // Safety limit
+
+    // A* main loop
+    while (!openSet.empty() && iterations < maxIterations) {
+        iterations++;
+
+        Node current = openSet.top();
+        openSet.pop();
+
+        Position currentPos = current.pos;
+
+        if (iterations % 100 == 0) {
+            std::cout << "Iteration " << iterations << ": exploring ("
+                      << currentPos.getX() << ", " << currentPos.getY()
+                      << ") f=" << current.f << std::endl;
         }
 
-        // Explore neighbors
-        for(int i = 0; i < 4; ++i) {
-            int nx = current->pos.getX() + dx[i];
-            int ny = current->pos.getY() + dy[i];
+        // Check of we al in closed set zitten
+        if (closedSet.count(currentPos)) {
+            continue;
+        }
 
-            if(grid.isBlocked(nx, ny)) continue;
+        closedSet.insert(currentPos);
 
-            Position neighborPos(nx, ny);
-            if(closedSet.count(neighborPos)) continue;
+        // Check of we het einde bereikt hebben
+        if (currentPos.getX() == gridEnd.getX() && currentPos.getY() == gridEnd.getY()) {
+            std::cout << "PATH FOUND after " << iterations << " iterations!" << std::endl;
+            endNode = nodeMap[currentPos].get();
+            break;
+        }
 
-            int tentativeG = current->gCost + 1;
-            Node* neighborNode = nodeGrid[ny][nx];
+        // Exploreer buren
+        for (int i = 0; i < 4; i++) {
+            int newX = currentPos.getX() + dx[i];
+            int newY = currentPos.getY() + dy[i];
+            Position neighbor(newX, newY);
 
-            if(!neighborNode) {
-                neighborNode = new Node(neighborPos, tentativeG, manhattan(neighborPos, end), current);
-                allNodes.push_back(neighborNode);
-                nodeGrid[ny][nx] = neighborNode;
-                openList.push(neighborNode);
-            } else if(tentativeG < neighborNode->gCost) {
-                neighborNode->gCost = tentativeG;
-                neighborNode->fCost = tentativeG + neighborNode->hCost;
-                neighborNode->parent = current;
-                openList.push(neighborNode);
+            // Check of neighbor al bezocht is
+            if (closedSet.count(neighbor)) {
+                continue;
             }
+
+            // Check of neighbor walkable is
+            if (iterations < 10) { // Alleen eerste paar iteraties debuggen
+                std::cout << "  Checking neighbor (" << newX << ", " << newY << "):" << std::endl;
+            }
+
+            if (!isWalkable(scene, neighbor, cellSize)) {
+                if (iterations < 10) {
+                    std::cout << "    Neighbor blocked!" << std::endl;
+                }
+                continue;
+            }
+
+            int newG = current.g + 1;  // Cost is 1 per stap
+            int newH = manhattan(neighbor, gridEnd);
+
+            // Check of we deze node al hebben met een betere cost
+            auto it = nodeMap.find(neighbor);
+            if (it != nodeMap.end() && it->second->g <= newG) {
+                continue;
+            }
+
+            // Nieuwe node toevoegen of updaten
+            Node* currentNodePtr = nodeMap[currentPos].get();
+            auto newNode = std::make_unique<Node>(neighbor, newG, newH, currentNodePtr);
+            Node* newNodePtr = newNode.get();
+            nodeMap[neighbor] = std::move(newNode);
+            openSet.push(*newNodePtr);
         }
     }
 
-    // No path found - cleanup
-    for(auto n : allNodes) delete n;
-    return {};
+    std::cout << "Search completed after " << iterations << " iterations" << std::endl;
+    std::cout << "Closed set size: " << closedSet.size() << std::endl;
+
+    // Als we geen pad gevonden hebben
+    if (!endNode) {
+        std::cout << "NO PATH FOUND!" << std::endl;
+        return path;
+    }
+
+    // Reconstrueer pad van end naar start
+    std::vector<Position> reversePath;
+    Node* current = endNode;
+    while (current != nullptr) {
+        reversePath.push_back(current->pos);
+        current = current->parent;
+    }
+
+    std::cout << "Path length: " << reversePath.size() << " waypoints" << std::endl;
+
+    // Converteer terug naar world coordinates en reverse de volgorde
+    for (auto it = reversePath.rbegin(); it != reversePath.rend(); ++it) {
+        int worldX = it->getX() * cellSize + cellSize / 2;
+        int worldY = it->getY() * cellSize + cellSize / 2;
+        path.push_back(std::make_unique<Position>(worldX, worldY));
+    }
+
+    std::cout << "=== End A* Debug ===\n" << std::endl;
+
+    return path;
 }
