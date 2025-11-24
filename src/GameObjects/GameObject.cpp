@@ -3,10 +3,8 @@
 //
 
 #include "GameObjects/GameObject.h"
-
 #include <memory>
-
-#include "../../includes/GameObjects/Component/Component.h"
+#include "GameObjects/Component/Component.h"
 
 void GameObject::addComponent(std::unique_ptr<Component> component) {
     component->setParent(this);

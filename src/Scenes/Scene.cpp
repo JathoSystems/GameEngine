@@ -1,13 +1,15 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
 #include "Scenes/Scene.h"
 
 #include <algorithm>
 #include <iostream>
 
+
 Scene::Scene(std::string name) {
     _name = name;
+}
+
+void Scene::setCamera(std::unique_ptr<Camera> camera) {
+    _camera = std::move(camera);
 }
 
 void Scene::addObject(std::unique_ptr<GameObject> newObject) {
@@ -19,8 +21,12 @@ void Scene::addObject(std::unique_ptr<GameObject> newObject) {
     _objects.insert(pos, std::move(newObject));
 }
 
-const std::vector<std::unique_ptr<GameObject>> & Scene::getObjects() const {
+std::vector<std::unique_ptr<GameObject>> & Scene::getObjects() {
     return _objects;
+}
+
+std::unique_ptr<GameObject> & Scene::getObject(size_t index) {
+    return _objects.at(index);
 }
 
 const std::string & Scene::getName() const {
@@ -32,9 +38,28 @@ void Scene::render(const std::unique_ptr<Window> &window, float delta) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
+    const Viewport* viewport = nullptr;
+    if (_camera) {
+        auto cameraPosition = _camera->getPosition();
+        Viewport* vp = _camera->getViewPort();
+
+        if (vp) {
+            Position viewportPos(
+                cameraPosition.getX() - vp->getSize().getWidth() / 2,
+                cameraPosition.getY() - vp->getSize().getHeight() / 2
+            );
+            vp->setPosition(viewportPos);
+            viewport = vp;
+            window->setActiveViewport(viewport);
+        }
+    }
+
     for (const std::unique_ptr<GameObject> & obj : _objects) {
         obj->update(delta);
-        obj->render(window);
+
+        if (!viewport || viewport->isInViewPort(obj.get())) {
+            obj->render(window);
+        }
     }
 
     SDL_RenderPresent(renderer);

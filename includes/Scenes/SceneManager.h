@@ -1,24 +1,21 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
+#pragma once
 
-#ifndef GAMEENGINE_SCENEMANAGER_H
-#define GAMEENGINE_SCENEMANAGER_H
 #include <memory>
-#include <string>
 
 #include "Scene.h"
+#include "Camera/Camera.h"
 
 class SceneManager {
 private:
-    // FixMe: hardcoded active scene
-    std::string _activeScene = "main";
+    std::string _activeScene;
     std::vector<std::unique_ptr<Scene>> _scenes;
 
 public:
+    SceneManager();
     void render(const std::unique_ptr<Window> &window, float delta);
-
     void addScene(std::unique_ptr<Scene> scene);
-};
+    void setScene(std::string name);
+    std::string getActiveScene();
+    Scene* getActiveSceneObj();
 
-#endif //GAMEENGINE_SCENEMANAGER_H
+};

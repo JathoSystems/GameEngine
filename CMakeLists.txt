@@ -80,6 +80,10 @@ add_library(Engine SHARED
         src/Events/EventRegistry.cpp
         src/AI/pathfinding/AStarPathfinder.cpp
         src/AI/pathfinding/PathfinderFactory.cpp
+        src/Scenes/Camera/Camera.cpp
+        src/Scenes/Camera/FixedCamera.cpp
+        src/Scenes/Camera/AttachedCamera.cpp
+        src/Scenes/Camera/Viewport.cpp
         game/Main.cpp
         includes/AI/states/State.hpp
         src/AI/states/State.cpp

@@ -1,7 +1,3 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #ifndef GAMEENGINE_COMPONENT_H
 #define GAMEENGINE_COMPONENT_H
 
@@ -9,6 +5,8 @@
 #include <memory>
 
 class GameObject;
+class Viewport;
+class Window;
 
 class Component {
 protected:
@@ -19,7 +17,7 @@ public:
     virtual ~Component() = default;
 
     virtual void update(float deltaTime) = 0;
-    virtual void render(const std::unique_ptr<Window> & window) = 0;
+    virtual void render(const std::unique_ptr<Window> &window) = 0;
 
     void setParent(GameObject *game_object) {
         _parent = game_object;

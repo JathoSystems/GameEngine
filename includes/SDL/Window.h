@@ -7,11 +7,13 @@
 
 #include <SDL3/SDL.h>
 #include <string>
+#include "Scenes/Camera/Viewport.h"
 
 class Window {
 private:
     SDL_Window* _window;
     SDL_Renderer* _renderer;
+    const Viewport* _activeViewport = nullptr;
 
 public:
     ~Window();
@@ -19,6 +21,9 @@ public:
 
     SDL_Window * getWindow();
     SDL_Renderer* getRenderer();
+
+    void setActiveViewport(const Viewport* viewport);
+    const Viewport* getActiveViewport() const;
 };
 
 #endif //GAMEENGINE_WINDOW_H
