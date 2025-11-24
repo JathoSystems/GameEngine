@@ -8,6 +8,7 @@
 #include <SDL3/SDL.h>
 #include <cmath>
 
+#include "AI/system/AiSystem.hpp"
 #include "Engine/TimeManager.h"
 #include "Scenes/SceneSystem.h"
 #include "Input/InputSystem.h"
@@ -23,6 +24,7 @@ void GameEngine::init(std::string name, int width, int height) {
 
     _systems.emplace_back(std::make_unique<SceneSystem>(_window));
     _systems.emplace_back(std::make_unique<InputSystem>());
+    _systems.emplace_back(std::make_unique<AiSystem>());
 
     TTF_Init();
 }

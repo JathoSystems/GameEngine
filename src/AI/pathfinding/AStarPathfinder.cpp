@@ -9,9 +9,8 @@
 #include <iostream>
 #include <unordered_map>
 
-int manhattan(const Position &a, const Position &b) {
-    return std::abs(a.getX() - b.getX()) + std::abs(a.getY() - b.getY());
-}
+#include "AI/pathfinding/heuristics/HeuristicCalculatorFactory.hpp"
+#include "AI/pathfinding/heuristics/IHeuristicCalculator.hpp"
 
 struct Node {
     Position pos;
@@ -30,17 +29,12 @@ struct Node {
 };
 
 static bool isWalkable(Scene *scene, const Position &pos, int cellSize) {
-    return true;
     if (!scene) {
         return false;
     }
 
     // Haal alle GameObjects op de scene
     const auto &objects = scene->getObjects();
-
-    std::cout << "  [isWalkable] Checking grid (" << pos.getX() << ", " << pos.getY()
-            << ") -> world (" << pos.getX() * cellSize << ", " << pos.getY() * cellSize
-            << ") against " << objects.size() << " objects" << std::endl;
 
     for (const auto &obj: objects) {
         if (!obj) continue;
@@ -57,34 +51,26 @@ static bool isWalkable(Scene *scene, const Position &pos, int cellSize) {
         int objWidth = obj->getTransform()->getSize()->getWidth();
         int objHeight = obj->getTransform()->getSize()->getHeight();
 
-        // Check overlap met grid cell
         int cellX = pos.getX() * cellSize;
         int cellY = pos.getY() * cellSize;
-
-        std::cout << "    Checking solid object: pos(" << objX << ", " << objY
-                << ") size(" << objWidth << "x" << objHeight << ")" << std::endl;
-        std::cout << "      Cell: (" << cellX << ", " << cellY
-                << ") to (" << cellX + cellSize << ", " << cellY + cellSize << ")" << std::endl;
 
         if (cellX < objX + objWidth &&
             cellX + cellSize > objX &&
             cellY < objY + objHeight &&
             cellY + cellSize > objY) {
-            std::cout << "      COLLISION! Cell is blocked" << std::endl;
             return false;
         }
     }
-
-    std::cout << "  [isWalkable] Cell is WALKABLE" << std::endl;
     return true;
 }
 
 std::vector<std::unique_ptr<Position> > AStarPathfinder::getPath(Scene *scene,
                                                                  const Position &start,
                                                                  const Position &end,
-                                                                 int cellSize) {
+                                                                 int cellSize,
+                                                                 std::string heuristicType) {
     std::vector<std::unique_ptr<Position> > path;
-
+    std::unique_ptr<IHeuristicCalculator> heuristicCalculator = HeuristicCalculatorFactory::getHeuristicCalculator(heuristicType);
     if (!scene) {
         return path;
     }
@@ -118,7 +104,7 @@ std::vector<std::unique_ptr<Position> > AStarPathfinder::getPath(Scene *scene,
     std::unordered_set<Position> closedSet;
     std::unordered_map<Position, std::unique_ptr<Node>> nodeMap;
 
-    int heuristic = manhattan(gridStart, gridEnd);
+    int heuristic = heuristicCalculator->calculateHeuristic(gridStart, gridEnd);
     auto startNode = std::make_unique<Node>(gridStart, 0, heuristic);
     Node *startPtr = startNode.get();
     nodeMap[gridStart] = std::move(startNode);
@@ -164,7 +150,7 @@ std::vector<std::unique_ptr<Position> > AStarPathfinder::getPath(Scene *scene,
             }
 
             int newG = current.cost + 1;
-            int newH = manhattan(neighbor, gridEnd);
+            int newH =  heuristicCalculator->calculateHeuristic(neighbor, gridEnd);
 
             auto it = nodeMap.find(neighbor);
             if (it != nodeMap.end() && it->second->cost <= newG) {

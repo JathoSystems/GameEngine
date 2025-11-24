@@ -20,7 +20,7 @@ public:
     void onExit();
 
     void addTransition(std::unique_ptr<ITransition> transition);
-    void addTransition(std::string nextState, std::function<bool()> predicate);
+    void addTransition(const std::string& nextState, const std::function<bool()> predicate);
 
     const std::vector<std::unique_ptr<ITransition> > &getTransitions() const;
 };

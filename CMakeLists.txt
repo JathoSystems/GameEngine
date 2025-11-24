@@ -90,6 +90,11 @@ add_library(Engine SHARED
         includes/AI/states/StateRegistry.h
         src/AI/states/StateRegistry.cpp
         src/AI/transition/LambdaTransition.cpp
+        src/AI/system/AiSystem.cpp
+        includes/AI/pathfinding/heuristics/IHeuristicCalculator.hpp
+        src/AI/pathfinding/heuristic/EuclideanHeuristicCalculator.cpp
+        src/AI/pathfinding/heuristic/ManhattenHeuristicCalculator.cpp
+        src/AI/pathfinding/heuristic/HeuristicCalculatorFactory.cpp
 )
 
 target_precompile_headers(Engine
