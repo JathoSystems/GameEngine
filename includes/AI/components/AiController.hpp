@@ -13,27 +13,19 @@
 class AiController : public Component {
 private:
     StateManager _stateManager;
+
 public:
     void update(float deltaTime) override;
+
     void render(const std::unique_ptr<Window> &window) override;
-    void addState(std::string name) {
-        IState* state = StateRegistry::getInstance().getState(name);
 
-        if (!state) {
-            std::cerr << "State " << name << " not found in StateRegistry.\n";
-            return;
-        }
+    void addState(std::string name);
 
-        _stateManager.addState(name, state);
-    }
+    void setInitialState(const std::string &name);
 
-    void setInitialState(const std::string& name) {
-        _stateManager.setInitialState(name);
-    }
+    void setState(const std::string &name);
 
-    void setState(const std::string& name) {
-        _stateManager.setState(name);
-    }
+    void forceNextState();
 };
 
 #endif //GAMEENGINE_AICONTROLLER_HPP

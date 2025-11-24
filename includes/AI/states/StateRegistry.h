@@ -9,19 +9,19 @@
 #include <memory>
 #include <string>
 
-#include "IState.hpp"
+#include "State.hpp"
 
 class StateRegistry {
 private:
     StateRegistry();
 
-    std::map<std::string, std::function<IState*()>> _states;
+    std::map<std::string, std::function<State*()>> _states;
 public:
     static StateRegistry& getInstance();
 
-    void addState(std::string name, std::function<IState*()> createFunc);
+    void addState(std::string name, std::function<State*()> createFunc);
 
-    IState* getState(std::string name);
+    State* getState(std::string name);
 };
 
 #endif //GAMEENGINE_STATEREGISTRY_H

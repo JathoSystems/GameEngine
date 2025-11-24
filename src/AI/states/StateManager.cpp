@@ -1,26 +1,41 @@
-// //
-// // Created by kikker234 on 22-11-2025.
-// //
-// #include "AI/states/StateManager.hpp"
 //
-// void StateManager::changeState(std::shared_ptr<IState> newState) {
-//     _currentState->onEnter();
-//     _currentState = newState;
-//     _currentState->onEnter();
-// }
+// Created by kikker234 on 22-11-2025.
 //
-// void StateManager::setInitialState(std::shared_ptr<IState> state) {
-//     _currentState = state;
-//     _currentState->onEnter();
-// }
-//
-// void StateManager::update(float deltaTime) {
-//     if (!_currentState) return;
-//     _currentState->onUpdate(deltaTime);
-//     for (auto &t : _currentState->getTransitions()) {
-//         if (t->shouldTransition()) {
-//             changeState(t->getTargetState());
-//             break;
-//         }
-//     }
-// }
+#include "AI/states/StateManager.hpp"
+
+void StateManager::addState(std::string name, State *state) {
+    _states[name] = std::unique_ptr<State>(state);
+}
+
+void StateManager::setInitialState(const std::string &name) {
+    _current = _states[name].get();
+
+    if (_current) _current->onEnter();
+}
+
+void StateManager::setState(const std::string &name) {
+    if (_current) _current->onExit();
+    _current = _states[name].get();
+    if (_current) _current->onEnter();
+}
+
+void StateManager::update(float dt) {
+    if (!_current) return;
+
+    _current->onUpdate(dt);
+    for (auto& transition: _current->getTransitions()) {
+        if (!transition->shouldTransition()) return;
+        this->setState(transition->getTargetState());
+        break;
+    }
+}
+
+void StateManager::render(const std::unique_ptr<Window> &window) {
+}
+
+void StateManager::forceNextState() {
+    for (auto& transition: _current->getTransitions()) {
+        this->setState(transition->getTargetState());
+        break;
+    }
+}

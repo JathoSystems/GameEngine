@@ -81,14 +81,15 @@ add_library(Engine SHARED
         src/AI/pathfinding/AStarPathfinder.cpp
         src/AI/pathfinding/PathfinderFactory.cpp
         game/Main.cpp
-        game/state/FollowState.cpp
-        includes/AI/ITransition.h
+        includes/AI/states/State.hpp
+        src/AI/states/State.cpp
+        includes/AI/transition/ITransition.h
         src/AI/states/StateManager.cpp
         includes/AI/components/AiController.hpp
         src/AI/components/AiController.cpp
-        game/state/IdleState.cpp
         includes/AI/states/StateRegistry.h
         src/AI/states/StateRegistry.cpp
+        src/AI/transition/LambdaTransition.cpp
 )
 
 target_precompile_headers(Engine

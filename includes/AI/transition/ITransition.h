@@ -4,9 +4,8 @@
 
 #ifndef GAMEENGINE_ITRANSITION_H
 #define GAMEENGINE_ITRANSITION_H
-#include <memory>
 
-class IState;
+class State;
 
 class ITransition {
 public:

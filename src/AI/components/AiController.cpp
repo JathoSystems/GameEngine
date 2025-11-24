@@ -9,3 +9,26 @@ void AiController::update(float deltaTime) {
 
 void AiController::render(const std::unique_ptr<Window> &window) {
 }
+
+void AiController::addState(std::string name) {
+    State *state = StateRegistry::getInstance().getState(name);
+
+    if (!state) {
+        std::cerr << "State " << name << " not found in StateRegistry.\n";
+        return;
+    }
+
+    _stateManager.addState(name, state);
+}
+
+void AiController::setInitialState(const std::string &name) {
+    _stateManager.setInitialState(name);
+}
+
+void AiController::setState(const std::string &name) {
+    _stateManager.setState(name);
+}
+
+void AiController::forceNextState() {
+    _stateManager.forceNextState();
+}
