@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+add_compile_definitions(ASIO_STANDALONE)
+
 # --- Debug/Release optimalisaties ---
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -g)
@@ -90,11 +92,13 @@ target_precompile_headers(Engine
         <SDL3/SDL.h>
         <SDL3_image/SDL_image.h>
         <SDL3_ttf/SDL_ttf.h>
+        <asio.hpp>
 )
 
 target_include_directories(Engine
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/asio/include
 )
 
 target_link_libraries(Engine
@@ -103,6 +107,16 @@ target_link_libraries(Engine
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
 )
+
+
+# Platform-specific libraries for ASIO
+if(WIN32)
+    target_link_libraries(Engine PUBLIC ws2_32 mswsock)
+elseif(UNIX AND NOT APPLE)
+    target_link_libraries(Engine PUBLIC pthread)
+elseif(APPLE)
+     target_link_libraries(Engine PUBLIC "-framework CoreFoundation")
+endif()
 
 # --- Game executable ---
 add_executable(GameEngine
