@@ -196,6 +196,7 @@ target_include_directories(EngineTests
 
 get_filename_component(MINGW_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 
+# Copy DLLs BEFORE test discovery runs
 add_custom_command(TARGET EngineTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:Engine>
@@ -212,11 +213,19 @@ add_custom_command(TARGET EngineTests POST_BUILD
         "${MINGW_BIN_DIR}/libstdc++-6.dll"
         "${MINGW_BIN_DIR}/libwinpthread-1.dll"
         $<TARGET_FILE_DIR:EngineTests>
+
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:Catch2::Catch2>
+        $<TARGET_FILE:Catch2::Catch2WithMain>
+        $<TARGET_FILE_DIR:EngineTests>
 )
 
 include(CTest)
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
+
+# Use PRE_TEST discovery mode to avoid DLL issues during CMake configuration
+# Tests will be discovered when you actually run CTest, not during build
 catch_discover_tests(EngineTests
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DISCOVERY_MODE PRE_TEST
 )
