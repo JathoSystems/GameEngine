@@ -1,5 +1,7 @@
 #include "GameObjects/Component/MouseInputComponent.h"
 
+#include "GameObjects/Transform/Position.h"
+
 MouseInputComponent::MouseInputComponent(GameObject *gameObject)
     : _gameObject(gameObject), _listener(nullptr) {
 }
@@ -8,9 +10,9 @@ void MouseInputComponent::setListener(IMouseListener *listener) {
     _listener = listener;
 }
 
-void MouseInputComponent::handleMouseMoved(MouseButton button) {
+void MouseInputComponent::handleMouseMoved(std::unique_ptr<Position> position) {
     if (_listener) {
-        _listener->onMouseMoved(button);
+        _listener->onMouseMoved(std::move(position));
     }
 }
 
