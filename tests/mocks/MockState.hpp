@@ -12,7 +12,7 @@ public:
 
     explicit MockState(std::string n) : name(std::move(n)) {}
 
-    void onEnter() { entered = true; }
+    void onEnter() override { entered = true; }
     void onExit() override { exited = true; }
     void onUpdate(float dt) override { lastDt = dt; }
 };

@@ -1,7 +1,7 @@
 //
 // Created by jusra on 14-11-2025.
 //
-#include <math.h>
+#include <cmath>
 
 #include "Animation/Converter/ElesticConverter.hpp"
 

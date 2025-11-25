@@ -194,8 +194,6 @@ target_include_directories(EngineTests
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
 )
 
-get_filename_component(MINGW_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
-
 # Copy DLLs BEFORE test discovery runs
 add_custom_command(TARGET EngineTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -209,16 +207,23 @@ add_custom_command(TARGET EngineTests POST_BUILD
         $<TARGET_FILE_DIR:EngineTests>
 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
-        "${MINGW_BIN_DIR}/libstdc++-6.dll"
-        "${MINGW_BIN_DIR}/libwinpthread-1.dll"
-        $<TARGET_FILE_DIR:EngineTests>
-
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:Catch2::Catch2>
         $<TARGET_FILE:Catch2::Catch2WithMain>
         $<TARGET_FILE_DIR:EngineTests>
 )
+
+# Windows-only: Copy MinGW runtime DLLs
+if(WIN32 AND MINGW)
+    get_filename_component(MINGW_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
+
+    add_custom_command(TARGET EngineTests POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
+            "${MINGW_BIN_DIR}/libstdc++-6.dll"
+            "${MINGW_BIN_DIR}/libwinpthread-1.dll"
+            $<TARGET_FILE_DIR:EngineTests>
+    )
+endif()
 
 include(CTest)
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
