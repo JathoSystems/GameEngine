@@ -5,10 +5,12 @@
 #ifndef GAMEENGINE_STATEMANAGER_HPP
 #define GAMEENGINE_STATEMANAGER_HPP
 
+#include <memory>
 #include <unordered_map>
 
-#include "AI/states/State.hpp"
 #include "SDL/Window.h"
+
+class State;
 
 class StateManager {
 private:
@@ -16,7 +18,7 @@ private:
     State *_current = nullptr;
 
 public:
-    void addState(std::string name, State *state);
+    void addState(std::string name, std::unique_ptr<State> state);
 
     void setInitialState(const std::string &name);
 

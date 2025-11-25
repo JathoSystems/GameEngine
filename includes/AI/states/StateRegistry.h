@@ -6,7 +6,6 @@
 #define GAMEENGINE_STATEREGISTRY_H
 #include <functional>
 #include <map>
-#include <memory>
 #include <string>
 
 #include "State.hpp"
@@ -15,13 +14,13 @@ class StateRegistry {
 private:
     StateRegistry();
 
-    std::map<std::string, std::function<State*()>> _states;
+    std::map<std::string, std::function<std::unique_ptr<State> ()>> _states;
 public:
     static StateRegistry& getInstance();
 
-    void addState(std::string name, std::function<State*()> createFunc);
+    void addState(std::string name, std::function<std::unique_ptr<State> ()> createFunc);
 
-    State* getState(std::string name);
+    std::unique_ptr<State>  getState(std::string name);
 };
 
 #endif //GAMEENGINE_STATEREGISTRY_H

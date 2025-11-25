@@ -18,3 +18,7 @@ void State::addTransition(const std::string& nextState, const std::function<bool
 const std::vector<std::unique_ptr<ITransition>>& State::getTransitions() const {
     return _transitions;
 }
+
+void State::setGameObject(GameObject *object) {
+    _object = object;
+}

@@ -2,9 +2,12 @@
 // Created by kikker234 on 22-11-2025.
 //
 #include "AI/states/StateManager.hpp"
+#include "AI/states/State.hpp"
 
-void StateManager::addState(std::string name, State *state) {
-    _states[name] = std::unique_ptr<State>(state);
+void StateManager::addState(std::string name, std::unique_ptr<State> state) {
+    if (state == nullptr) return;
+
+    _states[name] = std::move(state);
 }
 
 void StateManager::setInitialState(const std::string &name) {

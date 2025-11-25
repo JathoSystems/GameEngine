@@ -5,54 +5,85 @@
 #include <algorithm>
 
 #include "AI/components/AiController.hpp"
-#include "AI/pathfinding/PathfinderFactory.hpp"
+#include "AI/states/State.hpp"
 #include "AI/system/AiSystem.hpp"
 #include "Engine/GameEngine.h"
 #include "GameObjects/Component/SpriteRenderer.h"
+#include "Scenes/SceneSystem.h"
+#include "Scenes/Camera/FixedCamera.h"
 
-class TestState : public State {
+class StartState : public State {
+private:
+    float _time = 0.0f;
 public:
-    void onEnter() {
-        std::cout << "Entering Test State" << std::endl;;
+    StartState() {
+        addTransition("TB_End", [this]() {
+            return _time >= 5.0f;
+        });
     }
 
+    void onUpdate(float deltaTime) override {
+        if (deltaTime > 1) return;
+
+        _time += deltaTime;
+    }
+
+    void onExit() override {
+        std::cout << "Exiting Start State\n";
+        if (_object && _object->getTransform() && _object->getTransform()->getSize()) {
+            Size* size = _object->getTransform()->getSize();
+            size->setWidth(100);
+            size->setHeight(100);
+
+            _object->getTransform()->getPosition()->setX(-size->getWidth() / 2);
+            _object->getTransform()->getPosition()->setY(-size->getHeight() / 2);
+        } else {
+            std::cout << "Warning: _object or its members are null!\n";
+        }
+    }
+
+};
+
+class EndState : public State {
+public:
     void onUpdate(float deltaTime) override {}
 };
 
 int main() {
     try {
         auto engine = std::make_unique<GameEngine>();
+        engine->init("Engine", 400, 400);
+        auto aiSystem = engine->getSystem<AiSystem>();
+        aiSystem->addState("TB_Start", []() { return std::make_unique<StartState>(); });
+        aiSystem->addState("TB_End", []() { return std::make_unique<EndState>(); });
 
-        engine->init("AI demo", 400, 400);
-
+        auto sceneSystem = engine->getSystem<SceneSystem>();
         auto scene = std::make_unique<Scene>("main");
+        scene->setCamera(std::make_unique<FixedCamera>(std::make_unique<Viewport>(Size{400, 400}, Position{-200, -200}), Position{0, 0}));
 
-        std::unique_ptr<GameObject> object = std::make_unique<GameObject>();
-        object->getTransform()->getPosition()->setX(100);
-        object->getTransform()->getPosition()->setY(100);
-        object->getTransform()->getSize()->setWidth(50);
-        object->getTransform()->getSize()->setHeight(50);
+        std::unique_ptr<GameObject> testBoss = std::make_unique<GameObject>();
+        Size* size = testBoss->getTransform()->getSize();
+        size->setWidth(50);
+        size->setHeight(50);
 
-        std::unique_ptr<SpriteRenderer> renderer = std::make_unique<SpriteRenderer>("../resources/square_blue.png");
-        object->addComponent(std::move(renderer));
-        scene->addObject(std::move(object));
+        testBoss->getTransform()->getPosition()->setX(-size->getWidth() / 2);
+        testBoss->getTransform()->getPosition()->setY(-size->getHeight() / 2);
 
-        std::vector<std::unique_ptr<Position> > path = PathfinderFactory::getPathfinder()->getPath(
-            scene.get(), Position(0, 0), Position(300, 300), 5, "euclidean");
+        std::unique_ptr<AiController> ai = std::make_unique<AiController>();
+        ai->setParent(testBoss.get());
+        ai->addState("TB_Start");
+        ai->addState("TB_End");
+        ai->setInitialState("TB_Start");
 
-        for (auto& position : path) {
-            auto gameobject = std::make_unique<GameObject>();
-            gameobject->getTransform()->getSize()->setHeight(5);
-            gameobject->getTransform()->getSize()->setWidth(5);
-            gameobject->getTransform()->getPosition()->setX(position->getX());
-            gameobject->getTransform()->getPosition()->setY(position->getY());
-            gameobject->addComponent(std::make_unique<SpriteRenderer>("../resources/square.png"));
-            scene->addObject(std::move(gameobject));
-        }
+        std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>("../resources/square_lime.png");
 
-        std::unique_ptr<AiController> controller = std::make_unique<AiController>();
+        testBoss->addComponent(std::move(ai));
+        testBoss->addComponent(std::move(sprite));
 
-        engine->addScene(std::move(scene));
+        scene->addObject(std::move(testBoss));
+
+        sceneSystem->setScene("main");
+        sceneSystem->addScene(std::move(scene));
         engine->start();
     } catch (const std::exception &e) {
         std::cerr << "[EXCEPTION] " << e.what() << "\n";

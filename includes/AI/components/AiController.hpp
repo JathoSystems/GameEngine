@@ -4,17 +4,20 @@
 
 #ifndef GAMEENGINE_AICONTROLLER_HPP
 #define GAMEENGINE_AICONTROLLER_HPP
-#include <iostream>
 
-#include "AI/states/StateManager.hpp"
 #include "AI/states/StateRegistry.h"
 #include "GameObjects/Component/Component.h"
 
+class StateManager;
+
 class AiController : public Component {
 private:
-    StateManager _stateManager;
+    std::unique_ptr<StateManager> _stateManager;
 
 public:
+    AiController();
+    ~AiController();
+
     void update(float deltaTime) override;
 
     void render(const std::unique_ptr<Window> &window) override;

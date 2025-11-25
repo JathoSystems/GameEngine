@@ -28,22 +28,16 @@ struct Node {
     }
 };
 
+// FixMe: check if object has an rigid body and only then consider it as obstacle
 static bool isWalkable(Scene *scene, const Position &pos, int cellSize) {
     if (!scene) {
         return false;
     }
 
-    // Haal alle GameObjects op de scene
     const auto &objects = scene->getObjects();
 
     for (const auto &obj: objects) {
         if (!obj) continue;
-
-        // if (!obj->isSolid()) {
-        // std::cout << "    Object at (" << obj->getPosition().getX() << ", "
-        // << obj->getPosition().getY() << ") is NOT solid, skipping" << std::endl;
-        // continue;
-        // }
 
         const Position &objPos = *obj->getTransform()->getPosition();
         int objX = objPos.getX();
