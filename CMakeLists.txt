@@ -113,6 +113,12 @@ add_library(Engine SHARED
         src/AI/pathfinding/heuristic/EuclideanHeuristicCalculator.cpp
         src/AI/pathfinding/heuristic/ManhattenHeuristicCalculator.cpp
         src/AI/pathfinding/heuristic/HeuristicCalculatorFactory.cpp
+        src/Audio/Decoder/Mp3Decoder.cpp
+        src/Audio/Decoder/WavDecoder.cpp
+        src/Audio/AudioSystem.cpp
+        src/Audio/AudioEngine.cpp
+        src/Audio/AudioLoaderFactory.cpp
+        src/Audio/SoundCache.cpp
 )
 
 target_precompile_headers(Engine
