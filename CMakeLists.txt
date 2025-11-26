@@ -176,6 +176,10 @@ add_executable(EngineTests
         tests/AI/states/StateRegistryTests.cpp
         tests/AI/pathfinding/AStarPathfinderTests.cpp
         tests/AI/components/AiComponentTests.cpp
+        tests/GameObjects/GameObjectTesten.cpp
+        tests/GameObjects/TextureTests.cpp
+        tests/GameObjects/Spritesheets/AnimatorTests.cpp
+        tests/GameObjects/Spritesheets/SpritesheetTests.cpp
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

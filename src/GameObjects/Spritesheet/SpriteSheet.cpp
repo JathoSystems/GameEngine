@@ -39,7 +39,6 @@ void SpriteSheet::renderFrame(Window *window, int current_frame, GameObject *par
 
         _texture->render(window, &frame, parent);
     } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
         return;
     }
 }

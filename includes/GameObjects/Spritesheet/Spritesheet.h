@@ -17,9 +17,9 @@ private:
     std::unique_ptr<Texture> _texture;
     std::pmr::vector<std::unique_ptr<Frame>> _frames;
 
-    void initFrames(const std::unique_ptr<Texture> & unique);
 
 public:
+    void initFrames(const std::unique_ptr<Texture> & unique);
     SpriteSheet(const std::string &path, int rows, int cols);
 
     void renderFrame(Window *window, int current_frame, GameObject *parent);
