@@ -174,6 +174,7 @@ add_custom_command(TARGET GameEngine POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
         $<TARGET_FILE_DIR:GameEngine>/resources
 )
+
 # --- Tests ---
 enable_testing()
 
@@ -182,6 +183,12 @@ add_executable(EngineTests
         tests/AI/states/StateRegistryTests.cpp
         tests/AI/pathfinding/AStarPathfinderTests.cpp
         tests/AI/components/AiComponentTests.cpp
+        tests/Audio/AudioSystemTest.cpp
+        tests/Audio/AudioEngineTest.cpp
+        tests/Audio/SoundCacheTest.cpp
+        tests/Audio/WavDecoderTest.cpp
+        tests/Audio/Mp3DecoderTest.cpp
+        tests/Audio/AudioLoaderFactoryTest.cpp
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -216,6 +223,9 @@ add_custom_command(TARGET EngineTests POST_BUILD
         $<TARGET_FILE:Catch2::Catch2>
         $<TARGET_FILE:Catch2::Catch2WithMain>
         $<TARGET_FILE_DIR:EngineTests>
+
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:EngineTests>/test_resources
 )
 
 # Windows-only: Copy MinGW runtime DLLs
@@ -236,7 +246,6 @@ list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
 # Use PRE_TEST discovery mode to avoid DLL issues during CMake configuration
-# Tests will be discovered when you actually run CTest, not during build
 catch_discover_tests(EngineTests
         DISCOVERY_MODE PRE_TEST
 )
