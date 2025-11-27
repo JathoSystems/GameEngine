@@ -1,0 +1,94 @@
+name: GameEngine build and test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Install system dependencies
+        run: |
+          echo "🔄 Updating package lists..."
+          sudo apt update
+          echo "⚙️ Installing build tools and SDL3 dependencies..."
+          sudo apt install -y \
+            build-essential \
+            cmake \
+            git \
+            pkg-config \
+            libx11-dev \
+            libxext-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxss-dev \
+            libxxf86vm-dev \
+            libxfixes-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libdecor-0-dev \
+            libegl1-mesa-dev \
+            libgles2-mesa-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libdrm-dev \
+            libgbm-dev \
+            libpulse-dev \
+            libasound2-dev \
+            libjack-dev \
+            libpipewire-0.3-dev \
+            libsndio-dev \
+            libudev-dev \
+            libdbus-1-dev \
+            libibus-1.0-dev \
+            fcitx-libs-dev \
+            libxtst-dev
+          echo "✅ Dependencies installed successfully!"
+
+      - name: 🔽 Clone SDL3 and dependencies
+        run: |
+          echo "📥 Cloning SDL3..."
+          git clone --depth 1 https://github.com/libsdl-org/SDL.git external/SDL3
+          echo "✅ SDL3 cloned"
+          
+          echo "📥 Cloning SDL3_image..."
+          git clone --depth 1 https://github.com/libsdl-org/SDL_image.git external/SDL3_image
+          echo "✅ SDL3_image cloned"
+          
+          echo "📥 Cloning SDL3_TTF..."
+          git clone --depth 1 https://github.com/libsdl-org/SDL_ttf external/SDL3_TTF
+          echo "✅ SDL3_TTF cloned"
+          
+          echo "🔄 Updating SDL3_image submodules..."
+          cd external/SDL3_image && git submodule update --init --recursive && cd ../../
+          echo "✅ SDL3_image submodules updated"
+          
+          echo "🔄 Updating SDL3_TTF submodules..."
+          cd external/SDL3_TTF && git submodule update --init --recursive && cd ../../
+          echo "✅ SDL3_TTF submodules updated"
+
+      - name: 🔨 Configure CMake
+        run: |
+          echo "⚙️ Configuring CMake..."
+          cmake -S . -B build
+          echo "✅ CMake configuration complete!"
+
+      - name: 🏗️ Build project
+        run: |
+          echo "🔨 Building project..."
+          cmake --build build
+          echo "✅ Build complete!"
+
+      - name: 🧪 Run tests
+        run: |
+          echo "🧪 Running tests..."
+          cd build && ctest -V
+          echo "✅ All tests passed!"
