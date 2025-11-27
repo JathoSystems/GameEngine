@@ -153,7 +153,6 @@ jobs:
           fi
 
       - name: 📈 Generate coverage report
-        if: success()
         run: |
           echo "📊 Generating coverage report..."
           cd build
@@ -186,7 +185,6 @@ jobs:
           fi
 
       - name: 📤 Upload coverage report
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -195,7 +193,6 @@ jobs:
             build/*.html
 
       - name: 📊 Coverage summary comment
-        if: success() && github.event_name == 'pull_request'
         run: |
           echo "📊 Test & Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "=========================" >> $GITHUB_STEP_SUMMARY
