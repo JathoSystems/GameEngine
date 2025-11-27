@@ -24,6 +24,7 @@ jobs:
             libglu1-mesa-dev libdrm-dev libgbm-dev libpulse-dev libasound2-dev
             libjack-dev libpipewire-0.3-dev libsndio-dev libudev-dev
             libdbus-1-dev libibus-1.0-dev fcitx-libs-dev libxtst-dev
+            gcovr lcov
           version: 1.0
 
       - name: 📦 Install system dependencies
@@ -63,7 +64,9 @@ jobs:
             libdbus-1-dev \
             libibus-1.0-dev \
             fcitx-libs-dev \
-            libxtst-dev
+            libxtst-dev \
+            gcovr \
+            lcov
           echo "✅ Dependencies installed successfully!"
 
       - name: 💾 Cache SDL3 repositories
@@ -115,8 +118,8 @@ jobs:
 
       - name: 🔨 Configure CMake
         run: |
-          echo "⚙️ Configuring CMake..."
-          cmake -S . -B build
+          echo "⚙️ Configuring CMake with Debug mode for coverage..."
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
           echo "✅ CMake configuration complete!"
 
       - name: 🏗️ Build project
@@ -128,5 +131,78 @@ jobs:
       - name: 🧪 Run tests
         run: |
           echo "🧪 Running tests..."
-          cd build && ctest -V
-          echo "✅ All tests passed!"
+          cd build
+          ctest --output-on-failure --verbose
+          
+          echo ""
+          echo "📊 Test Summary:"
+          echo "==============="
+          
+          # Count tests
+          TOTAL_TESTS=$(ctest -N | grep "Total Tests:" | awk '{print $3}')
+          echo "✅ Total tests executed: $TOTAL_TESTS"
+          
+          # Check if all tests passed
+          if ctest --quiet; then
+            echo "🎉 All tests passed!"
+          else
+            echo "❌ Some tests failed!"
+            exit 1
+          fi
+
+      - name: 📈 Generate coverage report
+        if: success()
+        run: |
+          echo "📊 Generating coverage report..."
+          cd build
+          
+          # Generate coverage with gcovr
+          gcovr --root .. \
+                --filter '../src/' \
+                --exclude '../src/.*Test.*' \
+                --exclude '../external/' \
+                --print-summary \
+                --txt coverage.txt \
+                --html-details coverage.html
+          
+          echo ""
+          echo "📈 Coverage Summary:"
+          echo "==================="
+          cat coverage.txt
+          
+          # Extract line coverage percentage
+          COVERAGE=$(gcovr --root .. --filter '../src/' --exclude '../src/.*Test.*' --exclude '../external/' | grep "TOTAL" | awk '{print $4}')
+          echo ""
+          echo "🎯 Line Coverage: $COVERAGE"
+          
+          # Check if coverage is acceptable (e.g., > 70%)
+          COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//')
+          if (( $(echo "$COVERAGE_NUM > 70" | bc -l) )); then
+            echo "✅ Coverage is acceptable (>70%)"
+          else
+            echo "⚠️ Coverage is below 70%"
+          fi
+
+      - name: 📤 Upload coverage report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: build/coverage.html
+
+      - name: 📊 Coverage summary comment
+        if: success() && github.event_name == 'pull_request'
+        run: |
+          echo "📊 Test & Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "=========================" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          cd build
+          TOTAL_TESTS=$(ctest -N | grep "Total Tests:" | awk '{print $3}')
+          echo "✅ **Tests Passed**: $TOTAL_TESTS/$TOTAL_TESTS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "📈 **Coverage Report**:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat coverage.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
