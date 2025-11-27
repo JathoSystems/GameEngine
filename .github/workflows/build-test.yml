@@ -233,7 +233,7 @@ jobs:
             let coverageEmoji = '✅';
             if (coverageNum < 75) {
               coverageEmoji = '⚠️';
-            } else if (coverageNum >= 90) {
+            } else if (coverageNum >= 80) {
               coverageEmoji = '🎉';
             }
             
@@ -256,7 +256,7 @@ jobs:
             </details>
             
             ${coverageNum < 75 ? '⚠️ **Let op:** Coverage is onder de 75% - overweeg meer tests toe te voegen.' : ''}
-            ${coverageNum >= 90 ? '🎉 **Geweldig!** Uitstekende test coverage!' : ''}`;
+            ${coverageNum >= 80 ? '🎉 **Geweldig!** Uitstekende test coverage!' : ''}`;
             
             // Plaats comment op PR
             github.rest.issues.createComment({
