@@ -188,7 +188,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: build/coverage.html
+          path: |
+            build/coverage.html
+            build/*.html
 
       - name: 📊 Coverage summary comment
         if: success() && github.event_name == 'pull_request'
