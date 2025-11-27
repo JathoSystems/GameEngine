@@ -210,3 +210,61 @@ jobs:
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           cat coverage.txt >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: 💬 Post PR comment met testresultaten
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Lees coverage informatie
+            let coverageText = '';
+            let coveragePercentage = '0%';
+            try {
+              coverageText = fs.readFileSync('build/coverage.txt', 'utf8');
+              const match = coverageText.match(/TOTAL.*?(\d+%)/);
+              if (match) {
+                coveragePercentage = match[1];
+              }
+            } catch (err) {
+              coverageText = 'Coverage rapport niet beschikbaar';
+            }
+            
+            // Bepaal emoji op basis van coverage
+            const coverageNum = parseFloat(coveragePercentage);
+            let coverageEmoji = '✅';
+            if (coverageNum < 70) {
+              coverageEmoji = '⚠️';
+            } else if (coverageNum >= 90) {
+              coverageEmoji = '🎉';
+            }
+            
+            // Maak comment body
+            const commentBody = `## 🧪 Test & Coverage Resultaten
+            
+            ### ✅ Tests
+            Alle tests zijn succesvol uitgevoerd!
+            
+            ### ${coverageEmoji} Code Coverage
+            **Totale coverage: ${coveragePercentage}**
+            
+            <details>
+            <summary>📊 Gedetailleerd coverage rapport</summary>
+            
+            \`\`\`
+            ${coverageText}
+            \`\`\`
+            
+            </details>
+            
+            ${coverageNum < 70 ? '⚠️ **Let op:** Coverage is onder de 70% - overweeg meer tests toe te voegen.' : ''}
+            ${coverageNum >= 90 ? '🎉 **Geweldig!** Uitstekende test coverage!' : ''}`;
+            
+            // Plaats comment op PR
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
