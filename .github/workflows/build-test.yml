@@ -13,6 +13,19 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
+      - name: 💾 Cache apt packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: >
+            build-essential cmake git pkg-config libx11-dev libxext-dev
+            libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxss-dev
+            libxxf86vm-dev libxfixes-dev libwayland-dev libxkbcommon-dev
+            libdecor-0-dev libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev
+            libglu1-mesa-dev libdrm-dev libgbm-dev libpulse-dev libasound2-dev
+            libjack-dev libpipewire-0.3-dev libsndio-dev libudev-dev
+            libdbus-1-dev libibus-1.0-dev fcitx-libs-dev libxtst-dev
+          version: 1.0
+
       - name: 📦 Install system dependencies
         run: |
           echo "🔄 Updating package lists..."
@@ -53,7 +66,20 @@ jobs:
             libxtst-dev
           echo "✅ Dependencies installed successfully!"
 
+      - name: 💾 Cache SDL3 repositories
+        id: cache-sdl
+        uses: actions/cache@v4
+        with:
+          path: |
+            external/SDL3
+            external/SDL3_image
+            external/SDL3_TTF
+          key: sdl3-repos-${{ hashFiles('.github/workflows/*.yml') }}
+          restore-keys: |
+            sdl3-repos-
+
       - name: 🔽 Clone SDL3 and dependencies
+        if: steps.cache-sdl.outputs.cache-hit != 'true'
         run: |
           echo "📥 Cloning SDL3..."
           git clone --depth 1 https://github.com/libsdl-org/SDL.git external/SDL3
@@ -74,6 +100,18 @@ jobs:
           echo "🔄 Updating SDL3_TTF submodules..."
           cd external/SDL3_TTF && git submodule update --init --recursive && cd ../../
           echo "✅ SDL3_TTF submodules updated"
+
+      - name: ♻️ Using cached SDL3
+        if: steps.cache-sdl.outputs.cache-hit == 'true'
+        run: echo "✅ SDL3 repositories restored from cache!"
+
+      - name: 💾 Cache CMake build
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: cmake-build-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: |
+            cmake-build-${{ runner.os }}-
 
       - name: 🔨 Configure CMake
         run: |
