@@ -176,9 +176,9 @@ jobs:
           echo ""
           echo "🎯 Line Coverage: $COVERAGE"
           
-          # Check if coverage is acceptable (e.g., > 70%)
+          # Check if coverage is acceptable (e.g., > 75%)
           COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//')
-          if (( $(echo "$COVERAGE_NUM > 70" | bc -l) )); then
+          if (( $(echo "$COVERAGE_NUM > 75" | bc -l) )); then
             echo "✅ Coverage is acceptable (>75%)"
           else
             echo "⚠️ Coverage is below 75%"
@@ -231,7 +231,7 @@ jobs:
             // Bepaal emoji op basis van coverage
             const coverageNum = parseFloat(coveragePercentage);
             let coverageEmoji = '✅';
-            if (coverageNum < 70) {
+            if (coverageNum < 75) {
               coverageEmoji = '⚠️';
             } else if (coverageNum >= 90) {
               coverageEmoji = '🎉';
@@ -255,7 +255,7 @@ jobs:
             
             </details>
             
-            ${coverageNum < 70 ? '⚠️ **Let op:** Coverage is onder de 70% - overweeg meer tests toe te voegen.' : ''}
+            ${coverageNum < 75 ? '⚠️ **Let op:** Coverage is onder de 75% - overweeg meer tests toe te voegen.' : ''}
             ${coverageNum >= 90 ? '🎉 **Geweldig!** Uitstekende test coverage!' : ''}`;
             
             // Plaats comment op PR
