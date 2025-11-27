@@ -77,14 +77,16 @@ jobs:
             external/SDL3
             external/SDL3_image
             external/SDL3_TTF
-          key: sdl3-repos-${{ hashFiles('.github/workflows/*.yml') }}
+          key: sdl3-repos-v2-${{ hashFiles('.github/workflows/*.yml') }}
           restore-keys: |
-            sdl3-repos-
+            sdl3-repos-v2-
 
       - name: 🔽 Clone SDL3 and dependencies
         if: steps.cache-sdl.outputs.cache-hit != 'true'
         run: |
           echo "📥 Cloning SDL3..."
+          mkdir -p external
+          rm -rf external/SDL3 external/SDL3_image external/SDL3_TTF
           git clone --depth 1 https://github.com/libsdl-org/SDL.git external/SDL3
           echo "✅ SDL3 cloned"
           
@@ -178,9 +180,9 @@ jobs:
           # Check if coverage is acceptable (e.g., > 70%)
           COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//')
           if (( $(echo "$COVERAGE_NUM > 70" | bc -l) )); then
-            echo "✅ Coverage is acceptable (>70%)"
+            echo "✅ Coverage is acceptable (>75%)"
           else
-            echo "⚠️ Coverage is below 70%"
+            echo "⚠️ Coverage is below 75%"
           fi
 
       - name: 📤 Upload coverage report
