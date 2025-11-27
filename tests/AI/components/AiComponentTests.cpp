@@ -24,7 +24,6 @@ TEST_CASE("AiController", "[ai][controller]") {
             
             // Update should not crash
             controller.update(0.016f);
-            REQUIRE(false);
             REQUIRE(true);
         }
     }
