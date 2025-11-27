@@ -5,11 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
-set(CATCH_CONFIG_DEFAULT_REPORTER "junit")
-set(CATCH_CONFIG_CONSOLE_WIDTH 200)
-
-
 # --- Debug/Release optimalisaties ---
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -g)
@@ -233,8 +228,7 @@ include(CTest)
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
-# Use PRE_TEST discovery mode to avoid DLL issues during CMake configuration
-# Tests will be discovered when you actually run CTest, not during build
 catch_discover_tests(EngineTests
         DISCOVERY_MODE PRE_TEST
+        REPORTER console
 )
