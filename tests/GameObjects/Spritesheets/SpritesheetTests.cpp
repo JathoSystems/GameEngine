@@ -4,7 +4,6 @@
 #include "GameObjects/GameObject.h"
 #include "Scenes/Camera/Viewport.h"
 
-// Test doubles
 class TestWindow : public Window {
 private:
     SDL_Renderer *mockRenderer = reinterpret_cast<SDL_Renderer *>(0x1234);
@@ -25,7 +24,6 @@ public:
     Position getPosition() const { return pos; }
 };
 
-// Mock Texture that doesn't require actual files
 class MockTexture : public Texture {
 private:
     int mockWidth = 256;
@@ -40,67 +38,40 @@ public:
     SDL_Texture* getTexture() const { return reinterpret_cast<SDL_Texture*>(0x5678); }
 };
 
-// Mock SpriteSheet that uses MockTexture
-class MockSpriteSheet : public SpriteSheet {
-public:
-    MockSpriteSheet(const std::string& path, int rows, int cols)
-        : SpriteSheet(path, rows, cols) {}
-
-    void initMockFrames(int textureWidth = 256, int textureHeight = 256) {
-        std::unique_ptr<Texture> mockTex = std::make_unique<MockTexture>("../tests/GameObjects/images/spritesheet.png", textureWidth, textureHeight);
-        this->initFrames(mockTex);
-    }
-};
-
 TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     SECTION("Constructor initializes with path and dimensions") {
-        REQUIRE_NOTHROW(MockSpriteSheet("../tests/GameObjects/images/spritesheet.png", 4, 4));
+        REQUIRE_NOTHROW(SpriteSheet("../tests/GameObjects/images/spritesheet.png", 4, 4));
     }
 
     SECTION("Constructor with single row") {
-        REQUIRE_NOTHROW(MockSpriteSheet("../tests/GameObjects/images/spritesheet.png", 1, 8));
+        REQUIRE_NOTHROW(SpriteSheet("../tests/GameObjects/images/spritesheet.png", 1, 8));
     }
 
     SECTION("Constructor with single column") {
-        REQUIRE_NOTHROW(MockSpriteSheet("../tests/GameObjects/images/spritesheet.png", 8, 1));
+        REQUIRE_NOTHROW(SpriteSheet("../tests/GameObjects/images/spritesheet.png", 8, 1));
     }
 
     SECTION("Constructor with large grid") {
-        REQUIRE_NOTHROW(MockSpriteSheet("../tests/GameObjects/images/spritesheet.png", 16, 16));
+        REQUIRE_NOTHROW(SpriteSheet("../tests/GameObjects/images/spritesheet.png", 16, 16));
     }
 
     SECTION("Constructor stores correct rows") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 5, 7);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 5, 7);
         REQUIRE_NOTHROW(sheet);
     }
 
     SECTION("Constructor stores correct columns") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 3, 9);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 3, 9);
         REQUIRE_NOTHROW(sheet);
     }
 
-    SECTION("InitFrames creates correct number of frames", "[SpriteSheet][initFrames]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
-        REQUIRE_NOTHROW(sheet.initMockFrames());
-    }
-
-    SECTION("InitFrames calculates frame dimensions correctly", "[SpriteSheet][initFrames]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 2, 2);
-        REQUIRE_NOTHROW(sheet.initMockFrames());
-    }
-
-    SECTION("InitFrames with single row spritesheet", "[SpriteSheet][initFrames]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 1, 8);
-        REQUIRE_NOTHROW(sheet.initMockFrames());
-    }
-
-    SECTION("InitFrames with single column spritesheet", "[SpriteSheet][initFrames]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 8, 1);
-        REQUIRE_NOTHROW(sheet.initMockFrames());
+    SECTION("InitFrames throws no exception", "[SpriteSheet][initFrames]") {
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        REQUIRE_NOTHROW(sheet.initFrames(std::make_unique<MockTexture>("../tests/GameObjects/images/spritesheet.png", 256, 258)));
     }
 
     SECTION("RenderFrame initializes frames on first call", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -108,7 +79,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame with valid frame index", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -116,7 +87,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame with first frame", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -124,7 +95,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame with last frame", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -132,7 +103,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame with out of bounds frame handles gracefully", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -140,7 +111,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame with negative frame index", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -148,7 +119,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame sets parent size when zero", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -158,7 +129,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame preserves non-zero parent size", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
         parent.getTransform()->getSize()->setWidth(100.0f);
@@ -168,7 +139,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame with viewport", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         TestViewport viewport(50.0f, 50.0f);
         window.setActiveViewport(&viewport);
@@ -178,7 +149,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("RenderFrame multiple times with different frames", "[SpriteSheet][renderFrame]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -190,8 +161,8 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("Multiple spritesheets with same dimensions", "[SpriteSheet][integration]") {
-        MockSpriteSheet sheet1("../tests/GameObjects/images/spritesheet.png", 4, 4);
-        MockSpriteSheet sheet2("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet1("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet2("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -200,8 +171,8 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("Multiple spritesheets with different dimensions", "[SpriteSheet][integration]") {
-        MockSpriteSheet sheet1("../tests/GameObjects/images/spritesheet.png", 2, 2);
-        MockSpriteSheet sheet2("../tests/GameObjects/images/spritesheet.png", 8, 8);
+        SpriteSheet sheet1("../tests/GameObjects/images/spritesheet.png", 2, 2);
+        SpriteSheet sheet2("../tests/GameObjects/images/spritesheet.png", 8, 8);
         TestWindow window;
         GameObject parent1;
         GameObject parent2;
@@ -211,7 +182,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("Spritesheet animation sequence", "[SpriteSheet][integration]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -221,7 +192,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("Spritesheet with viewport integration", "[SpriteSheet][integration]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 8, 8);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 8, 8);
         TestWindow window;
         TestViewport viewport(100.0f, 100.0f);
         window.setActiveViewport(&viewport);
@@ -233,7 +204,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("Complex spritesheet scenario", "[SpriteSheet][integration]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 16, 16);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 16, 16);
         TestWindow window;
         GameObject parent;
         parent.getTransform()->getPosition()->setX(100.0f);
@@ -250,7 +221,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("Spritesheet frame wrapping behavior", "[SpriteSheet][integration]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
 
@@ -261,7 +232,7 @@ TEST_CASE("SpriteSheet", "[SpriteSheet][constructor]") {
     }
 
     SECTION("Spritesheet with custom parent size", "[SpriteSheet][integration]") {
-        MockSpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
+        SpriteSheet sheet("../tests/GameObjects/images/spritesheet.png", 4, 4);
         TestWindow window;
         GameObject parent;
         

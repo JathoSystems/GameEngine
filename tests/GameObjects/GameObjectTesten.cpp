@@ -3,7 +3,6 @@
 #include "SDL/Window.h"
 #include "GameObjects/GameObject.h"
 
-// Test Component implementation
 class TestComponent : public Component {
 private:
     int renderCallCount = 0;
@@ -27,7 +26,6 @@ public:
         parentObject = parent;
     }
 
-    // Getters for verification
     int getRenderCallCount() const { return renderCallCount; }
     int getUpdateCallCount() const { return updateCallCount; }
     float getLastDeltaTime() const { return lastDeltaTime; }
@@ -41,7 +39,6 @@ public:
     }
 };
 
-// Ordered test component to verify execution order
 class OrderedTestComponent : public Component {
 private:
     static int executionOrder;
@@ -73,12 +70,8 @@ public:
 
 int OrderedTestComponent::executionOrder = 0;
 
-// Simple Window implementation for testing
 class TestWindow : public Window {
-    // Add any necessary Window implementation
 };
-
-// ==================== addComponent Tests ====================
 
 TEST_CASE("GameObject", "[GameObject][addComponent]") {
     GameObject gameObject;
@@ -97,7 +90,6 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
 
         gameObject.addComponent(std::move(component));
 
-        // Verify component is stored by calling render
         const std::unique_ptr<Window> window = std::make_unique<TestWindow>();
         gameObject.render(window);
 
@@ -131,11 +123,8 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
 
         gameObject.addComponent(std::move(component));
 
-        // Verify that component is now nullptr (ownership transferred)
         REQUIRE(component == nullptr);
     }
-
-    // ==================== render Tests ====================
 
     SECTION("Render calls render on all components", "[GameObject][render]")
     {

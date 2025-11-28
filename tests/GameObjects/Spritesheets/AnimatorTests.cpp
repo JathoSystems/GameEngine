@@ -38,47 +38,39 @@ public:
 
     int getWidth() const { return mockWidth; }
     int getHeight() const { return mockHeight; }
-    // SDL_Texture* getTexture() const { return reinterpret_cast<SDL_Texture*>(0x5678); }
-};
-
-// Mock Animator that uses mock resources
-class MockAnimator : public Animator {
-public:
-    MockAnimator(const std::string& path, int rows, int cols)
-        : Animator(path, rows, cols) {}
 };
 
 TEST_CASE("Animator", "[Animator][constructor]") {
     SECTION("Constructor initializes with correct path and dimensions") {
-        REQUIRE_NOTHROW(MockAnimator("../images/spritesheet.png", 4, 4));
+        REQUIRE_NOTHROW(Animator("../tests/GameObjects/images/spritesheet.png", 4, 4));
     }
 
     SECTION("Constructor sets rows and columns correctly") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 3, 5);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 3, 5);
 
         REQUIRE(animator->getTotalFrames() == 15);
     }
 
     SECTION("Constructor initializes min to 0") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 2, 2);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 2, 2);
 
         REQUIRE(animator->getMin() == 0);
     }
 
     SECTION("Constructor initializes max to total frames") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 6);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 6);
 
         REQUIRE(animator->getMax() == 24);
     }
 
     SECTION("Update with zero deltaTime does not advance frame", "[Animator][update]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
 
         REQUIRE_NOTHROW(animator->update(0.0f));
     }
 
     SECTION("Update with small deltaTime accumulates correctly", "[Animator][update]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 2, 2);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 2, 2);
 
         animator->update(0.01f);
         animator->update(0.01f);
@@ -87,7 +79,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("Update advances frame when accumulator exceeds frame time", "[Animator][update]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 2, 2);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 2, 2);
 
         animator->update(1.0f);
 
@@ -95,7 +87,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("Update wraps to min when reaching max frame", "[Animator][update]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 2, 2);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 2, 2);
         animator->setMin(0);
         animator->setMax(4);
 
@@ -107,13 +99,13 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("Update with large deltaTime handles multiple frames", "[Animator][update]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
 
         REQUIRE_NOTHROW(animator->update(100.0f));
     }
 
     SECTION("Update respects custom min frame", "[Animator][update]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         animator->setMin(5);
         animator->setMax(10);
 
@@ -124,7 +116,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
 
     SECTION("Render with viewport applies offset", "[Animator][render]") {
         GameObject gameObject;
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         auto* animatorPtr = animator.get();
         gameObject.addComponent(std::move(animator));
 
@@ -137,7 +129,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
 
     SECTION("Render after multiple updates", "[Animator][render]") {
         GameObject gameObject;
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         auto* animatorPtr = animator.get();
         gameObject.addComponent(std::move(animator));
 
@@ -150,7 +142,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("SetMin updates current frame to min", "[Animator][setMin]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
 
         animator->setMin(5);
 
@@ -158,7 +150,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("SetMin with zero sets to beginning", "[Animator][setMin]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
 
         animator->setMin(0);
 
@@ -166,13 +158,13 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("SetMin with value beyond total frames", "[Animator][setMin]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 2, 2);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 2, 2);
 
         REQUIRE_NOTHROW(animator->setMin(10));
     }
 
     SECTION("SetMax updates maximum frame", "[Animator][setMax]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
 
         animator->setMax(8);
 
@@ -180,7 +172,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("SetMax with value less than total frames", "[Animator][setMax]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
 
         animator->setMax(10);
 
@@ -188,45 +180,45 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("SetMax with value greater than total frames", "[Animator][setMax]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 2, 2);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 2, 2);
 
         REQUIRE_NOTHROW(animator->setMax(20));
     }
 
     SECTION("GetMin returns correct minimum frame", "[Animator][getMin]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         animator->setMin(3);
 
         REQUIRE(animator->getMin() == 3);
     }
 
     SECTION("GetMax returns correct maximum frame", "[Animator][getMax]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         animator->setMax(12);
 
         REQUIRE(animator->getMax() == 12);
     }
 
     SECTION("GetTotalFrames calculates correctly", "[Animator][getTotalFrames]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 5, 7);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 5, 7);
 
         REQUIRE(animator->getTotalFrames() == 35);
     }
 
     SECTION("GetTotalFrames with single row", "[Animator][getTotalFrames]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 1, 8);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 1, 8);
 
         REQUIRE(animator->getTotalFrames() == 8);
     }
 
     SECTION("GetTotalFrames with single column", "[Animator][getTotalFrames]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 10, 1);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 10, 1);
 
         REQUIRE(animator->getTotalFrames() == 10);
     }
 
     SECTION("Animation loop: set range and update", "[Animator][integration]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         animator->setMin(0);
         animator->setMax(8);
 
@@ -238,7 +230,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
     }
 
     SECTION("Animation with custom range", "[Animator][integration]") {
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         animator->setMin(4);
         animator->setMax(12);
 
@@ -251,7 +243,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
 
     SECTION("Full animation cycle with render", "[Animator][integration]") {
         GameObject gameObject;
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         auto* animatorPtr = animator.get();
         gameObject.addComponent(std::move(animator));
 
@@ -268,7 +260,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
 
     SECTION("Animation with viewport integration", "[Animator][integration]") {
         GameObject gameObject;
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 4, 4);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 4, 4);
         auto* animatorPtr = animator.get();
         gameObject.addComponent(std::move(animator));
 
@@ -283,7 +275,7 @@ TEST_CASE("Animator", "[Animator][constructor]") {
 
     SECTION("Complex animation scenario", "[Animator][integration]") {
         GameObject gameObject;
-        auto animator = std::make_unique<MockAnimator>("../images/spritesheet.png", 8, 8);
+        auto animator = std::make_unique<Animator>("../tests/GameObjects/images/spritesheet.png", 8, 8);
         auto* animatorPtr = animator.get();
         gameObject.addComponent(std::move(animator));
 
