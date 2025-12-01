@@ -1,6 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
 #include "GameObjects/Spritesheet/Animator.h"
-#include "GameObjects/Spritesheet/SpriteSheet.h"
 #include "GameObjects/GameObject.h"
 #include "GameObjects/Texture.h"
 #include "Scenes/Camera/Viewport.h"
