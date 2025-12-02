@@ -1,0 +1,16 @@
+#pragma once
+#include "Packet/Packet.h"
+#include "Sockets/Client/INetworkSocket.h"
+
+class Session
+{
+    int id;
+    std::unique_ptr<INetworkSocket> socket;
+
+    Session(int id, std::unique_ptr<INetworkSocket> sock)
+        : id(id), socket(std::move(sock)) {}
+
+    void send(const Packet& p) {
+        socket->send(p);
+    }
+};

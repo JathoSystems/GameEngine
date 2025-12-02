@@ -85,6 +85,17 @@ add_library(Engine SHARED
         src/Scenes/Camera/AttachedCamera.cpp
         src/Scenes/Camera/Viewport.cpp
         game/Main.cpp
+        src/Network/Packet/PacketFactory.cpp
+        src/Network/Packet/PlayerInputPacket.cpp
+        src/Network/Client.cpp
+        src/Network/Server.cpp
+        src/Network/Session.cpp
+        src/Network/Packet/PacketRegistery.cpp
+        src/Network/Sockets/Client/TcpNetworkSocket.cpp
+        src/Network/Sockets/Client/UdpNetworkSocket.cpp
+        src/Network/Sockets/Server/TcpNetworkListener.cpp
+        src/Network/Sockets/Server/UdpNetworkListener.cpp
+        src/Network/Packet/Buffer.cpp
 )
 
 target_precompile_headers(Engine
