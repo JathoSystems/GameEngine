@@ -175,6 +175,7 @@ add_executable(EngineTests
         tests/GameObjects/TextureTests.cpp
         tests/GameObjects/Spritesheets/AnimatorTests.cpp
         tests/GameObjects/Spritesheets/SpritesheetTests.cpp
+        tests/Input/InputTests.cpp
         tests/UI/ButtonTests.cpp
         tests/UI/FontTests.cpp
         tests/UI/TextTests.cpp
