@@ -13,9 +13,9 @@ public:
     void writeFloat(float value);
     void writeString(const std::string& str);
 
-    int32_t readInt();
-    float readFloat();
-    std::string readString();
+    int32_t readInt(size_t& offset);
+    float readFloat(size_t& offset);
+    std::string readString(size_t& offset);
 
     const std::vector<uint8_t>& getData() const { return data; }
     void setData(const std::vector<uint8_t>& newData) { data = newData; }

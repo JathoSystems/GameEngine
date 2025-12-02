@@ -4,15 +4,15 @@
 class TcpNetworkListener: public INetworkListener
 {
 private:
-    int port;
+    asio::ip::tcp::acceptor acceptor;
 public:
-    TcpNetworkListener(int port, int max_clients);
+    TcpNetworkListener(asio::io_context& io, int port, int max_clients)
+        : INetworkListener(io, max_clients, NetworkProtocol::TCP),
+          acceptor(io, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))
+    {}
 
     void start(int port) override;
     void stop() override;
-    void setMaxClients(int maxClients) override;
-    void setProtocol() override { this->protocol = NetworkProtocol::TCP;}
-
 };
 
 

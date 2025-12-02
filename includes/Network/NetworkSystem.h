@@ -3,8 +3,11 @@
 
 class NetworkSystem : public ISystem
 {
+private:
+    bool gameMode;
 public:
-    NetworkSystem();
+    NetworkSystem(bool gameMode) : gameMode(gameMode) {};
+    bool getGameMode();
     void update(float deltaTime) override;
 };
 

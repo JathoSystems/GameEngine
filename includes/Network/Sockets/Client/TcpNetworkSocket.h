@@ -12,4 +12,7 @@ public:
     void connect(std::string ip, int port) override;
     void send(const Packet& packet) override;
     void disconnect() override;
+
+    void asyncReceive(std::function<void(const Packet&)> callback) override;
+    void asyncSend(const Packet& packet, std::function<void(bool)> callback) override;
 };

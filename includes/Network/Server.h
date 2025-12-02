@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 #include "Packet/Packet.h"
 #include "Sockets/Client/INetworkSocket.h"
 #include "Sockets/Server/INetworkListener.h"
@@ -14,6 +15,7 @@ private:
     int next_client_id = 1;
     std::unique_ptr<INetworkListener> listener;
 
+    std::mutex clientsMutex;
     std::map<int32_t, std::shared_ptr<INetworkSocket>> clients;
 
 public:
@@ -22,7 +24,7 @@ public:
 
     void receivePacket(std::shared_ptr<INetworkSocket> socket, int32_t client_id);
 
-    // Asynchronous methods (non-blocking)
+    // async
     void asyncSendPacket(std::shared_ptr<INetworkSocket> socket, Packet packet);
     void asyncBroadcastPackets(Packet packet);
     void asyncBroadcastToOthers(Packet packet, int32_t exclude_client_id);

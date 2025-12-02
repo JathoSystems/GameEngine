@@ -1,18 +1,23 @@
 #pragma once
 
+#include "Buffer.h"
 #include <string>
+#include <vector>
+#include <cstdint>
 
 class Packet
 {
-private:
-    std::string packetName;
-    std::vector<uint8_t> data;
+protected:
+    int32_t packetId;
+    std::string timeStamp;
 
 public:
-    std::string timeStamp;
-    std::vector<uint8_t> serialize() const;
 
-    static Packet deserialize(Buffer buffer);
-    static Packet deserialize(const uint8_t* buffer, size_t length);
+    int32_t getId() const { return packetId; }
 
+    virtual void serialize(Buffer& buffer) const = 0;
+
+    virtual void deserialize(Buffer& buffer) = 0;
+
+    static std::unique_ptr<Packet> createFromBuffer(Buffer& buffer);
 };

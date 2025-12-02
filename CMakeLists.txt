@@ -96,6 +96,11 @@ add_library(Engine SHARED
         src/Network/Sockets/Server/TcpNetworkListener.cpp
         src/Network/Sockets/Server/UdpNetworkListener.cpp
         src/Network/Packet/Buffer.cpp
+        src/Network/Sockets/Server/ConnectionManager.cpp
+        includes/Network/Sockets/Server/ConnectionManager.h
+        includes/Network/Enums/NetworkError.h
+        includes/Network/NetworkResult.h
+        src/Network/Packet/Packet.cpp
 )
 
 target_precompile_headers(Engine

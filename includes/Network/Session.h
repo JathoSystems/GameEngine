@@ -4,13 +4,12 @@
 
 class Session
 {
+private:
     int id;
     std::unique_ptr<INetworkSocket> socket;
 
-    Session(int id, std::unique_ptr<INetworkSocket> sock)
-        : id(id), socket(std::move(sock)) {}
+public:
+    Session(int id, std::unique_ptr<INetworkSocket> sock) : id(id), socket(std::move(sock)) {}
 
-    void send(const Packet& p) {
-        socket->send(p);
-    }
+    void send(const Packet& p) { socket->send(p); }
 };
