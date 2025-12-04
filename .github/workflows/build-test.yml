@@ -159,12 +159,14 @@ jobs:
           
           # Generate coverage with gcovr
           gcovr --root .. \
-                --filter '../src/' \
-                --exclude '../src/.*Test.*' \
-                --exclude '../external/' \
-                --print-summary \
-                --txt coverage.txt \
-                --html-details coverage.html
+            --filter '../src' \
+            --filter '../include' \
+            --exclude '../external' \
+            --exclude '.*Test.*' \
+            --exclude '.*test.*' \
+            --print-summary \
+            --txt coverage.txt \
+            --html-details coverage.html
           
           echo ""
           echo "📈 Coverage Summary:"
