@@ -69,6 +69,22 @@ jobs:
             lcov
           echo "✅ Dependencies installed successfully!"
 
+      - name: 🎥 Setup virtual display and audio for tests
+        run: |
+          echo "🖥️ Installing xvfb for headless display..."
+          sudo apt-get install -y xvfb alsa-utils alsa-oss
+          echo "🎬 Starting virtual framebuffer..."
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          sleep 2
+          echo "✅ Virtual display ready!"
+
+      - name: 🔧 Set environment variables for headless mode
+        run: |
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+          echo "AUDIODEV=null" >> $GITHUB_ENV
+          echo "SDL_AUDIODRIVER=dummy" >> $GITHUB_ENV
+          echo "SDL_VIDEODRIVER=x11" >> $GITHUB_ENV
+
       - name: 💾 Cache SDL3 repositories
         id: cache-sdl
         uses: actions/cache@v4
@@ -89,19 +105,19 @@ jobs:
           rm -rf external/SDL3 external/SDL3_image external/SDL3_TTF
           git clone --depth 1 https://github.com/libsdl-org/SDL.git external/SDL3
           echo "✅ SDL3 cloned"
-          
+
           echo "📥 Cloning SDL3_image..."
           git clone --depth 1 https://github.com/libsdl-org/SDL_image.git external/SDL3_image
           echo "✅ SDL3_image cloned"
-          
+
           echo "📥 Cloning SDL3_TTF..."
           git clone --depth 1 https://github.com/libsdl-org/SDL_ttf external/SDL3_TTF
           echo "✅ SDL3_TTF cloned"
-          
+
           echo "🔄 Updating SDL3_image submodules..."
           cd external/SDL3_image && git submodule update --init --recursive && cd ../../
           echo "✅ SDL3_image submodules updated"
-          
+
           echo "🔄 Updating SDL3_TTF submodules..."
           cd external/SDL3_TTF && git submodule update --init --recursive && cd ../../
           echo "✅ SDL3_TTF submodules updated"
@@ -135,15 +151,15 @@ jobs:
           echo "🧪 Running tests..."
           cd build
           ctest --output-on-failure --verbose
-          
+
           echo ""
           echo "📊 Test Summary:"
           echo "==============="
-          
+
           # Count tests
           TOTAL_TESTS=$(ctest -N | grep "Total Tests:" | awk '{print $3}')
           echo "✅ Total tests executed: $TOTAL_TESTS"
-          
+
           # Check if all tests passed
           if ctest --quiet; then
             echo "🎉 All tests passed!"
@@ -156,7 +172,7 @@ jobs:
         run: |
           echo "📊 Generating coverage report..."
           cd build
-          
+
           # Generate coverage with gcovr
           gcovr --root .. \
             --filter '../src' \
@@ -167,17 +183,17 @@ jobs:
             --print-summary \
             --txt coverage.txt \
             --html-details coverage.html
-          
+
           echo ""
           echo "📈 Coverage Summary:"
           echo "==================="
           cat coverage.txt
-          
+
           # Extract line coverage percentage
           COVERAGE=$(gcovr --root .. --filter '../src/' --exclude '../src/.*Test.*' --exclude '../external/' | grep "TOTAL" | awk '{print $4}')
           echo ""
           echo "🎯 Line Coverage: $COVERAGE"
-          
+
           # Check if coverage is acceptable (e.g., > 75%)
           COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//')
           if (( $(echo "$COVERAGE_NUM > 75" | bc -l) )); then
@@ -199,12 +215,12 @@ jobs:
           echo "📊 Test & Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "=========================" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           cd build
           TOTAL_TESTS=$(ctest -N | grep "Total Tests:" | awk '{print $3}')
           echo "✅ **Tests Passed**: $TOTAL_TESTS/$TOTAL_TESTS" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           echo "📈 **Coverage Report**:" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           cat coverage.txt >> $GITHUB_STEP_SUMMARY
@@ -216,7 +232,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             // Lees coverage informatie
             let coverageText = '';
             let coveragePercentage = '0%';
@@ -229,7 +245,7 @@ jobs:
             } catch (err) {
               coverageText = 'Coverage rapport niet beschikbaar';
             }
-            
+
             // Bepaal emoji op basis van coverage
             const coverageNum = parseFloat(coveragePercentage);
             let coverageEmoji = '✅';
@@ -238,28 +254,28 @@ jobs:
             } else if (coverageNum >= 80) {
               coverageEmoji = '🎉';
             }
-            
+
             // Maak comment body
             const commentBody = `## 🧪 Test & Coverage Resultaten
-            
+
             ### ✅ Tests
             Alle tests zijn succesvol uitgevoerd!
-            
+
             ### ${coverageEmoji} Code Coverage
             **Totale coverage: ${coveragePercentage}**
-            
+
             <details>
             <summary>📊 Gedetailleerd coverage rapport</summary>
-            
+
             \`\`\`
             ${coverageText}
             \`\`\`
-            
+
             </details>
-            
+
             ${coverageNum < 75 ? '⚠️ **Let op:** Coverage is onder de 75% - overweeg meer tests toe te voegen.' : ''}
             ${coverageNum >= 80 ? '🎉 **Geweldig!** Uitstekende test coverage!' : ''}`;
-            
+
             // Plaats comment op PR
             github.rest.issues.createComment({
               issue_number: context.issue.number,
