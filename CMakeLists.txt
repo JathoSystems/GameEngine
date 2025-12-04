@@ -65,6 +65,7 @@ add_library(Engine SHARED
         src/GameObjects/Texture.cpp
         src/GameObjects/Component/Behaviour.cpp
         src/GameObjects/Component/SpriteRenderer.cpp
+        src/GameObjects/Component/AudioComponent.cpp
         src/GameObjects/Spritesheet/Animator.cpp
         src/GameObjects/Spritesheet/Frame.cpp
         src/GameObjects/Spritesheet/SpriteSheet.cpp

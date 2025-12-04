@@ -18,9 +18,9 @@ bool AudioSystem::initialize(int frequency, SDL_AudioFormat format, int channels
         SDL_Log("Failed to initialize AudioEngine");
         return false;
     }
-    
-    loaderFactory->registerDecoder("wav", std::make_unique<WavDecoder>());
-    loaderFactory->registerDecoder("mp3", std::make_unique<Mp3Decoder>());
+
+    loaderFactory->registerDecoder("wav", []() { return std::make_unique<WavDecoder>(); });
+    loaderFactory->registerDecoder("mp3", []() { return std::make_unique<Mp3Decoder>(); });
     
     return true;
 }

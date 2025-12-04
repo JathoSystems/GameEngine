@@ -22,6 +22,11 @@ void GameEngine::init(std::string name, int width, int height) {
     _window = std::make_unique<Window>();
     _window->openWindow(width, height, name);
 
+    _audioSystem = std::make_unique<AudioSystem>();
+    if (!_audioSystem->initialize()) {
+        SDL_Log("Failed to initialize AudioSystem");
+    }
+
     _systems.emplace_back(std::make_unique<SceneSystem>(_window));
     _systems.emplace_back(std::make_unique<InputSystem>());
     _systems.emplace_back(std::make_unique<AiSystem>());

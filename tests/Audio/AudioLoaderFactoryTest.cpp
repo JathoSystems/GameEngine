@@ -5,13 +5,13 @@
 
 TEST_CASE("AudioLoaderFactory", "[audio][factory]") {
     auto factory = std::make_unique<AudioLoaderFactory>();
-    factory->registerDecoder("wav", std::make_unique<WavDecoder>());
-    factory->registerDecoder("mp3", std::make_unique<Mp3Decoder>());
+    factory->registerDecoder("wav", []() { return std::make_unique<WavDecoder>(); });
+    factory->registerDecoder("mp3", []() { return std::make_unique<Mp3Decoder>(); });
 
     SECTION("Decoder Registration") {
         SECTION("Register decoder") {
             auto newFactory = std::make_unique<AudioLoaderFactory>();
-            REQUIRE_NOTHROW(newFactory->registerDecoder("wav", std::make_unique<WavDecoder>()));
+            REQUIRE_NOTHROW(newFactory->registerDecoder("wav", []() { return std::make_unique<WavDecoder>(); }));
         }
     }
 
