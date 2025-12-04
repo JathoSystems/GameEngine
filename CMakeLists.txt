@@ -5,17 +5,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS ON)
-set(CATCH_CONFIG_DEFAULT_REPORTER "junit")
-set(CATCH_CONFIG_CONSOLE_WIDTH 200)
-
-
 # --- Debug/Release optimalisaties ---
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -g)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(-O3 -DNDEBUG)
-endif()
+endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -190,12 +185,29 @@ add_executable(EngineTests
         tests/Audio/WavDecoderTest.cpp
         tests/Audio/Mp3DecoderTest.cpp
         tests/Audio/AudioLoaderFactoryTest.cpp
+        tests/Events/EventManagerTests.cpp
+        tests/Events/EventRegistryTests.cpp
+        tests/GameObjects/GameObjectTesten.cpp
+        tests/GameObjects/TextureTests.cpp
+        tests/GameObjects/Spritesheets/AnimatorTests.cpp
+        tests/GameObjects/Spritesheets/SpritesheetTests.cpp
+        tests/Input/InputTests.cpp
+        tests/UI/ButtonTests.cpp
+        tests/UI/FontTests.cpp
+        tests/UI/TextTests.cpp
+        tests/Scenes/SceneTests.cpp
+        tests/Scenes/CameraTests.cpp
+        tests/Scenes/TestHelper.h
+        tests/Animation/AnimationTests.cpp
+        tests/Animation/KeyframeTests.cpp
+        tests/Animation/Converter/BounceConverterTests.cpp
+        tests/Animation/Converter/ElasticConverterTests.cpp
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-endif()
+endif ()
 
 target_link_libraries(EngineTests
         PRIVATE
@@ -230,7 +242,7 @@ add_custom_command(TARGET EngineTests POST_BUILD
 )
 
 # Windows-only: Copy MinGW runtime DLLs
-if(WIN32 AND MINGW)
+if (WIN32 AND MINGW)
     get_filename_component(MINGW_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 
     add_custom_command(TARGET EngineTests POST_BUILD
@@ -240,13 +252,13 @@ if(WIN32 AND MINGW)
             "${MINGW_BIN_DIR}/libwinpthread-1.dll"
             $<TARGET_FILE_DIR:EngineTests>
     )
-endif()
+endif ()
 
 include(CTest)
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
-# Use PRE_TEST discovery mode to avoid DLL issues during CMake configuration
 catch_discover_tests(EngineTests
         DISCOVERY_MODE PRE_TEST
+        REPORTER console
 )

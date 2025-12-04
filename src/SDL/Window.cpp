@@ -2,7 +2,7 @@
 #include <iostream>
 #include <SDL3/SDL_init.h>
 
-void Window::openWindow(int width, int height, std::string name) {
+void Window::openWindow(int width, int height, std::string name, int flags) {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return;
@@ -12,7 +12,7 @@ void Window::openWindow(int width, int height, std::string name) {
         name.c_str(),
         width,
         height,
-        0
+        flags
     );
 
     if (!_window) {

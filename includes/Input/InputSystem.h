@@ -18,11 +18,10 @@ private:
     std::vector<KeyInputComponent *> _keyComponents;
     std::vector<MouseInputComponent *> _mouseComponents;
 
-    Key sdlKeyToKey(SDL_Keycode sdlKey);
-
-    MouseButton sdlButtonToButton(uint8_t sdlButton);
-
 public:
+    static Key sdlKeyToKey(SDL_Keycode sdlKey);
+
+    static MouseButton sdlButtonToButton(uint8_t sdlButton);
     InputSystem() = default;
 
     void registerKeyComponent(KeyInputComponent *component);

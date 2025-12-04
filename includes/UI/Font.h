@@ -16,12 +16,12 @@ private:
     TTF_Font* _font = nullptr;
     float _size = 24;
 
-    void cleanup();
 
 public:
     Font(const std::string& path, const std::string& name);
     ~Font();
 
+    void cleanup();
     bool load();
     TTF_Font* getSdlFont();
     void setSize(int size);
