@@ -215,6 +215,13 @@ add_executable(EngineTests
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+
+    # Add gcovr exclude patterns for dr_mp3.h
+    set(GCOVR_EXCLUDES
+            --exclude '.*dr_mp3\.h'
+            --exclude '.*/external/.*'
+            --exclude '.*/tests/.*'
+    )
 endif ()
 
 target_link_libraries(EngineTests
