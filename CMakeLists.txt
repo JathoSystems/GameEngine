@@ -218,7 +218,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Cla
 
     # Add gcovr exclude patterns for dr_mp3.h
     set(GCOVR_EXCLUDES
-            --exclude '.*dr_mp3\.h'
+            --exclude '.*/includes/Audio/External/dr_mp3\.h'
             --exclude '.*/external/.*'
             --exclude '.*/tests/.*'
     )
