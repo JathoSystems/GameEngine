@@ -38,10 +38,10 @@ bool Viewport::isInViewPort(GameObject* object) const {
         return false;
     }
 
-    return !(objPos->getX() + objSize->getWidth() < _position.getX() ||
-             objPos->getX() > _position.getX() + _size.getWidth() ||
-             objPos->getY() + objSize->getHeight() < _position.getY() ||
-             objPos->getY() > _position.getY() + _size.getHeight());
+    return !(objPos->getX() + objSize->getWidth() <= _position.getX() ||
+             objPos->getX() >= _position.getX() + _size.getWidth() ||
+             objPos->getY() + objSize->getHeight() <= _position.getY() ||
+             objPos->getY() >= _position.getY() + _size.getHeight());
 }
 
 void Viewport::setPosition(Position position) {

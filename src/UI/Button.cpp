@@ -36,9 +36,7 @@ void Button::update(float deltaTime) {
 
     SDL_FRect rect = transform->toFRect();
 
-    // BELANGRIJK: Zet default waardes als ze 0 zijn
     if (rect.w == 0 || rect.h == 0) {
-        // Je hebt de surface nodig om de grootte te berekenen
         if (_font && !_text.empty()) {
             SDL_Surface* surface = TTF_RenderText_Solid(_font->getSdlFont(), _text.c_str(), 0, _textColor->toSdlColor());
             if (surface) {
@@ -48,7 +46,6 @@ void Button::update(float deltaTime) {
             }
         }
 
-        // Fallback als font/text niet werkt
         if (rect.w == 0) rect.w = 100.0f;
         if (rect.h == 0) rect.h = 40.0f;
     }

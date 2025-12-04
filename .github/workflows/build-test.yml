@@ -1,0 +1,267 @@
+name: GameEngine build and test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 💾 Cache apt packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: >
+            build-essential cmake git pkg-config libx11-dev libxext-dev
+            libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxss-dev
+            libxxf86vm-dev libxfixes-dev libwayland-dev libxkbcommon-dev
+            libdecor-0-dev libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev
+            libglu1-mesa-dev libdrm-dev libgbm-dev libpulse-dev libasound2-dev
+            libjack-dev libpipewire-0.3-dev libsndio-dev libudev-dev
+            libdbus-1-dev libibus-1.0-dev fcitx-libs-dev libxtst-dev
+            gcovr lcov
+          version: 1.0
+
+      - name: 📦 Install system dependencies
+        run: |
+          echo "🔄 Updating package lists..."
+          sudo apt update
+          echo "⚙️ Installing build tools and SDL3 dependencies..."
+          sudo apt install -y \
+            build-essential \
+            cmake \
+            git \
+            pkg-config \
+            libx11-dev \
+            libxext-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxss-dev \
+            libxxf86vm-dev \
+            libxfixes-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libdecor-0-dev \
+            libegl1-mesa-dev \
+            libgles2-mesa-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libdrm-dev \
+            libgbm-dev \
+            libpulse-dev \
+            libasound2-dev \
+            libjack-dev \
+            libpipewire-0.3-dev \
+            libsndio-dev \
+            libudev-dev \
+            libdbus-1-dev \
+            libibus-1.0-dev \
+            fcitx-libs-dev \
+            libxtst-dev \
+            gcovr \
+            lcov
+          echo "✅ Dependencies installed successfully!"
+
+      - name: 💾 Cache SDL3 repositories
+        id: cache-sdl
+        uses: actions/cache@v4
+        with:
+          path: |
+            external/SDL3
+            external/SDL3_image
+            external/SDL3_TTF
+          key: sdl3-repos-v2-${{ hashFiles('.github/workflows/*.yml') }}
+          restore-keys: |
+            sdl3-repos-v2-
+
+      - name: 🔽 Clone SDL3 and dependencies
+        if: steps.cache-sdl.outputs.cache-hit != 'true'
+        run: |
+          echo "📥 Cloning SDL3..."
+          mkdir -p external
+          rm -rf external/SDL3 external/SDL3_image external/SDL3_TTF
+          git clone --depth 1 https://github.com/libsdl-org/SDL.git external/SDL3
+          echo "✅ SDL3 cloned"
+          
+          echo "📥 Cloning SDL3_image..."
+          git clone --depth 1 https://github.com/libsdl-org/SDL_image.git external/SDL3_image
+          echo "✅ SDL3_image cloned"
+          
+          echo "📥 Cloning SDL3_TTF..."
+          git clone --depth 1 https://github.com/libsdl-org/SDL_ttf external/SDL3_TTF
+          echo "✅ SDL3_TTF cloned"
+          
+          echo "🔄 Updating SDL3_image submodules..."
+          cd external/SDL3_image && git submodule update --init --recursive && cd ../../
+          echo "✅ SDL3_image submodules updated"
+          
+          echo "🔄 Updating SDL3_TTF submodules..."
+          cd external/SDL3_TTF && git submodule update --init --recursive && cd ../../
+          echo "✅ SDL3_TTF submodules updated"
+
+      - name: ♻️ Using cached SDL3
+        if: steps.cache-sdl.outputs.cache-hit == 'true'
+        run: echo "✅ SDL3 repositories restored from cache!"
+
+      - name: 💾 Cache CMake build
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: cmake-build-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: |
+            cmake-build-${{ runner.os }}-
+
+      - name: 🔨 Configure CMake
+        run: |
+          echo "⚙️ Configuring CMake with Debug mode for coverage..."
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+          echo "✅ CMake configuration complete!"
+
+      - name: 🏗️ Build project
+        run: |
+          echo "🔨 Building project..."
+          cmake --build build
+          echo "✅ Build complete!"
+
+      - name: 🧪 Run tests
+        run: |
+          echo "🧪 Running tests..."
+          cd build
+          ctest --output-on-failure --verbose
+          
+          echo ""
+          echo "📊 Test Summary:"
+          echo "==============="
+          
+          # Count tests
+          TOTAL_TESTS=$(ctest -N | grep "Total Tests:" | awk '{print $3}')
+          echo "✅ Total tests executed: $TOTAL_TESTS"
+          
+          # Check if all tests passed
+          if ctest --quiet; then
+            echo "🎉 All tests passed!"
+          else
+            echo "❌ Some tests failed!"
+            exit 1
+          fi
+
+      - name: 📈 Generate coverage report
+        run: |
+          echo "📊 Generating coverage report..."
+          cd build
+          
+          # Generate coverage with gcovr
+          gcovr --root .. \
+                --filter '../src/' \
+                --exclude '../src/.*Test.*' \
+                --exclude '../external/' \
+                --print-summary \
+                --txt coverage.txt \
+                --html-details coverage.html
+          
+          echo ""
+          echo "📈 Coverage Summary:"
+          echo "==================="
+          cat coverage.txt
+          
+          # Extract line coverage percentage
+          COVERAGE=$(gcovr --root .. --filter '../src/' --exclude '../src/.*Test.*' --exclude '../external/' | grep "TOTAL" | awk '{print $4}')
+          echo ""
+          echo "🎯 Line Coverage: $COVERAGE"
+          
+          # Check if coverage is acceptable (e.g., > 75%)
+          COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//')
+          if (( $(echo "$COVERAGE_NUM > 75" | bc -l) )); then
+            echo "✅ Coverage is acceptable (>75%)"
+          else
+            echo "⚠️ Coverage is below 75%"
+          fi
+
+      - name: 📤 Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            build/coverage.html
+            build/*.html
+
+      - name: 📊 Coverage summary comment
+        run: |
+          echo "📊 Test & Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "=========================" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          cd build
+          TOTAL_TESTS=$(ctest -N | grep "Total Tests:" | awk '{print $3}')
+          echo "✅ **Tests Passed**: $TOTAL_TESTS/$TOTAL_TESTS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "📈 **Coverage Report**:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat coverage.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: 💬 Post PR comment met testresultaten
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Lees coverage informatie
+            let coverageText = '';
+            let coveragePercentage = '0%';
+            try {
+              coverageText = fs.readFileSync('build/coverage.txt', 'utf8');
+              const match = coverageText.match(/TOTAL.*?(\d+%)/);
+              if (match) {
+                coveragePercentage = match[1];
+              }
+            } catch (err) {
+              coverageText = 'Coverage rapport niet beschikbaar';
+            }
+            
+            // Bepaal emoji op basis van coverage
+            const coverageNum = parseFloat(coveragePercentage);
+            let coverageEmoji = '✅';
+            if (coverageNum < 75) {
+              coverageEmoji = '⚠️';
+            } else if (coverageNum >= 80) {
+              coverageEmoji = '🎉';
+            }
+            
+            // Maak comment body
+            const commentBody = `## 🧪 Test & Coverage Resultaten
+            
+            ### ✅ Tests
+            Alle tests zijn succesvol uitgevoerd!
+            
+            ### ${coverageEmoji} Code Coverage
+            **Totale coverage: ${coveragePercentage}**
+            
+            <details>
+            <summary>📊 Gedetailleerd coverage rapport</summary>
+            
+            \`\`\`
+            ${coverageText}
+            \`\`\`
+            
+            </details>
+            
+            ${coverageNum < 75 ? '⚠️ **Let op:** Coverage is onder de 75% - overweeg meer tests toe te voegen.' : ''}
+            ${coverageNum >= 80 ? '🎉 **Geweldig!** Uitstekende test coverage!' : ''}`;
+            
+            // Plaats comment op PR
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
