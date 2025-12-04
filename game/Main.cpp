@@ -1,92 +1,79 @@
-#include <filesystem>
 #include <iostream>
 #include <memory>
-#include <random>
-#include <algorithm>
-
-#include "AI/components/AiController.hpp"
-#include "AI/states/State.hpp"
-#include "AI/system/AiSystem.hpp"
 #include "Engine/GameEngine.h"
-#include "GameObjects/Component/SpriteRenderer.h"
-#include "Scenes/SceneSystem.h"
-#include "Scenes/Camera/FixedCamera.h"
-
-class StartState : public State {
-private:
-    float _time = 0.0f;
-public:
-    StartState() {
-        addTransition("TB_End", [this]() {
-            return _time >= 5.0f;
-        });
-    }
-
-    void onUpdate(float deltaTime) override {
-        if (deltaTime > 1) return;
-
-        _time += deltaTime;
-    }
-
-    void onExit() override {
-        std::cout << "Exiting Start State\n";
-        if (_object && _object->getTransform() && _object->getTransform()->getSize()) {
-            Size* size = _object->getTransform()->getSize();
-            size->setWidth(100);
-            size->setHeight(100);
-
-            _object->getTransform()->getPosition()->setX(-size->getWidth() / 2);
-            _object->getTransform()->getPosition()->setY(-size->getHeight() / 2);
-        } else {
-            std::cout << "Warning: _object or its members are null!\n";
-        }
-    }
-
-};
-
-class EndState : public State {
-public:
-    void onUpdate(float deltaTime) override {}
-};
+#include "GameObjects/GameObject.h"
+#include "GameObjects/Component/AudioComponent.h"
 
 int main() {
     try {
-        auto engine = std::make_unique<GameEngine>();
-        engine->init("Engine", 400, 400);
-        auto aiSystem = engine->getSystem<AiSystem>();
-        aiSystem->addState("TB_Start", []() { return std::make_unique<StartState>(); });
-        aiSystem->addState("TB_End", []() { return std::make_unique<EndState>(); });
+        auto gameEngine = std::make_unique<GameEngine>();
+        gameEngine->init("Audio Demo with Components", 800, 600);
 
-        auto sceneSystem = engine->getSystem<SceneSystem>();
-        auto scene = std::make_unique<Scene>("main");
-        scene->setCamera(std::make_unique<FixedCamera>(std::make_unique<Viewport>(Size{400, 400}, Position{-200, -200}), Position{0, 0}));
+        AudioSystem* audioSystem = gameEngine->getAudioSystem();
+        if (!audioSystem) {
+            std::cerr << "Failed to get audio system\n";
+            return 1;
+        }
 
-        std::unique_ptr<GameObject> testBoss = std::make_unique<GameObject>();
-        Size* size = testBoss->getTransform()->getSize();
-        size->setWidth(50);
-        size->setHeight(50);
+        // Create player GameObject
+        auto player = std::make_unique<GameObject>();
 
-        testBoss->getTransform()->getPosition()->setX(-size->getWidth() / 2);
-        testBoss->getTransform()->getPosition()->setY(-size->getHeight() / 2);
+        // Add AudioComponent to player
+        auto playerAudio = std::make_unique<AudioComponent>(audioSystem);
 
-        std::unique_ptr<AiController> ai = std::make_unique<AiController>();
-        ai->setParent(testBoss.get());
-        ai->addState("TB_Start");
-        ai->addState("TB_End");
-        ai->setInitialState("TB_Start");
+        // Pre-configure audio clips
+        playerAudio->addClip("footstep", "../resources/audio/level.wav", 0.6f);
+        playerAudio->addClip("jump", "../resources/audio/jump.wav", 0.8f);
+        playerAudio->addClip("land", "../resources/audio/level.wav", 0.7f);
 
-        std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>("../resources/square_lime.png");
+        auto* audioPtr = playerAudio.get();
+        player->addComponent(std::move(playerAudio));
 
-        testBoss->addComponent(std::move(ai));
-        testBoss->addComponent(std::move(sprite));
+        // Create background GameObject for music
+        auto background = std::make_unique<GameObject>();
+        auto bgAudio = std::make_unique<AudioComponent>(audioSystem);
 
-        scene->addObject(std::move(testBoss));
+        bgAudio->addClip("menu_music", "../resources/audio/menu.mp3", 0.5f);
+        bgAudio->addClip("level_music", "../resources/audio/level.wav", 0.6f);
 
-        sceneSystem->setScene("main");
-        sceneSystem->addScene(std::move(scene));
-        engine->start();
-    } catch (const std::exception &e) {
+        auto* bgAudioPtr = bgAudio.get();
+        background->addComponent(std::move(bgAudio));
+
+        // Play background music (looping)
+        bgAudioPtr->play("menu_music", true);
+
+        // Simulate gameplay
+        SDL_Delay(1000);
+
+        // Player jumps
+        audioPtr->playOneShot("jump");
+        SDL_Delay(500);
+
+        // Player lands
+        audioPtr->playOneShot("land");
+        SDL_Delay(1000);
+
+        // Player walks (play footstep with custom volume)
+        audioPtr->playOneShot("footstep", 0.3f);
+        SDL_Delay(300);
+        audioPtr->playOneShot("footstep", 0.3f);
+
+        // Change to level music
+        bgAudioPtr->play("level_music", true);
+
+        // Adjust volume
+        bgAudioPtr->setVolume(0.4f);
+
+        // Set global master volume
+        audioSystem->setMasterVolume(0.7f);
+
+        SDL_Delay(3000);
+
+        bgAudioPtr->stop();
+
+    } catch (const std::exception& e) {
         std::cerr << "[EXCEPTION] " << e.what() << "\n";
+        return 1;
     }
 
     return 0;

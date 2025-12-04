@@ -52,6 +52,27 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
+set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
+set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
+
+if(NOT EXISTS ${DR_MP3_FILE})
+    message(STATUS "Downloading dr_mp3.h...")
+    file(MAKE_DIRECTORY ${DR_MP3_DIR})
+    file(DOWNLOAD
+            "https://raw.githubusercontent.com/mackron/dr_libs/master/dr_mp3.h"
+            ${DR_MP3_FILE}
+            SHOW_PROGRESS
+            STATUS DOWNLOAD_STATUS
+    )
+    list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
+    if(NOT STATUS_CODE EQUAL 0)
+        message(FATAL_ERROR "Failed to download dr_mp3.h")
+    endif()
+    message(STATUS "Downloaded dr_mp3.h successfully")
+else()
+    message(STATUS "dr_mp3.h already exists")
+endif()
+
 # --- Engine library ---
 add_library(Engine SHARED
         src/Engine/GameEngine.cpp
@@ -60,6 +81,7 @@ add_library(Engine SHARED
         src/GameObjects/Texture.cpp
         src/GameObjects/Component/Behaviour.cpp
         src/GameObjects/Component/SpriteRenderer.cpp
+        src/GameObjects/Component/AudioComponent.cpp
         src/GameObjects/Spritesheet/Animator.cpp
         src/GameObjects/Spritesheet/Frame.cpp
         src/GameObjects/Spritesheet/SpriteSheet.cpp
@@ -108,6 +130,12 @@ add_library(Engine SHARED
         src/AI/pathfinding/heuristic/EuclideanHeuristicCalculator.cpp
         src/AI/pathfinding/heuristic/ManhattenHeuristicCalculator.cpp
         src/AI/pathfinding/heuristic/HeuristicCalculatorFactory.cpp
+        src/Audio/Decoder/Mp3Decoder.cpp
+        src/Audio/Decoder/WavDecoder.cpp
+        src/Audio/AudioSystem.cpp
+        src/Audio/AudioEngine.cpp
+        src/Audio/AudioLoaderFactory.cpp
+        src/Audio/SoundCache.cpp
 )
 
 target_precompile_headers(Engine
@@ -120,6 +148,8 @@ target_precompile_headers(Engine
 target_include_directories(Engine
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
 
 target_link_libraries(Engine
@@ -163,6 +193,7 @@ add_custom_command(TARGET GameEngine POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
         $<TARGET_FILE_DIR:GameEngine>/resources
 )
+
 # --- Tests ---
 enable_testing()
 
@@ -171,6 +202,12 @@ add_executable(EngineTests
         tests/AI/states/StateRegistryTests.cpp
         tests/AI/pathfinding/AStarPathfinderTests.cpp
         tests/AI/components/AiComponentTests.cpp
+        tests/Audio/AudioSystemTest.cpp
+        tests/Audio/AudioEngineTest.cpp
+        tests/Audio/SoundCacheTest.cpp
+        tests/Audio/WavDecoderTest.cpp
+        tests/Audio/Mp3DecoderTest.cpp
+        tests/Audio/AudioLoaderFactoryTest.cpp
         tests/Events/EventManagerTests.cpp
         tests/Events/EventRegistryTests.cpp
         tests/GameObjects/GameObjectTesten.cpp
@@ -194,6 +231,7 @@ add_executable(EngineTests
         tests/AI/system/AiSystemTests.cpp
         tests/AI/transitions/LambdaTransitionsTests.cpp
         tests/GameObjects/components/BehaviorTests.cpp
+        tests/GameObjects/components/AudioComponentTests.cpp
         tests/UI/ColorTests.cpp
         tests/Scenes/SceneSystemTests.cpp
 )
@@ -230,6 +268,9 @@ add_custom_command(TARGET EngineTests POST_BUILD
         $<TARGET_FILE:Catch2::Catch2>
         $<TARGET_FILE:Catch2::Catch2WithMain>
         $<TARGET_FILE_DIR:EngineTests>
+
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:EngineTests>/test_resources
 )
 
 # Windows-only: Copy MinGW runtime DLLs
