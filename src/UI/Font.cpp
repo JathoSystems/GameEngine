@@ -21,7 +21,8 @@ void Font::cleanup() {
 }
 
 bool Font::load() {
-    cleanup(); // Sluit eerst het oude font!
+    if (_font)
+        cleanup();
 
     _font = TTF_OpenFont(_path.c_str(), _size);
     if (!_font) {

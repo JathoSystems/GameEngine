@@ -1,0 +1,9 @@
+cmake-build-*
+.git
+*.o
+*.obj
+*.exe
+*.dll
+*.pdb
+.idea
+.vscode

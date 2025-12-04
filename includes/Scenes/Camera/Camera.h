@@ -8,6 +8,7 @@ private:
     std::unique_ptr<Viewport> _viewport;
 
 public:
+    virtual ~Camera() = default;
     Camera(std::unique_ptr<Viewport> port);
     Viewport* getViewPort();
     virtual Position getPosition() const = 0;

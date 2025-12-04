@@ -5,6 +5,8 @@
 #include "../../Input/IMouseListener.h"
 #include <memory>
 
+#include "GameObjects/Transform/Position.h"
+
 class MouseInputComponent : public Component {
 private:
     GameObject *_gameObject;
@@ -15,7 +17,7 @@ public:
 
     void setListener(IMouseListener *listener);
 
-    void handleMouseMoved(MouseButton button);
+    void handleMouseMoved(std::unique_ptr<Position> position);
 
     void handleMouseClicked(MouseButton button);
 

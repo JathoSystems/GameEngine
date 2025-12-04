@@ -55,6 +55,8 @@ Key InputSystem::sdlKeyToKey(SDL_Keycode sdlKey) {
     return (it != SDL_TO_KEY_MAP.end()) ? it->second : Key::SPACE;
 }
 
+
+
 MouseButton InputSystem::sdlButtonToButton(uint8_t sdlButton) {
     switch (sdlButton) {
         case SDL_BUTTON_LEFT: return MouseButton::LEFT;
@@ -104,7 +106,9 @@ void InputSystem::processInput() {
             }
             case SDL_EVENT_MOUSE_MOTION: {
                 for (auto *component: _mouseComponents) {
-                    component->handleMouseMoved(MouseButton::LEFT);
+                    int x = event.motion.x;
+                    int y = event.motion.y;
+                    component->handleMouseMoved(std::make_unique<Position>(x, y));
                 }
                 break;
             }

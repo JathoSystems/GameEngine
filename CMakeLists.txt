@@ -8,11 +8,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_definitions(ASIO_STANDALONE)
 
 # --- Debug/Release optimalisaties ---
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -g)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(-O3 -DNDEBUG)
-endif()
+endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -43,6 +43,16 @@ set(SDL3TTF_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/SDL3 EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_image EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_TTF EXCLUDE_FROM_ALL)
+
+include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.5.2
+)
+
+FetchContent_MakeAvailable(Catch2)
 
 # --- Engine library ---
 add_library(Engine SHARED
@@ -80,6 +90,8 @@ add_library(Engine SHARED
         src/Animation/Converter/ElasticConvert.cpp
         src/Events/EventManager.cpp
         src/Events/EventRegistry.cpp
+        src/AI/pathfinding/AStarPathfinder.cpp
+        src/AI/pathfinding/PathfinderFactory.cpp
         src/Scenes/Camera/Camera.cpp
         src/Scenes/Camera/FixedCamera.cpp
         src/Scenes/Camera/AttachedCamera.cpp
@@ -101,6 +113,20 @@ add_library(Engine SHARED
         includes/Network/Enums/NetworkError.h
         includes/Network/NetworkResult.h
         src/Network/Packet/Packet.cpp
+        includes/AI/states/State.hpp
+        src/AI/states/State.cpp
+        includes/AI/transition/ITransition.h
+        src/AI/states/StateManager.cpp
+        includes/AI/components/AiController.hpp
+        src/AI/components/AiController.cpp
+        includes/AI/states/StateRegistry.h
+        src/AI/states/StateRegistry.cpp
+        src/AI/transition/LambdaTransition.cpp
+        src/AI/system/AiSystem.cpp
+        includes/AI/pathfinding/heuristics/IHeuristicCalculator.hpp
+        src/AI/pathfinding/heuristic/EuclideanHeuristicCalculator.cpp
+        src/AI/pathfinding/heuristic/ManhattenHeuristicCalculator.cpp
+        src/AI/pathfinding/heuristic/HeuristicCalculatorFactory.cpp
 )
 
 target_precompile_headers(Engine
@@ -167,4 +193,83 @@ add_custom_command(TARGET GameEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
         $<TARGET_FILE_DIR:GameEngine>/resources
+)
+# --- Tests ---
+enable_testing()
+
+add_executable(EngineTests
+        tests/AI/states/StateManagerTests.cpp
+        tests/AI/states/StateRegistryTests.cpp
+        tests/AI/pathfinding/AStarPathfinderTests.cpp
+        tests/AI/components/AiComponentTests.cpp
+        tests/Events/EventManagerTests.cpp
+        tests/Events/EventRegistryTests.cpp
+        tests/GameObjects/GameObjectTesten.cpp
+        tests/GameObjects/TextureTests.cpp
+        tests/GameObjects/Spritesheets/AnimatorTests.cpp
+        tests/GameObjects/Spritesheets/SpritesheetTests.cpp
+        tests/Input/InputTests.cpp
+        tests/UI/ButtonTests.cpp
+        tests/UI/FontTests.cpp
+        tests/UI/TextTests.cpp
+        tests/Animation/AnimationTests.cpp
+        tests/Animation/KeyframeTests.cpp
+        tests/Animation/Converter/BounceConverterTests.cpp
+        tests/Animation/Converter/ElasticConverterTests.cpp
+)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+endif ()
+
+target_link_libraries(EngineTests
+        PRIVATE
+        Engine
+        Catch2::Catch2WithMain
+)
+
+target_include_directories(EngineTests
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/includes
+)
+
+# Copy DLLs BEFORE test discovery runs
+add_custom_command(TARGET EngineTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:Engine>
+        $<TARGET_FILE_DIR:EngineTests>
+
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3::SDL3>
+        $<TARGET_FILE:SDL3_image::SDL3_image>
+        $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+        $<TARGET_FILE_DIR:EngineTests>
+
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:Catch2::Catch2>
+        $<TARGET_FILE:Catch2::Catch2WithMain>
+        $<TARGET_FILE_DIR:EngineTests>
+)
+
+# Windows-only: Copy MinGW runtime DLLs
+if (WIN32 AND MINGW)
+    get_filename_component(MINGW_BIN_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
+
+    add_custom_command(TARGET EngineTests POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${MINGW_BIN_DIR}/libgcc_s_seh-1.dll"
+            "${MINGW_BIN_DIR}/libstdc++-6.dll"
+            "${MINGW_BIN_DIR}/libwinpthread-1.dll"
+            $<TARGET_FILE_DIR:EngineTests>
+    )
+endif ()
+
+include(CTest)
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(Catch)
+
+catch_discover_tests(EngineTests
+        DISCOVERY_MODE PRE_TEST
+        REPORTER console
 )

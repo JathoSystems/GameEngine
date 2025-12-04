@@ -8,6 +8,8 @@
 #include <vector>
 #include <memory>
 
+#include "GameObjects/Transform/Position.h"
+
 class KeyInputComponent;
 class MouseInputComponent;
 
@@ -16,11 +18,10 @@ private:
     std::vector<KeyInputComponent *> _keyComponents;
     std::vector<MouseInputComponent *> _mouseComponents;
 
-    Key sdlKeyToKey(SDL_Keycode sdlKey);
-
-    MouseButton sdlButtonToButton(uint8_t sdlButton);
-
 public:
+    static Key sdlKeyToKey(SDL_Keycode sdlKey);
+
+    static MouseButton sdlButtonToButton(uint8_t sdlButton);
     InputSystem() = default;
 
     void registerKeyComponent(KeyInputComponent *component);
@@ -34,6 +35,8 @@ public:
     void processInput();
 
     void update(float deltaTime) override;
+
+    std::unique_ptr<Position> getMousePosition() const;
 };
 
 #endif
