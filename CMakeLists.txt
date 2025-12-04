@@ -177,7 +177,6 @@ add_executable(EngineTests
         tests/GameObjects/TextureTests.cpp
         tests/GameObjects/Spritesheets/AnimatorTests.cpp
         tests/GameObjects/Spritesheets/SpritesheetTests.cpp
-        tests/Input/InputTests.cpp
         tests/UI/ButtonTests.cpp
         tests/UI/FontTests.cpp
         tests/UI/TextTests.cpp
@@ -185,6 +184,9 @@ add_executable(EngineTests
         tests/Animation/KeyframeTests.cpp
         tests/Animation/Converter/BounceConverterTests.cpp
         tests/Animation/Converter/ElasticConverterTests.cpp
+        tests/Input/InputSystemTests.cpp
+        tests/Input/KeyInputComponentTests.cpp
+        tests/Input/MouseInputComponentTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
