@@ -181,6 +181,9 @@ add_executable(EngineTests
         tests/UI/ButtonTests.cpp
         tests/UI/FontTests.cpp
         tests/UI/TextTests.cpp
+        tests/Scenes/SceneTests.cpp
+        tests/Scenes/CameraTests.cpp
+        tests/Scenes/TestHelper.h
         tests/Animation/AnimationTests.cpp
         tests/Animation/KeyframeTests.cpp
         tests/Animation/Converter/BounceConverterTests.cpp
