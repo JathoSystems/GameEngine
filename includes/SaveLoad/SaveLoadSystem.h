@@ -1,0 +1,8 @@
+//
+// Created by Jochem de Graaf on 04/12/2025.
+//
+
+#ifndef GAMEENGINE_SAVELOADSYSTEM_H
+#define GAMEENGINE_SAVELOADSYSTEM_H
+
+#endif //GAMEENGINE_SAVELOADSYSTEM_H
