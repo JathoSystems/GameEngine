@@ -182,6 +182,7 @@ add_executable(EngineTests
         tests/UI/TextTests.cpp
         tests/Scenes/SceneTests.cpp
         tests/Scenes/CameraTests.cpp
+        tests/Scenes/TestHelper.h
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

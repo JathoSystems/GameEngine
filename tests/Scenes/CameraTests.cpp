@@ -4,17 +4,8 @@
 #include "Scenes/Camera/AttachedCamera.h"
 #include "Scenes/Camera/Viewport.h"
 #include "GameObjects/GameObject.h"
+#include "TestHelper.h"
 
-// Helper function to create a GameObject with specific layer and transform
-std::unique_ptr<GameObject> createGameObject(int layer, Position pos = Position(0, 0), Size size = Size(10, 10)) {
-    auto obj = std::make_unique<GameObject>();
-    obj->setLayer(layer);
-    obj->getTransform()->getPosition()->setX(pos.getX());
-    obj->getTransform()->getPosition()->setY(pos.getY());
-    obj->getTransform()->getSize()->setWidth(size.getWidth());
-    obj->getTransform()->getSize()->setHeight(size.getHeight());
-    return obj;
-}
 
 // =============================================================================
 // VIEWPORT TESTS
@@ -24,47 +15,47 @@ TEST_CASE("Viewport: isInViewPort collision detection", "[Viewport]") {
     Viewport viewport(Size(800, 600), Position(0, 0));
 
     SECTION("Happy flow - Object fully inside viewport") {
-        auto obj = createGameObject(1, Position(100, 100), Size(50, 50));
+        auto obj = create_game_object(1, Position(100, 100), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Happy flow - Object partially inside viewport (top-left)") {
-        auto obj = createGameObject(1, Position(-25, -25), Size(50, 50));
+        auto obj = create_game_object(1, Position(-25, -25), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Happy flow - Object partially inside viewport (bottom-right)") {
-        auto obj = createGameObject(1, Position(775, 575), Size(50, 50));
+        auto obj = create_game_object(1, Position(775, 575), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Happy flow - Object partially inside viewport (top-right)") {
-        auto obj = createGameObject(1, Position(775, -25), Size(50, 50));
+        auto obj = create_game_object(1, Position(775, -25), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Happy flow - Object partially inside viewport (bottom-left)") {
-        auto obj = createGameObject(1, Position(-25, 575), Size(50, 50));
+        auto obj = create_game_object(1, Position(-25, 575), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Bad flow - Object completely outside viewport (left)") {
-        auto obj = createGameObject(1, Position(-100, 100), Size(50, 50));
+        auto obj = create_game_object(1, Position(-100, 100), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == false);
     }
 
     SECTION("Bad flow - Object completely outside viewport (right)") {
-        auto obj = createGameObject(1, Position(900, 100), Size(50, 50));
+        auto obj = create_game_object(1, Position(900, 100), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == false);
     }
 
     SECTION("Bad flow - Object completely outside viewport (top)") {
-        auto obj = createGameObject(1, Position(100, -100), Size(50, 50));
+        auto obj = create_game_object(1, Position(100, -100), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == false);
     }
 
     SECTION("Bad flow - Object completely outside viewport (bottom)") {
-        auto obj = createGameObject(1, Position(100, 700), Size(50, 50));
+        auto obj = create_game_object(1, Position(100, 700), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == false);
     }
 
@@ -73,37 +64,37 @@ TEST_CASE("Viewport: isInViewPort collision detection", "[Viewport]") {
     }
 
     SECTION("Edge case - Object exactly at viewport boundary (origin)") {
-        auto obj = createGameObject(1, Position(0, 0), Size(1, 1));
+        auto obj = create_game_object(1, Position(0, 0), Size(1, 1));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Edge case - Object exactly at viewport boundary (top-right corner)") {
-        auto obj = createGameObject(1, Position(799, 0), Size(1, 1));
+        auto obj = create_game_object(1, Position(799, 0), Size(1, 1));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Edge case - Object exactly at viewport boundary (bottom-left corner)") {
-        auto obj = createGameObject(1, Position(0, 599), Size(1, 1));
+        auto obj = create_game_object(1, Position(0, 599), Size(1, 1));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Edge case - Object touching viewport edge from outside (right edge)") {
-        auto obj = createGameObject(1, Position(800, 300), Size(50, 50));
+        auto obj = create_game_object(1, Position(800, 300), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == false);
     }
 
     SECTION("Edge case - Object touching viewport edge from outside (bottom edge)") {
-        auto obj = createGameObject(1, Position(300, 600), Size(50, 50));
+        auto obj = create_game_object(1, Position(300, 600), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == false);
     }
 
     SECTION("Edge case - Very large object overlapping viewport") {
-        auto obj = createGameObject(1, Position(-500, -500), Size(2000, 2000));
+        auto obj = create_game_object(1, Position(-500, -500), Size(2000, 2000));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Edge case - Single pixel object at viewport center") {
-        auto obj = createGameObject(1, Position(400, 300), Size(1, 1));
+        auto obj = create_game_object(1, Position(400, 300), Size(1, 1));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 }
@@ -113,28 +104,28 @@ TEST_CASE("Viewport: isInViewPort with different viewport positions", "[Viewport
         Viewport viewport(Size(800, 600), Position(100, 100));
 
         // Object inside the offset viewport
-        auto obj1 = createGameObject(1, Position(200, 200), Size(50, 50));
+        auto obj1 = create_game_object(1, Position(200, 200), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj1.get()) == true);
 
         // Object outside but would be inside if viewport was at origin
-        auto obj2 = createGameObject(1, Position(50, 50), Size(50, 50));
+        auto obj2 = create_game_object(1, Position(50, 50), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj2.get()) == false);
     }
 
     SECTION("Edge case - Viewport at negative position") {
         Viewport viewport(Size(800, 600), Position(-200, -200));
 
-        auto obj = createGameObject(1, Position(-100, -100), Size(50, 50));
+        auto obj = create_game_object(1, Position(-100, -100), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj.get()) == true);
     }
 
     SECTION("Edge case - Very large viewport position") {
         Viewport viewport(Size(800, 600), Position(10000, 10000));
 
-        auto obj1 = createGameObject(1, Position(10400, 10300), Size(50, 50));
+        auto obj1 = create_game_object(1, Position(10400, 10300), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj1.get()) == true);
 
-        auto obj2 = createGameObject(1, Position(400, 300), Size(50, 50));
+        auto obj2 = create_game_object(1, Position(400, 300), Size(50, 50));
         REQUIRE(viewport.isInViewPort(obj2.get()) == false);
     }
 }
@@ -194,7 +185,7 @@ TEST_CASE("FixedCamera: move position updates", "[FixedCamera]") {
 // =============================================================================
 
 TEST_CASE("AttachedCamera: follows target object", "[AttachedCamera]") {
-    auto target = createGameObject(1, Position(500, 400), Size(10, 10));
+    auto target = create_game_object(1, Position(500, 400), Size(10, 10));
     GameObject* targetPtr = target.get();
 
     auto viewport = std::make_unique<Viewport>();
@@ -242,9 +233,9 @@ TEST_CASE("AttachedCamera: follows target object", "[AttachedCamera]") {
 }
 
 TEST_CASE("AttachedCamera: switchAttachedObject behavior", "[AttachedCamera]") {
-    auto target1 = createGameObject(1, Position(100, 100), Size(10, 10));
-    auto target2 = createGameObject(1, Position(200, 200), Size(10, 10));
-    auto target3 = createGameObject(1, Position(300, 300), Size(10, 10));
+    auto target1 = create_game_object(1, Position(100, 100), Size(10, 10));
+    auto target2 = create_game_object(1, Position(200, 200), Size(10, 10));
+    auto target3 = create_game_object(1, Position(300, 300), Size(10, 10));
 
     GameObject* target1Ptr = target1.get();
     GameObject* target2Ptr = target2.get();
@@ -294,7 +285,7 @@ TEST_CASE("AttachedCamera: switchAttachedObject behavior", "[AttachedCamera]") {
 }
 
 TEST_CASE("AttachedCamera: tracks moving target in real-time", "[AttachedCamera]") {
-    auto player = createGameObject(1, Position(0, 0), Size(32, 32));
+    auto player = create_game_object(1, Position(0, 0), Size(32, 32));
     GameObject* playerPtr = player.get();
 
     auto viewport = std::make_unique<Viewport>();
@@ -357,8 +348,8 @@ TEST_CASE("Integration: Camera and Viewport working together", "[Integration]") 
     }
 
     SECTION("Happy flow - Attached camera following player with viewport culling") {
-        auto player = createGameObject(1, Position(400, 300), Size(32, 32));
-        auto enemy = createGameObject(2, Position(1000, 1000), Size(32, 32));
+        auto player = create_game_object(1, Position(400, 300), Size(32, 32));
+        auto enemy = create_game_object(2, Position(1000, 1000), Size(32, 32));
 
         GameObject* playerPtr = player.get();
         GameObject* enemyPtr = enemy.get();
@@ -397,7 +388,7 @@ TEST_CASE("Integration: Camera and Viewport working together", "[Integration]") 
     }
 
     SECTION("Edge case - Switch camera types mid-game") {
-        auto player = createGameObject(1, Position(100, 100), Size(32, 32));
+        auto player = create_game_object(1, Position(100, 100), Size(32, 32));
         GameObject* playerPtr = player.get();
 
         // Start with fixed camera
