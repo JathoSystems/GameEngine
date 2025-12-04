@@ -202,6 +202,14 @@ add_executable(EngineTests
         tests/Animation/KeyframeTests.cpp
         tests/Animation/Converter/BounceConverterTests.cpp
         tests/Animation/Converter/ElasticConverterTests.cpp
+        tests/Engine/GameEngineTests.cpp
+        tests/Engine/TimeManagerTests.cpp
+        tests/GameObjects/components/SpriteRenderer.cpp
+        tests/AI/system/AiSystemTests.cpp
+        tests/AI/transitions/LambdaTransitionsTests.cpp
+        tests/GameObjects/components/BehaviorTests.cpp
+        tests/UI/ColorTests.cpp
+        tests/Scenes/SceneSystemTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
