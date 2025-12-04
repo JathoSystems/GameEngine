@@ -1,3 +1,4 @@
+#include <iostream>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 #include "Scenes/Scene.h"
@@ -11,6 +12,29 @@
 // =============================================================================
 // SCENE TESTS
 // =============================================================================
+
+class DummyGameObject : public GameObject {
+public:
+    bool updated = false;
+    bool rendered = false;
+
+    void update(float delta) {
+        std::cout << "IK ZIT IN UPDATE" << std::endl;
+        updated = true;
+    }
+    void render(const std::unique_ptr<Window>&) { rendered = true; }
+};
+
+class DummyCamera : public Camera {
+public:
+    DummyCamera(std::unique_ptr<Viewport> vp) : Camera(std::move(vp)) {}
+    Position getPosition() const override { return Position(0, 0); }
+    Viewport* getViewPort() const {
+        static Viewport vp;
+        vp.setSize(Size(100,100));
+        return &vp;
+    }
+};
 
 TEST_CASE("Scene: addObject sorts by layer", "[Scene]") {
     Scene scene("TestScene");
@@ -269,5 +293,24 @@ TEST_CASE("Integration: Complete scene workflow", "[Integration]") {
         }
 
         REQUIRE(manager.getActiveSceneObj()->getName() == "Scene3");
+    }
+
+    SECTION("Render with camera and viewport") {
+        auto window = std::make_unique<Window>();
+        Scene scene("TestScene");
+
+        auto obj = std::make_unique<DummyGameObject>();
+        DummyGameObject* objPtr = obj.get();
+        objPtr->getTransform()->getPosition()->setX(10);
+        objPtr->getTransform()->getPosition()->setY(10);
+        objPtr->getTransform()->getSize()->setWidth(10);
+        objPtr->getTransform()->getSize()->setHeight(10);
+        scene.addObject(std::move(obj));
+
+        auto viewport = std::make_unique<Viewport>(Size(1000, 1000), Position(0, 0));
+        auto camera = std::make_unique<DummyCamera>(std::move(viewport));
+        scene.setCamera(std::move(camera));
+
+        REQUIRE_NOTHROW(scene.render(window, 0.016f));
     }
 }
