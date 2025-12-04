@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include "DecodedAudio.h"
+#include <algorithm>
 
 class AudioEngine {
 public:

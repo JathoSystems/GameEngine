@@ -6,6 +6,7 @@
 #include <string>
 #include "Decoder/IAudioDecoder.h"
 #include "DecodedAudio.h"
+#include <functional>
 
 
 class AudioLoaderFactory {
