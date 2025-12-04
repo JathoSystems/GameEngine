@@ -1,7 +1,7 @@
 #include "Audio/Decoder/Mp3Decoder.h"
 
 #define DR_MP3_IMPLEMENTATION
-#include "../external/dr_mp3.h"
+#include "dr_mp3.h"
 #include <cstring>
 #include <SDL3/SDL.h>
 
