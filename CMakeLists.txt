@@ -52,6 +52,27 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
+set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
+set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
+
+if(NOT EXISTS ${DR_MP3_FILE})
+    message(STATUS "Downloading dr_mp3.h...")
+    file(MAKE_DIRECTORY ${DR_MP3_DIR})
+    file(DOWNLOAD
+            "https://raw.githubusercontent.com/mackron/dr_libs/master/dr_mp3.h"
+            ${DR_MP3_FILE}
+            SHOW_PROGRESS
+            STATUS DOWNLOAD_STATUS
+    )
+    list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
+    if(NOT STATUS_CODE EQUAL 0)
+        message(FATAL_ERROR "Failed to download dr_mp3.h")
+    endif()
+    message(STATUS "Downloaded dr_mp3.h successfully")
+else()
+    message(STATUS "dr_mp3.h already exists")
+endif()
+
 # --- Engine library ---
 add_library(Engine SHARED
         src/Engine/GameEngine.cpp
