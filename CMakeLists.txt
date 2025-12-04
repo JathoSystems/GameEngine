@@ -180,6 +180,8 @@ add_executable(EngineTests
         tests/UI/ButtonTests.cpp
         tests/UI/FontTests.cpp
         tests/UI/TextTests.cpp
+        tests/Scenes/SceneTests.cpp
+        tests/Scenes/CameraTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
