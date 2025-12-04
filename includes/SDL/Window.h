@@ -17,7 +17,7 @@ private:
 
 public:
     ~Window();
-    void openWindow(int width, int height, std::string name);
+    void openWindow(int width, int height, std::string name, int flags = 0);
 
     SDL_Window * getWindow();
     SDL_Renderer* getRenderer();
