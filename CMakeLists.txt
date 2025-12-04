@@ -171,6 +171,8 @@ add_executable(EngineTests
         tests/AI/states/StateRegistryTests.cpp
         tests/AI/pathfinding/AStarPathfinderTests.cpp
         tests/AI/components/AiComponentTests.cpp
+        tests/Events/EventManagerTests.cpp
+        tests/Events/EventRegistryTests.cpp
         tests/GameObjects/GameObjectTesten.cpp
         tests/GameObjects/TextureTests.cpp
         tests/GameObjects/Spritesheets/AnimatorTests.cpp
@@ -179,6 +181,10 @@ add_executable(EngineTests
         tests/UI/ButtonTests.cpp
         tests/UI/FontTests.cpp
         tests/UI/TextTests.cpp
+        tests/Animation/AnimationTests.cpp
+        tests/Animation/KeyframeTests.cpp
+        tests/Animation/Converter/BounceConverterTests.cpp
+        tests/Animation/Converter/ElasticConverterTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
