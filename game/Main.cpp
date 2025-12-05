@@ -1,80 +1,97 @@
 #include <iostream>
-#include <memory>
-#include "Engine/GameEngine.h"
-#include "GameObjects/GameObject.h"
-#include "GameObjects/Component/AudioComponent.h"
+#include <string>
+#include "SaveLoad/SaveLoadSystem.h"
+#include "SaveLoad/BaseMemento.h"
 
-int main() {
-    try {
-        auto gameEngine = std::make_unique<GameEngine>();
-        gameEngine->init("Audio Demo with Components", 800, 600);
+struct PlayerData {
+    std::string name;
+    int health;
+    float posX, posY;
+};
 
-        AudioSystem* audioSystem = gameEngine->getAudioSystem();
-        if (!audioSystem) {
-            std::cerr << "Failed to get audio system\n";
-            return 1;
-        }
-
-        // Create player GameObject
-        auto player = std::make_unique<GameObject>();
-
-        // Add AudioComponent to player
-        auto playerAudio = std::make_unique<AudioComponent>(audioSystem);
-
-        // Pre-configure audio clips
-        playerAudio->addClip("footstep", "../resources/audio/level.wav", 0.6f);
-        playerAudio->addClip("jump", "../resources/audio/jump.wav", 0.8f);
-        playerAudio->addClip("land", "../resources/audio/level.wav", 0.7f);
-
-        auto* audioPtr = playerAudio.get();
-        player->addComponent(std::move(playerAudio));
-
-        // Create background GameObject for music
-        auto background = std::make_unique<GameObject>();
-        auto bgAudio = std::make_unique<AudioComponent>(audioSystem);
-
-        bgAudio->addClip("menu_music", "../resources/audio/menu.mp3", 0.5f);
-        bgAudio->addClip("level_music", "../resources/audio/level.wav", 0.6f);
-
-        auto* bgAudioPtr = bgAudio.get();
-        background->addComponent(std::move(bgAudio));
-
-        // Play background music (looping)
-        bgAudioPtr->play("menu_music", true);
-
-        // Simulate gameplay
-        SDL_Delay(1000);
-
-        // Player jumps
-        audioPtr->playOneShot("jump");
-        SDL_Delay(500);
-
-        // Player lands
-        audioPtr->playOneShot("land");
-        SDL_Delay(1000);
-
-        // Player walks (play footstep with custom volume)
-        audioPtr->playOneShot("footstep", 0.3f);
-        SDL_Delay(300);
-        audioPtr->playOneShot("footstep", 0.3f);
-
-        // Change to level music
-        bgAudioPtr->play("level_music", true);
-
-        // Adjust volume
-        bgAudioPtr->setVolume(0.4f);
-
-        // Set global master volume
-        audioSystem->setMasterVolume(0.7f);
-
-        SDL_Delay(3000);
-
-        bgAudioPtr->stop();
-
-    } catch (const std::exception& e) {
-        std::cerr << "[EXCEPTION] " << e.what() << "\n";
-        return 1;
+class GameSaveData : public BaseMemento {
+public:
+    void setPlayerData(const PlayerData& player) {
+        nlohmann::json j;
+        j["name"] = player.name;
+        j["health"] = player.health;
+        j["pos"] = {player.posX, player.posY};
+        setData("player", j);
     }
 
+    PlayerData getPlayerData() const {
+        PlayerData player;
+        auto j = getData("player");
+        if (!j.is_null()) {
+            player.name = j["name"];
+            player.health = j["health"];
+            player.posX = j["pos"][0];
+            player.posY = j["pos"][1];
+        }
+        return player;
+    }
+
+    void setCurrentLevel(const std::string& level) {
+        setData("currentLevel", level);
+    }
+
+    std::string getCurrentLevel() const {
+        auto j = getData("currentLevel");
+        return j.is_string() ? j.get<std::string>() : "Level_01";
+    }
+};
+
+int main() {
+    std::cout << "=== Save/Load System Demo ===\n\n";
+
+    SaveLoadSystem saveSystem;
+    saveSystem.initialize("./my_game_saves");
+
+    // --- Create and save custom game data ---
+    std::cout << "Creating new save data...\n";
+    GameSaveData saveData;
+    saveData.setPlayerData({"Hero", 100, 10.5f, 20.3f});
+    saveData.setCurrentLevel("Level_03");
+    saveData.setData("score", 1500);
+    saveData.setData("inventory", nlohmann::json::array({"sword", "shield", "potion"}));
+
+    if (saveSystem.save(saveData, "slot1")) {
+        std::cout << "✓ Game saved to slot1!\n\n";
+    } else {
+        std::cout << "✗ Failed to save game.\n\n";
+    }
+
+    // --- Load saved data ---
+    std::cout << "Loading save from slot1...\n";
+    GameSaveData loadedData;
+    if (saveSystem.load(loadedData, "slot1")) {
+        std::cout << "✓ Game loaded successfully!\n";
+
+        auto player = loadedData.getPlayerData();
+        std::cout << "  Player: " << player.name << "\n";
+        std::cout << "  Health: " << player.health << "\n";
+        std::cout << "  Position: (" << player.posX << ", " << player.posY << ")\n";
+        std::cout << "  Level: " << loadedData.getCurrentLevel() << "\n";
+        std::cout << "  Score: " << loadedData.getData("score") << "\n";
+
+        auto inventory = loadedData.getData("inventory");
+        std::cout << "  Inventory: ";
+        for (const auto& item : inventory) {
+            std::cout << item << " ";
+        }
+        std::cout << "\n\n";
+    } else {
+        std::cout << "✗ Failed to load game.\n\n";
+    }
+
+    // --- List all saves ---
+    std::cout << "Available save files:\n";
+    auto saves = saveSystem.listSaves();
+    for (const auto& save : saves) {
+        std::cout << "  - " << save.name
+                  << " (saved: " << save.timestamp << ")\n";
+    }
+
+    std::cout << "\n=== Demo Complete ===\n";
     return 0;
 }
