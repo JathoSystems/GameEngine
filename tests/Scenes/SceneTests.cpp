@@ -6,6 +6,7 @@
 #include "Scenes/SceneManager.h"
 #include "GameObjects/GameObject.h"
 #include "SDL/Window.h"
+#include "UI/HUD.h"
 #include "TestHelper.h"
 
 
@@ -105,6 +106,63 @@ TEST_CASE("Scene: addObject sorts by layer", "[Scene]") {
         for (size_t i = 0; i < objects.size(); ++i) {
             REQUIRE(objects[i]->getLayer() == static_cast<int>(i));
         }
+    }
+}
+
+// =============================================================================
+// SCENE HUD TESTS
+// =============================================================================
+
+TEST_CASE("Scene: HUD functionality", "[Scene][HUD]") {
+    Scene scene("TestScene");
+
+    SECTION("Scene has no HUD initially") {
+        REQUIRE(scene.getHUD() == nullptr);
+    }
+
+    SECTION("setHUD sets HUD") {
+        auto hud = std::make_unique<HUD>();
+        scene.setHUD(std::move(hud));
+        REQUIRE(scene.getHUD() != nullptr);
+    }
+
+    SECTION("addHUDObject creates HUD if not exists") {
+        REQUIRE(scene.getHUD() == nullptr);
+        auto obj = std::make_unique<GameObject>();
+        scene.addHUDObject(std::move(obj));
+        REQUIRE(scene.getHUD() != nullptr);
+        REQUIRE(scene.getHUD()->getObjectCount() == 1);
+    }
+
+    SECTION("addHUDObject adds to existing HUD") {
+        auto hud = std::make_unique<HUD>();
+        scene.setHUD(std::move(hud));
+
+        auto obj1 = std::make_unique<GameObject>();
+        auto obj2 = std::make_unique<GameObject>();
+
+        scene.addHUDObject(std::move(obj1));
+        scene.addHUDObject(std::move(obj2));
+
+        REQUIRE(scene.getHUD()->getObjectCount() == 2);
+    }
+
+    SECTION("HUD objects are sorted by layer") {
+        auto obj1 = std::make_unique<GameObject>();
+        obj1->setLayer(3);
+        auto obj2 = std::make_unique<GameObject>();
+        obj2->setLayer(1);
+        auto obj3 = std::make_unique<GameObject>();
+        obj3->setLayer(2);
+
+        scene.addHUDObject(std::move(obj1));
+        scene.addHUDObject(std::move(obj2));
+        scene.addHUDObject(std::move(obj3));
+
+        HUD* hud = scene.getHUD();
+        REQUIRE(hud->getObject(0)->getLayer() == 1);
+        REQUIRE(hud->getObject(1)->getLayer() == 2);
+        REQUIRE(hud->getObject(2)->getLayer() == 3);
     }
 }
 
