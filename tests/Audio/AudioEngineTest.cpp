@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <catch2/catch_test_macros.hpp>
 #include "Audio/AudioEngine.h"
 #include "Audio/DecodedAudio.h"

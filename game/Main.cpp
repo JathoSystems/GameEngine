@@ -1,97 +1,135 @@
 #include <iostream>
-#include <string>
-#include "SaveLoad/SaveLoadSystem.h"
-#include "SaveLoad/BaseMemento.h"
+#include <memory>
+#include "Engine/GameEngine.h"
+#include "GameObjects/GameObject.h"
+#include "GameObjects/Component/KeyInputComponent.h"
+#include "GameObjects/Component/SpriteRenderer.h"
+#include "Input/IKeyListener.h"
+#include "Input/InputSystem.h"
+#include "Scenes/Scene.h"
+#include "Scenes/SceneManager.h"
+#include "Scenes/SceneSystem.h"
+#include "Scenes/Camera/AttachedCamera.h"
+#include "Scenes/Camera/FixedCamera.h"
+#include "UI/Text.h"
+#include "UI/Color.h"
 
-struct PlayerData {
-    std::string name;
-    int health;
-    float posX, posY;
-};
-
-class GameSaveData : public BaseMemento {
+class KeyInput : public IKeyListener {
 public:
-    void setPlayerData(const PlayerData& player) {
-        nlohmann::json j;
-        j["name"] = player.name;
-        j["health"] = player.health;
-        j["pos"] = {player.posX, player.posY};
-        setData("player", j);
-    }
-
-    PlayerData getPlayerData() const {
-        PlayerData player;
-        auto j = getData("player");
-        if (!j.is_null()) {
-            player.name = j["name"];
-            player.health = j["health"];
-            player.posX = j["pos"][0];
-            player.posY = j["pos"][1];
+    KeyInput(GameObject *player) : player(player) {}
+    GameObject *player;
+    void onKeyPress(Key key) override {
+        switch (key) {
+            case Key::W:
+                std::cout << "Key::W is pressed" << std::endl;
+                player->getTransform()->getPosition()->setY(player->getTransform()->getPosition()->getY() - 10);
+                break;
+            case Key::S:
+                std::cout << "Key::S is pressed" << std::endl;
+                player->getTransform()->getPosition()->setY(player->getTransform()->getPosition()->getY() + 10);
+                break;
+            case Key::A:
+                std::cout << "Key::A is pressed" << std::endl;
+                player->getTransform()->getPosition()->setX(player->getTransform()->getPosition()->getX() - 10);
+                break;
+            case Key::D:
+                std::cout << "Key::D is pressed" << std::endl;
+                player->getTransform()->getPosition()->setX(player->getTransform()->getPosition()->getX() + 10);
+                break;
+            default:
+                break;
         }
-        return player;
     }
-
-    void setCurrentLevel(const std::string& level) {
-        setData("currentLevel", level);
-    }
-
-    std::string getCurrentLevel() const {
-        auto j = getData("currentLevel");
-        return j.is_string() ? j.get<std::string>() : "Level_01";
+    void onKeyRelease(Key key) override {
+        std::cout << "Key Released: " << static_cast<int>(key) << "\n";
     }
 };
 
 int main() {
-    std::cout << "=== Save/Load System Demo ===\n\n";
+    try {
+        auto gameEngine = std::make_unique<GameEngine>();
+        gameEngine->init("HUD Demo", 800, 600);
 
-    SaveLoadSystem saveSystem;
-    saveSystem.initialize("./my_game_saves");
+        auto gameScene = std::make_unique<Scene>("GameScene");
 
-    // --- Create and save custom game data ---
-    std::cout << "Creating new save data...\n";
-    GameSaveData saveData;
-    saveData.setPlayerData({"Hero", 100, 10.5f, 20.3f});
-    saveData.setCurrentLevel("Level_03");
-    saveData.setData("score", 1500);
-    saveData.setData("inventory", nlohmann::json::array({"sword", "shield", "potion"}));
+        auto scoreText = std::make_unique<GameObject>();
+        scoreText->setLayer(1);
+        scoreText->getTransform()->getPosition()->setX(10);
+        scoreText->getTransform()->getPosition()->setY(10);
+        scoreText->getTransform()->getSize()->setWidth(100);
+        scoreText->getTransform()->getSize()->setHeight(50);
 
-    if (saveSystem.save(saveData, "slot1")) {
-        std::cout << "✓ Game saved to slot1!\n\n";
-    } else {
-        std::cout << "✗ Failed to save game.\n\n";
+        auto textComponent = std::make_unique<Text>("Score: 0");
+        textComponent->setFont("resources/fonts/default.ttf", "default");
+        textComponent->setFontSize(24);
+        textComponent->setColor(std::make_unique<Color>(255, 255, 255));
+        scoreText->addComponent(std::move(textComponent));
+        gameScene->addHUDObject(std::move(scoreText));
+
+        auto healthText = std::make_unique<GameObject>();
+        healthText->setLayer(1);
+        healthText->getTransform()->getPosition()->setX(10);
+        healthText->getTransform()->getPosition()->setY(40);
+        healthText->getTransform()->getSize()->setWidth(100);
+        healthText->getTransform()->getSize()->setHeight(50);
+
+        auto healthComponent = std::make_unique<Text>("Health: 100");
+        healthComponent->setFont("resources/fonts/default.ttf", "default");
+        healthComponent->setFontSize(24);
+        healthComponent->setColor(std::make_unique<Color>(255, 0, 0));
+        healthText->addComponent(std::move(healthComponent));
+        gameScene->addHUDObject(std::move(healthText));
+
+        auto titleText = std::make_unique<GameObject>();
+        titleText->setLayer(2);
+        titleText->getTransform()->getPosition()->setX(300);
+        titleText->getTransform()->getPosition()->setY(550);
+        titleText->getTransform()->getSize()->setWidth(100);
+        titleText->getTransform()->getSize()->setHeight(50);
+
+        auto titleComponent = std::make_unique<Text>("HUD Demo");
+        titleComponent->setFont("resources/fonts/default.ttf", "default");
+        titleComponent->setFontSize(18);
+        titleComponent->setColor(std::make_unique<Color>(200, 200, 200));
+        titleText->addComponent(std::move(titleComponent));
+        gameScene->addHUDObject(std::move(titleText));
+
+        auto player = std::make_unique<GameObject>();
+        auto spriteRenderer = std::make_unique<SpriteRenderer>( "resources/sprite.jpeg");
+        player->addComponent(std::move(spriteRenderer));
+        GameObject *playerPtr = player.get();
+        KeyInput keyInput(playerPtr);
+        KeyInputComponent *keyInputComponent = new KeyInputComponent(player.get());
+        keyInputComponent->setListener(&keyInput);
+        player->addComponent(std::unique_ptr<KeyInputComponent>(keyInputComponent));
+        player->setLayer(1);
+        player->getTransform()->getPosition()->setX(400);
+        player->getTransform()->getPosition()->setY(300);
+        player->getTransform()->getSize()->setWidth(50);
+        player->getTransform()->getSize()->setHeight(50);
+        gameScene->addObject(std::move(player));
+
+        auto object = std::make_unique<GameObject>();
+        auto objectSprite = std::make_unique<SpriteRenderer>( "resources/WaterGirl.png");
+        object->addComponent(std::move(objectSprite));
+        object->getTransform()->getPosition()->setX(400);
+        object->getTransform()->getPosition()->setY(100);
+        object->getTransform()->getSize()->setWidth(50);
+        object->getTransform()->getSize()->setHeight(50);
+        gameScene->addObject(std::move(object));
+
+        auto viewport = std::make_unique<Viewport>(Size(800, 600), Position(0, 0));
+        auto camera = std::make_unique<AttachedCamera>(std::move(viewport), playerPtr);
+        gameScene->setCamera(std::move(camera));
+
+        gameEngine->getSystem<InputSystem>()->registerKeyComponent(keyInputComponent);
+        gameEngine->getSystem<SceneSystem>()->addScene(std::move(gameScene));
+        gameEngine->getSystem<SceneSystem>()->setScene("GameScene");
+
+        gameEngine->start();
+    } catch (const std::exception& e) {
+        std::cerr << "[EXCEPTION] " << e.what() << "\n";
+        return 1;
     }
-
-    // --- Load saved data ---
-    std::cout << "Loading save from slot1...\n";
-    GameSaveData loadedData;
-    if (saveSystem.load(loadedData, "slot1")) {
-        std::cout << "✓ Game loaded successfully!\n";
-
-        auto player = loadedData.getPlayerData();
-        std::cout << "  Player: " << player.name << "\n";
-        std::cout << "  Health: " << player.health << "\n";
-        std::cout << "  Position: (" << player.posX << ", " << player.posY << ")\n";
-        std::cout << "  Level: " << loadedData.getCurrentLevel() << "\n";
-        std::cout << "  Score: " << loadedData.getData("score") << "\n";
-
-        auto inventory = loadedData.getData("inventory");
-        std::cout << "  Inventory: ";
-        for (const auto& item : inventory) {
-            std::cout << item << " ";
-        }
-        std::cout << "\n\n";
-    } else {
-        std::cout << "✗ Failed to load game.\n\n";
-    }
-
-    // --- List all saves ---
-    std::cout << "Available save files:\n";
-    auto saves = saveSystem.listSaves();
-    for (const auto& save : saves) {
-        std::cout << "  - " << save.name
-                  << " (saved: " << save.timestamp << ")\n";
-    }
-
-    std::cout << "\n=== Demo Complete ===\n";
     return 0;
 }

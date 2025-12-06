@@ -108,6 +108,7 @@ add_library(Engine SHARED
         src/UI/Color.cpp
         src/UI/Font.cpp
         src/UI/Text.cpp
+        src/UI/HUD.cpp
         src/Animation/Animation.cpp
         src/Animation/Keyframe.cpp
         src/Animation/Converter/ConverterFactory.cpp
@@ -231,6 +232,7 @@ add_executable(EngineTests
         tests/UI/ButtonTests.cpp
         tests/UI/FontTests.cpp
         tests/UI/TextTests.cpp
+        tests/UI/HUDTests.cpp
         tests/Scenes/SceneTests.cpp
         tests/Scenes/CameraTests.cpp
         tests/Scenes/TestHelper.h
