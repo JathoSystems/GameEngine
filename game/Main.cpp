@@ -141,13 +141,6 @@ public:
         }
     }
 
-    void onCollisionStay(const CollisionData& collision) override {
-        // Keep player grounded while on platform
-        if (collision.normalY < -0.3f) {
-            _controller.setGrounded(true);
-        }
-    }
-
     void onCollisionExit(const CollisionData& collision) override {
         std::cout << "=== COLLISION EXIT ===" << std::endl;
         _controller.setGrounded(false);
@@ -185,7 +178,6 @@ int main() {
         groundPhysics->setBodyType(BodyType::STATIC);
         groundPhysics->setCollider(std::make_unique<BoxCollider>(1280.0f, 100.0f));
         groundPhysics->setMaterial(Material::Wood());
-        groundPhysics->setParent(ground.get());
         ground->addComponent(std::move(groundPhysics));
 
         auto groundRenderer = std::make_unique<SpriteRenderer>("resources/square.png");
@@ -206,8 +198,7 @@ int main() {
         platformPhysics->setBodyType(BodyType::STATIC);
         platformPhysics->setCollider(std::make_unique<BoxCollider>(300.0f, 50.0f));
         platformPhysics->setMaterial(Material::Wood());
-        platformPhysics->setParent(platform.get());
-        platform->addComponent(std::move(platformPhysics));
+        platform->addComponent(std::move(platformPhysics));  // Just add it directly
 
         auto platformRenderer = std::make_unique<SpriteRenderer>("resources/square_blue.png");
         platformRenderer->setParent(platform.get());
@@ -223,15 +214,15 @@ int main() {
         player->getTransform()->getSize()->setWidth(50.0f);
         player->getTransform()->getSize()->setHeight(50.0f);
 
+        // Player - store pointer BEFORE moving, for setup
         auto playerPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
         playerPhysics->setBodyType(BodyType::DYNAMIC);
         playerPhysics->setCollider(std::make_unique<BoxCollider>(50.0f, 50.0f));
         playerPhysics->setMaterial(Material::Wood());
         playerPhysics->setGravityScale(1.0f);
         playerPhysics->setFixedRotation(true);
-        playerPhysics->setParent(player.get());
 
-        auto* physicsPtr = playerPhysics.get();
+        auto* physicsPtr = playerPhysics.get();  // Store pointer first
         player->addComponent(std::move(playerPhysics));
 
         auto playerRenderer = std::make_unique<SpriteRenderer>("resources/square_lime.png");

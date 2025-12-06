@@ -3,7 +3,8 @@
 #include <iostream>
 
 Box2DFacade::Box2DFacade() {
-    _worldId = b2_nullWorldId;
+    b2WorldDef worldDef = b2DefaultWorldDef();
+    _worldId = b2CreateWorld(&worldDef);
 }
 
 Box2DFacade::~Box2DFacade() {
