@@ -135,10 +135,11 @@ public:
         std::cout << "=== COLLISION ENTER ===" << std::endl;
         std::cout << "Normal: (" << collision.normalX << ", " << collision.normalY << ")" << std::endl;
 
-        // Check if colliding from above (normal pointing down means we're on top)
-        if (collision.normalY > 0.3f) {  // CHANGED: > instead of <
+        if (collision.normalY < -0.1f) {
             std::cout << "Landing detected! Setting grounded to true." << std::endl;
             _controller.setGrounded(true);
+        } else {
+            std::cout << "Normal Y not high enough: " << collision.normalY << std::endl;
         }
     }
 

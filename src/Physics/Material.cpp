@@ -4,7 +4,7 @@ Material::Material(float density, float friction, float restitution)
     : _density(density), _friction(friction), _restitution(restitution) {}
 
 Material Material::Wood() {
-    return Material(0.6f, 0.4f, 0.1f);
+    return Material(1.0f, 0.4f, 0.0f);
 }
 
 Material Material::Metal() {

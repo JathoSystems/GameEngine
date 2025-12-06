@@ -57,16 +57,21 @@ void Texture::render(Window *window) {
     if (!_texture)
         load(window);
 
+    std::cout << "RENDER: Drawing at (" << _rectangle.x << ", " << _rectangle.y
+              << ") with size (" << _rectangle.w << ", " << _rectangle.h << ")" << std::endl;
 
     SDL_FRect screenRect = _rectangle;
     if (viewport) {
         Position viewportPos = viewport->getPosition();
         screenRect.x = _rectangle.x - viewportPos.getX();
         screenRect.y = _rectangle.y - viewportPos.getY();
+
+        std::cout << "  -> Screen position after viewport: (" << screenRect.x << ", " << screenRect.y << ")" << std::endl;
     }
 
     SDL_RenderTexture(renderer, _texture, nullptr, &screenRect);
 }
+
 
 void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     if (!_texture || !frame) {
@@ -103,13 +108,15 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
 }
 
 void Texture::transform(Transform *transform) {
-    if (!transform)
-        return;
+    if (!transform) return;
 
-    _rectangle.x = transform->getPosition()->getX();
-    _rectangle.y = transform->getPosition()->getY();
-    _rectangle.w = transform->getSize()->getWidth();
-    _rectangle.h = transform->getSize()->getHeight();
+    float width = transform->getSize()->getWidth();
+    float height = transform->getSize()->getHeight();
+
+    _rectangle.x = transform->getPosition()->getX() - width / 2.0f;
+    _rectangle.y = transform->getPosition()->getY() - height / 2.0f;
+    _rectangle.w = width;
+    _rectangle.h = height;
 }
 
 SDL_Texture *Texture::getTexture(Window *window) {
