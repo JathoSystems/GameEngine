@@ -55,6 +55,10 @@ FetchContent_MakeAvailable(Catch2)
 set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 
+set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/box2d EXCLUDE_FROM_ALL)
+
 if(NOT EXISTS ${DR_MP3_FILE})
     message(STATUS "Downloading dr_mp3.h...")
     file(MAKE_DIRECTORY ${DR_MP3_DIR})
@@ -136,6 +140,12 @@ add_library(Engine SHARED
         src/Audio/AudioEngine.cpp
         src/Audio/AudioLoaderFactory.cpp
         src/Audio/SoundCache.cpp
+        src/Physics/PhysicsSystem.cpp
+        src/Physics/PhysicsComponent.cpp
+        src/Physics/Box2DFacade.cpp
+        src/Physics/Material.cpp
+        src/Physics/RigidBody.cpp
+        src/Physics/Collider.cpp
 )
 
 target_precompile_headers(Engine
@@ -143,6 +153,7 @@ target_precompile_headers(Engine
         <SDL3/SDL.h>
         <SDL3_image/SDL_image.h>
         <SDL3_ttf/SDL_ttf.h>
+        <box2d/box2d.h>
 )
 
 target_include_directories(Engine
@@ -157,6 +168,7 @@ target_link_libraries(Engine
         SDL3::SDL3
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
+        box2d
 )
 
 # --- Game executable ---

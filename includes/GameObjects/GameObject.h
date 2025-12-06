@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <vector>
+
+#include "Collision/CollisionData.h"
 #include "Component/Component.h"
 #include "Transform/Transform.h"
 
@@ -21,6 +23,9 @@ public:
     void setLayer(int layer);
     int getLayer();
     Transform* getTransform();
+
+    virtual void onCollisionEnter(const CollisionData& collision) {}
+    virtual void onCollisionExit(const CollisionData& collision) {}
 };
 
 #endif //GAMEENGINE_GAMEOBJECT_H
