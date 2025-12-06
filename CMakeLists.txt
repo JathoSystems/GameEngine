@@ -52,6 +52,13 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
+FetchContent_Declare(
+        json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
+
 set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 
@@ -137,6 +144,10 @@ add_library(Engine SHARED
         src/Audio/AudioEngine.cpp
         src/Audio/AudioLoaderFactory.cpp
         src/Audio/SoundCache.cpp
+        src/SaveLoad/BaseMemento.cpp
+        src/SaveLoad/JsonSaveFormat.cpp
+        src/SaveLoad/SaveCaretaker.cpp
+        src/SaveLoad/SaveLoadSystem.cpp
 )
 
 target_precompile_headers(Engine
@@ -158,7 +169,9 @@ target_link_libraries(Engine
         SDL3::SDL3
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
+        nlohmann_json::nlohmann_json
 )
+
 
 # --- Game executable ---
 add_executable(GameEngine
@@ -236,6 +249,8 @@ add_executable(EngineTests
         tests/GameObjects/components/AudioComponentTests.cpp
         tests/UI/ColorTests.cpp
         tests/Scenes/SceneSystemTests.cpp
+        tests/SaveLoad/SaveLoadSystemTests.cpp
+        tests/SaveLoad/BaseMementoTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

@@ -131,6 +131,5 @@ int main() {
         std::cerr << "[EXCEPTION] " << e.what() << "\n";
         return 1;
     }
-
     return 0;
 }
