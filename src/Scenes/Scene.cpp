@@ -1,8 +1,6 @@
 #include "Scenes/Scene.h"
-
 #include <algorithm>
 #include <iostream>
-
 
 Scene::Scene(std::string name) {
     _name = name;
@@ -21,19 +19,27 @@ void Scene::addObject(std::unique_ptr<GameObject> newObject) {
     _objects.insert(pos, std::move(newObject));
 }
 
-std::vector<std::unique_ptr<GameObject>> & Scene::getObjects() {
+std::vector<std::unique_ptr<GameObject>>& Scene::getObjects() {
     return _objects;
 }
 
-std::unique_ptr<GameObject> & Scene::getObject(size_t index) {
+std::unique_ptr<GameObject>& Scene::getObject(size_t index) {
     return _objects.at(index);
 }
 
-const std::string & Scene::getName() const {
+const std::string& Scene::getName() const {
     return _name;
 }
 
-void Scene::render(const std::unique_ptr<Window> &window, float delta) {
+void Scene::update(float deltaTime) {
+    std::cout << "=== SCENE UPDATE: " << _objects.size() << " objects ===" << std::endl;
+    for (auto& obj : _objects) {
+        std::cout << "Updating object at layer: " << obj->getLayer() << std::endl;
+        obj->update(deltaTime);
+    }
+}
+
+void Scene::render(const std::unique_ptr<Window>& window, float delta) {
     SDL_Renderer* renderer = window->getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -54,8 +60,7 @@ void Scene::render(const std::unique_ptr<Window> &window, float delta) {
         }
     }
 
-    for (const std::unique_ptr<GameObject> & obj : _objects) {
-        obj->update(delta);
+    for (const std::unique_ptr<GameObject>& obj : _objects) {
 
         if (!viewport || viewport->isInViewPort(obj.get())) {
             obj->render(window);

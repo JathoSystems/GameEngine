@@ -19,8 +19,8 @@
 class PlayerController : public IKeyListener {
 private:
     PhysicsComponent* _physics = nullptr;
-    float _moveSpeed = 15.0f;
-    float _jumpForce = 600.0f;
+    float _moveSpeed = 30000.0f;
+    float _jumpForce = 5000.0f;
     bool _isGrounded = false;
     bool _movingLeft = false;
     bool _movingRight = false;
@@ -63,12 +63,13 @@ public:
                     _physics->getVelocity(vx, vy);
                     std::cout << "Pre-jump velocity: " << vx << ", " << vy << std::endl;
 
-                    _physics->applyImpulse(0.0f, -_jumpForce);
+                    // Set upward velocity directly instead of impulse
+                    _physics->setVelocity(vx, -_jumpForce);
                     _isGrounded = false;
 
                     _physics->getVelocity(vx, vy);
                     std::cout << "Post-jump velocity: " << vx << ", " << vy << std::endl;
-                    std::cout << "Jump impulse applied: " << _jumpForce << std::endl;
+                    std::cout << "Jump applied: " << _jumpForce << std::endl;
                 }
                 break;
             default:
@@ -92,13 +93,12 @@ public:
     }
 
     void update() {
-        if (!_physics) return;
+        if (!_physics || !_physics->isInitialized()) return;
 
         float vx = 0.0f;
         float vy = 0.0f;
         _physics->getVelocity(vx, vy);
 
-        // Apply horizontal movement
         if (_movingLeft) {
             vx = -_moveSpeed;
         } else if (_movingRight) {
@@ -131,11 +131,12 @@ public:
     }
 
     void onCollisionEnter(const CollisionData& collision) override {
+        GameObject::onCollisionEnter(collision);
         std::cout << "=== COLLISION ENTER ===" << std::endl;
         std::cout << "Normal: (" << collision.normalX << ", " << collision.normalY << ")" << std::endl;
 
-        // Check if landing on top of something (normal pointing up)
-        if (collision.normalY < -0.3f) {
+        // Check if colliding from above (normal pointing down means we're on top)
+        if (collision.normalY > 0.3f) {  // CHANGED: > instead of <
             std::cout << "Landing detected! Setting grounded to true." << std::endl;
             _controller.setGrounded(true);
         }
@@ -157,8 +158,8 @@ int main() {
         SceneManager* sceneManager = gameEngine->getSceneManager();
 
         // Lower gravity for easier testing
-        physicsSystem->setGravity(0.0f, 20.0f);
-        std::cout << "Gravity set to: 20.0f" << std::endl;
+        physicsSystem->setGravity(0.0f, 981.0f);
+        std::cout << "Gravity set to: 981.0f" << std::endl;
 
         auto scene = std::make_unique<Scene>("MainScene");
 
@@ -221,9 +222,11 @@ int main() {
         playerPhysics->setMaterial(Material::Wood());
         playerPhysics->setGravityScale(1.0f);
         playerPhysics->setFixedRotation(true);
+        playerPhysics->setParent(player.get());
 
-        auto* physicsPtr = playerPhysics.get();  // Store pointer first
+        auto* physicsPtr = playerPhysics.get();
         player->addComponent(std::move(playerPhysics));
+        physicsPtr->update(0.0f);
 
         auto playerRenderer = std::make_unique<SpriteRenderer>("resources/square_lime.png");
         playerRenderer->setParent(player.get());

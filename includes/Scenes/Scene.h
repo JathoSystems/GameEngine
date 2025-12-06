@@ -1,27 +1,30 @@
-#pragma once
+#ifndef SCENE_H
+#define SCENE_H
 
 #include <memory>
+#include <string>
 #include <vector>
-
 #include "GameObjects/GameObject.h"
 #include "Scenes/Camera/Camera.h"
 #include "SDL/Window.h"
 
 class Scene {
 private:
-    std::unique_ptr<Camera> _camera;
-    std::vector<std::unique_ptr<GameObject>> _objects;
     std::string _name;
+    std::vector<std::unique_ptr<GameObject>> _objects;
+    std::unique_ptr<Camera> _camera;
 
 public:
-    Scene(std::string name);
+    explicit Scene(std::string name);
+
     void setCamera(std::unique_ptr<Camera> camera);
-    void addObject(std::unique_ptr<GameObject> object);
-
-    std::vector<std::unique_ptr<GameObject>>& getObjects() ;
-    std::unique_ptr<GameObject>& getObject(size_t index) ;
-
+    void addObject(std::unique_ptr<GameObject> newObject);
+    std::vector<std::unique_ptr<GameObject>>& getObjects();
+    std::unique_ptr<GameObject>& getObject(size_t index);
     const std::string& getName() const;
 
-    void render(const std::unique_ptr<Window> &window, float delta);
+    void update(float deltaTime);
+    void render(const std::unique_ptr<Window>& window, float delta);
 };
+
+#endif

@@ -1,7 +1,7 @@
 #ifndef PHYSICSCOMPONENT_H
 #define PHYSICSCOMPONENT_H
 
-#include "GameObjects/Component/Component.h" // Add this
+#include "GameObjects/Component/Component.h"
 #include "RigidBody.h"
 #include "Collider.h"
 #include <memory>
@@ -38,6 +38,7 @@ public:
     void applyForce(float fx, float fy);
     void applyImpulse(float ix, float iy);
     void applyTorque(float torque);
+    bool isInitialized() const { return B2_IS_NON_NULL(_bodyId); }
 };
 
 #endif
