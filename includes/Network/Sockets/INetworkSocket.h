@@ -5,10 +5,11 @@
 
 class INetworkSocket {
 public:
+
     virtual ~INetworkSocket() = default;
 
     // sync
-    virtual void connect(const std::string& ip, int port) = 0;
+    virtual void connect(std::string ip, std::string port) = 0;
     virtual void send(const Packet& packet) = 0;
     virtual void disconnect() = 0;
 

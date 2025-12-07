@@ -1,15 +1,27 @@
 #pragma once
 #include "Packet/Packet.h"
-#include "Sockets/Client/INetworkSocket.h"
+#include "Sockets/INetworkSocket.h"
+#include <functional>
 
 class Session
 {
 private:
     int id;
     std::unique_ptr<INetworkSocket> socket;
+    bool isActive = true;
 
 public:
-    Session(int id, std::unique_ptr<INetworkSocket> sock) : id(id), socket(std::move(sock)) {}
+    Session(int id, std::unique_ptr<INetworkSocket> sock)
+        : id(id), socket(std::move(sock)) {}
 
-    void send(const Packet& p) { socket->send(p); }
+    int getId() const { return id; }
+    bool active() const { return isActive; }
+
+    void send(const Packet& p);
+
+    void asyncSend(const Packet& p, std::function<void(bool)> callback);
+
+    void startReceiving(std::function<void(const Packet&)> callback);
+
+    void close();
 };

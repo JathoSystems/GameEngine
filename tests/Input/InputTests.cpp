@@ -81,7 +81,7 @@ TEST_CASE("InputSystem", "[input][system]") {
             REQUIRE(InputSystem::sdlKeyToKey(SDLK_ESCAPE) == Key::ESCAPE);
             REQUIRE(InputSystem::sdlKeyToKey(SDLK_TAB) == Key::TAB);
             REQUIRE(InputSystem::sdlKeyToKey(SDLK_BACKSPACE) == Key::BACKSPACE);
-            REQUIRE(InputSystem::sdlKeyToKey(SDLK_DELETE) == Key::DELETE);
+            REQUIRE(InputSystem::sdlKeyToKey(SDLK_DELETE) == Key::DEL);
         }
 
         SECTION("Arrow keys are converted correctly") {

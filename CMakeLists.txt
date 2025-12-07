@@ -97,19 +97,17 @@ add_library(Engine SHARED
         src/Scenes/Camera/AttachedCamera.cpp
         src/Scenes/Camera/Viewport.cpp
         game/Main.cpp
-        src/Network/Packet/PacketFactory.cpp
-        src/Network/Packet/PlayerInputPacket.cpp
         src/Network/Client.cpp
         src/Network/Server.cpp
         src/Network/Session.cpp
         src/Network/Packet/PacketRegistery.cpp
-        src/Network/Sockets/Client/TcpNetworkSocket.cpp
-        src/Network/Sockets/Client/UdpNetworkSocket.cpp
-        src/Network/Sockets/Server/TcpNetworkListener.cpp
-        src/Network/Sockets/Server/UdpNetworkListener.cpp
+        src/Network/Sockets/TcpNetworkSocket.cpp
+        src/Network/Sockets/UdpNetworkSocket.cpp
+        src/Network/Listeners/TcpNetworkListener.cpp
+        src/Network/Listeners/UdpNetworkListener.cpp
         src/Network/Packet/Buffer.cpp
-        src/Network/Sockets/Server/ConnectionManager.cpp
-        includes/Network/Sockets/Server/ConnectionManager.h
+        src/Network/SessionManager.cpp
+        includes/Network/SessionManager.h
         includes/Network/Enums/NetworkError.h
         includes/Network/NetworkResult.h
         src/Network/Packet/Packet.cpp
@@ -160,7 +158,7 @@ elseif(APPLE)
      target_link_libraries(Engine PUBLIC "-framework CoreFoundation")
 endif()
 
-# --- Game executable ---
+# --- Game executable --- client app
 add_executable(GameEngine
         game/Main.cpp
 )
@@ -269,7 +267,39 @@ include(CTest)
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
 
+
 catch_discover_tests(EngineTests
         DISCOVERY_MODE PRE_TEST
         REPORTER console
+)
+
+# --- Server App ---
+add_executable(ServerApp
+        game/ServerApp.cpp
+)
+
+target_link_libraries(ServerApp
+        PRIVATE
+        Engine
+)
+
+target_include_directories(ServerApp
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/includes
+)
+
+target_compile_definitions(ServerApp
+        PRIVATE
+        ASIO_STANDALONE
+)
+
+target_precompile_headers(ServerApp
+        REUSE_FROM Engine
+)
+
+add_custom_command(TARGET ServerApp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3::SDL3>
+        $<TARGET_FILE:Engine>
+        $<TARGET_FILE_DIR:ServerApp>
 )

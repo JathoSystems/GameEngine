@@ -1,34 +1,23 @@
-#include  "Network/Packet/Packet.h"
+#include "Network/Packet/Packet.h"
+#include "Network/Packet/PacketRegistery.h"
 
-void Packet::serialize(Buffer& buffer) {
-    buffer.getData() =
-    std::vector<uint8_t> buffer;
+std::unique_ptr<Packet> Packet::createFromBuffer(const std::vector<uint8_t>& data) {
+    Buffer tempBuffer;
+    tempBuffer.setData(data);
 
-    uint32_t packet_size = 1 + this->data.size();
+    size_t offset = 0;
 
-    // Write size first (4 bytes)
-    buffer.push_back((packet_size >> 24) & 0xFF);
-    buffer.push_back((packet_size >> 16) & 0xFF);
-    buffer.push_back((packet_size >> 8) & 0xFF);
-    buffer.push_back(packet_size & 0xFF);
+    // Read packet ID from buffer
+    int32_t packetId = tempBuffer.readInt(offset);
 
-    // Write packet type as second byte
-    buffer.push_back(static_cast<uint8_t>(this->type));
+    // Use registry to create the correct packet type
+    std::unique_ptr<Packet> packet = PacketRegistery::getInstance().createPacket(packetId);
 
-    // Append packet data
-    buffer.insert(buffer.end(), this->data.begin(), this->data.end());
+    if (packet) {
+        // Give the packet the buffer data and let it deserialize
+        packet->buffer.setData(data);
+        packet->deserialize();
+    }
 
-    return buffer;
-}
-
-void deserialize(Buffer& buffer) {
-
-}
-
-static std::unique_ptr<Packet> createFromBuffer(Buffer& buffer) {
-
-}
-
-std::unique_ptr<Packet> Packet::createFromBuffer(Buffer &buffer) {
-
+    return packet;
 }

@@ -1,94 +1,87 @@
-#include <filesystem>
 #include <iostream>
-#include <memory>
-#include <random>
-#include <algorithm>
+#include <thread>
+#include <string>
+#include "asio.hpp"
+#include "Network/Client.h"
+#include "Network/Sockets/TcpNetworkSocket.h"
+#include "Network/Packet/Packet.h"
 
-#include "AI/components/AiController.hpp"
-#include "AI/states/State.hpp"
-#include "AI/system/AiSystem.hpp"
-#include "Engine/GameEngine.h"
-#include "GameObjects/Component/SpriteRenderer.h"
-#include "Scenes/SceneSystem.h"
-#include "Scenes/Camera/FixedCamera.h"
-
-class StartState : public State {
-private:
-    float _time = 0.0f;
+// Simple test packet (Ensure you register this ID on the server if you want it to work!)
+class ChatPacket : public Packet {
 public:
-    StartState() {
-        addTransition("TB_End", [this]() {
-            return _time >= 5.0f;
-        });
+    std::string message;
+
+    ChatPacket() {
+        packetId = 1; // MUST match the Client's ID
     }
 
-    void onUpdate(float deltaTime) override {
-        if (deltaTime > 1) return;
-
-        _time += deltaTime;
+    // Server needs to know how to WRITE it (if it sends it back)
+    void serialize() override {
+        buffer.writeInt(packetId);
+        buffer.writeString(message);
     }
 
-    void onExit() override {
-        std::cout << "Exiting Start State\n";
-        if (_object && _object->getTransform() && _object->getTransform()->getSize()) {
-            Size* size = _object->getTransform()->getSize();
-            size->setWidth(100);
-            size->setHeight(100);
-
-            _object->getTransform()->getPosition()->setX(-size->getWidth() / 2);
-            _object->getTransform()->getPosition()->setY(-size->getHeight() / 2);
-        } else {
-            std::cout << "Warning: _object or its members are null!\n";
-        }
+    // Server needs to know how to READ it (what came from Client)
+    void deserialize() override {
+        size_t offset = 0;
+        // Skip the ID (already read by the factory)
+        int32_t readId = buffer.readInt(offset);
+        // Read the message
+        message = buffer.readString(offset);
     }
-
-};
-
-class EndState : public State {
-public:
-    void onUpdate(float deltaTime) override {}
 };
 
 int main() {
     try {
-        auto engine = std::make_unique<GameEngine>();
-        engine->init("Engine", 400, 400);
-        auto aiSystem = engine->getSystem<AiSystem>();
-        aiSystem->addState("TB_Start", []() { return std::make_unique<StartState>(); });
-        aiSystem->addState("TB_End", []() { return std::make_unique<EndState>(); });
+        asio::io_context io_context;
 
-        auto sceneSystem = engine->getSystem<SceneSystem>();
-        auto scene = std::make_unique<Scene>("main");
-        scene->setCamera(std::make_unique<FixedCamera>(std::make_unique<Viewport>(Size{400, 400}, Position{-200, -200}), Position{0, 0}));
+        std::cout << "Creating client...\n";
 
-        std::unique_ptr<GameObject> testBoss = std::make_unique<GameObject>();
-        Size* size = testBoss->getTransform()->getSize();
-        size->setWidth(50);
-        size->setHeight(50);
+        // 1. Create socket and client
+        auto socket = std::make_unique<TcpNetworkSocket>(io_context);
+        Client client(std::move(socket));
 
-        testBoss->getTransform()->getPosition()->setX(-size->getWidth() / 2);
-        testBoss->getTransform()->getPosition()->setY(-size->getHeight() / 2);
+        // 2. Connect
+        client.connect("127.0.0.1", 8080);
+        std::cout << "Connected to server!\n";
 
-        std::unique_ptr<AiController> ai = std::make_unique<AiController>();
-        ai->setParent(testBoss.get());
-        ai->addState("TB_Start");
-        ai->addState("TB_End");
-        ai->setInitialState("TB_Start");
+        // 3. Receive loop
+        client.startReceiving([](const Packet& p) {
+             std::cout << "[Server Packet ID: " << p.getId() << "]\n";
+        });
 
-        std::unique_ptr<SpriteRenderer> sprite = std::make_unique<SpriteRenderer>("../resources/square_lime.png");
+        // 4. Background thread for ASIO
+        std::thread networkThread([&io_context]() {
+            io_context.run();
+        });
 
-        testBoss->addComponent(std::move(ai));
-        testBoss->addComponent(std::move(sprite));
+        // 5. Input loop
+        std::string line;
+        while (client.isConnected()) {
+            std::cout << "> ";
+            std::getline(std::cin, line);
 
-        scene->addObject(std::move(testBoss));
+            if (line == "exit") {
+                client.disconnect();
+                break;
+            }
 
-        sceneSystem->setScene("main");
-        sceneSystem->addScene(std::move(scene));
-        engine->start();
-    } catch (const std::exception &e) {
-        std::cerr << "[EXCEPTION] " << e.what() << "\n";
+            // Create the packet
+            auto p = std::make_shared<ChatPacket>();
+            p->message = line;      // Fill the data
+            p->serialize();         // Pack the data into the buffer
+
+            // Send it!
+            client.send(*p);
+        }
+
+        if (networkThread.joinable()) {
+            networkThread.join();
+        }
+
+    } catch (std::exception& e) {
+        std::cerr << "Client Error: " << e.what() << "\n";
     }
 
-    std::cout << "Hello, world!" << std::endl;
     return 0;
 }

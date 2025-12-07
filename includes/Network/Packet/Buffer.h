@@ -6,7 +6,6 @@
 
 class Buffer {
     std::vector<uint8_t> data;
-    size_t readOffset = 0;
 
 public:
     void writeInt(int32_t value);

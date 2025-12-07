@@ -1,5 +1,5 @@
 #pragma once
-#include "Sockets/Client/INetworkSocket.h"
+#include "Sockets/INetworkSocket.h"
 
 class Client
 {

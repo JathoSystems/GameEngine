@@ -1,14 +1,18 @@
-#include "../../../includes/Network/Packet/PacketRegistery.h"
+#include "Network/Packet/PacketRegistery.h"
 
-void PacketRegistery::RegisterPacket(int id, std::function<Packet*()> creator) {
+PacketRegistery& PacketRegistery::getInstance() {
+    static PacketRegistery instance;
+    return instance;
+}
+
+void PacketRegistery::registerPacket(int32_t id, std::function<std::unique_ptr<Packet>()> creator) {
     factoryMap[id] = creator;
 }
 
-Packet* PacketRegistery::CreatePacket(int id)
-{
-    if (factoryMap.count(id)) {
-        return factoryMap[id]();
+std::unique_ptr<Packet> PacketRegistery::createPacket(int32_t id) {
+    auto it = factoryMap.find(id);
+    if (it != factoryMap.end()) {
+        return it->second();
     }
-    std::cout << "Unknown packet!" << std::endl;
     return nullptr;
 }

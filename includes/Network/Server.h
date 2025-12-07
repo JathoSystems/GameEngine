@@ -1,35 +1,37 @@
 #pragma once
 
-#include <map>
-#include <mutex>
-#include "Packet/Packet.h"
-#include "Sockets/Client/INetworkSocket.h"
-#include "Sockets/Server/INetworkListener.h"
-
-using asio::ip::tcp;
+#include <memory>
+#include <functional>
+#include "Network/Packet/Packet.h"
+#include "Network/Listeners/INetworkListener.h"
+#include "Network/SessionManager.h"
+#include "asio/io_context.hpp" // Ensure this is included
 
 class Server {
 private:
-    asio::io_context io_context;
-    int port;
-    int next_client_id = 1;
-    std::unique_ptr<INetworkListener> listener;
+    asio::io_context& m_io_context; // Renamed
+    int m_port;                     // Renamed
+    std::unique_ptr<INetworkListener> m_listener; // Renamed
+    std::shared_ptr<SessionManager> m_sessionManager; // Renamed
 
-    std::mutex clientsMutex;
-    std::map<int32_t, std::shared_ptr<INetworkSocket>> clients;
+    std::function<void(int32_t, const Packet&)> m_onPacketReceived;
+
+    void handleNewClient(std::unique_ptr<INetworkSocket> socket);
+    void handleClientPacket(int32_t clientId, const Packet& packet);
 
 public:
-    Server(std::unique_ptr<INetworkListener> listener, int port);
+    Server(asio::io_context& io, std::unique_ptr<INetworkListener> listener, int port);
+
     void startServer();
-
-    void receivePacket(std::shared_ptr<INetworkSocket> socket, int32_t client_id);
-
-    // async
-    void asyncSendPacket(std::shared_ptr<INetworkSocket> socket, Packet packet);
-    void asyncBroadcastPackets(Packet packet);
-    void asyncBroadcastToOthers(Packet packet, int32_t exclude_client_id);
-
-    void run();
-    void acceptClient();
     void stopServer();
+    void run();
+
+    void sendToClient(int32_t clientId, const Packet& packet);
+    void broadcast(const Packet& packet);
+    void broadcastExcept(const Packet& packet, int32_t excludeClientId);
+
+    void disconnectClient(int32_t clientId);
+    size_t getClientCount() const;
+
+    void setPacketCallback(std::function<void(int32_t, const Packet&)> callback);
 };

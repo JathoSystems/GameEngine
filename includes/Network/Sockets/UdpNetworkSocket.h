@@ -10,7 +10,7 @@ private:
 
 public:
     UdpNetworkSocket(asio::io_context& io) : socket(io){}
-    void connect(std::string ip, int port) override;
+    void connect(std::string ip, std::string port) override;
     void send(const Packet& packet) override;
     void disconnect() override;
 

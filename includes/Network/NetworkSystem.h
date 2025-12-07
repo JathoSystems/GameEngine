@@ -4,11 +4,23 @@
 class NetworkSystem : public ISystem
 {
 private:
-    bool gameMode;
+    bool multiplayerEnabled = false;
+
 public:
-    NetworkSystem(bool gameMode) : gameMode(gameMode) {};
-    bool getGameMode();
-    void update(float deltaTime) override;
+    NetworkSystem() = default;
+
+    void update(float deltaTime) override {
+    }
+
+    void enableMultiplayer(bool enable) {
+        multiplayerEnabled = enable;
+    }
+
+    bool isMultiplayerEnabled() const {
+        return multiplayerEnabled;
+    }
+
+    void shutdown() {
+        multiplayerEnabled = false;
+    }
 };
-
-

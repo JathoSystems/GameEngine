@@ -1,0 +1,97 @@
+#include "Network/Listeners/TcpNetworkListener.h"
+#include "Network/Sockets/TcpNetworkSocket.h"
+#include <iostream>
+
+TcpNetworkListener::TcpNetworkListener(asio::io_context& io, int port, int max_clients)
+    : INetworkListener(io, max_clients, NetworkProtocol::TCP),
+      port(port),
+      acceptor(io, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
+      isRunning(false)
+{
+    std::cout << "TCP Listener initialized on port " << port << "\n";
+}
+
+TcpNetworkListener::~TcpNetworkListener()
+{
+    stop();
+}
+
+void TcpNetworkListener::start(int port)
+{
+    if (isRunning) {
+        std::cout << "Server already running\n";
+        return;
+    }
+
+    isRunning = true;
+    std::cout << "Server starting on port " << port << "...\n";
+
+    // Start accepting connections
+    startAccept();
+
+    std::cout << "Server started successfully (listener active)\n";
+}
+
+void TcpNetworkListener::stop()
+{
+    if (!isRunning) {
+        return;
+    }
+
+    std::cout << "Stopping server...\n";
+    isRunning = false;
+
+    // Stop accepting new connections
+    if (acceptor.is_open()) {
+        asio::error_code ec;
+        acceptor.close(ec);
+    }
+
+    std::cout << "Server stopped\n";
+}
+
+void TcpNetworkListener::startAccept()
+{
+    acceptor.async_accept(
+        [this](const asio::error_code& ec, asio::ip::tcp::socket socket) {
+            if (!ec) {
+                std::cout << "New client connected from "
+                          << socket.remote_endpoint().address().to_string()
+                          << ":" << socket.remote_endpoint().port() << "\n";
+
+                // Check max clients limit
+                if (sessionManager &&
+                    sessionManager->getSessionCount() >= static_cast<size_t>(max_clients)) {
+                    std::cout << "Max clients reached, rejecting connection\n";
+                    socket.close();
+                } else {
+                    handleNewConnection(std::move(socket));
+                }
+            } else {
+                std::cerr << "Accept error: " << ec.message() << "\n";
+            }
+
+            // Continue accepting if still running
+            if (isRunning) {
+                startAccept();
+            }
+        });
+}
+
+void TcpNetworkListener::handleNewConnection(asio::ip::tcp::socket socket)
+{
+    if (onClientConnected) {
+        // Wrap the already-connected socket in INetworkSocket interface
+        auto wrappedSocket = std::make_unique<TcpNetworkSocket>(io_context);
+        wrappedSocket->setSocket(std::move(socket));
+        onClientConnected(std::move(wrappedSocket));
+    }
+}
+
+void TcpNetworkListener::setClientConnectedCallback(
+    std::function<void(std::unique_ptr<INetworkSocket>)> callback)
+{
+    onClientConnected = callback;
+}
+
+

@@ -1,62 +1,105 @@
 #include "Network/Server.h"
+#include "Network/SessionManager.h"
+#include <iostream>
 
-#include "Network/Sockets/Server/TcpNetworkListener.h"
-#include "Network/Sockets/Server/UdpNetworkListener.h"
-
-Server::Server(std::unique_ptr<INetworkListener> listener, int port)
+Server::Server(asio::io_context& io, std::unique_ptr<INetworkListener> listener, int port)
+    : m_io_context(io),
+      m_listener(std::move(listener)), // Move argument into member
+      m_port(port)
 {
-    if (listener->protocol == NetworkProtocol::TCP)
-    {
-        std::make_unique<TcpNetworkListener>(listener, port);
-    }
-    else if (listener->protocol == NetworkProtocol::UDP)
-    {
-        std::make_unique<UdpNetworkListener>(listener, port);
-    }
+    m_sessionManager = std::make_shared<SessionManager>();
+
+    // FIX: Use m_listener (the member), which now holds the object.
+    // The argument 'listener' is empty now.
+    m_listener->setSessionManager(m_sessionManager);
+
+    m_listener->setClientConnectedCallback([this](std::unique_ptr<INetworkSocket> socket) {
+        handleNewClient(std::move(socket));
+    });
+
+    std::cout << "Server created on port " << m_port << "\n";
 }
 
 void Server::startServer()
 {
-}
-
-void Server::receivePacket(std::shared_ptr<INetworkSocket> socket, int32_t client_id)
-{
-}
-
-void Server::asyncSendPacket(std::shared_ptr<INetworkSocket> socket, Packet packet)
-{
-    socket->send(packet);
-}
-
-void Server::asyncBroadcastPackets(Packet packet)
-{
-    for (auto it = clients.begin(); it != clients.end(); it++)
-    {
-        it->second->send(packet);
+    std::cout << "Starting server on port " << m_port << "...\n";
+    if (m_listener) {
+        m_listener->start(m_port);
+        std::cout << "Server is now accepting connections\n";
     }
-}
-
-void Server::asyncBroadcastToOthers(Packet packet, int32_t exclude_client_id)
-{
-    for (auto it = clients.begin(); it != clients.end(); it++)
-    {
-        if (exclude_client_id != it->first)
-        {
-            it->second->send(packet);
-        }
-    }
-}
-
-void Server::run()
-{
-    io_context.poll();
-}
-
-void Server::acceptClient()
-{
-
 }
 
 void Server::stopServer()
 {
+    std::cout << "Stopping server...\n";
+    if (m_listener) {
+        m_listener->stop();
+    }
+    std::cout << "Server stopped\n";
+}
+
+void Server::run()
+{
+    // FIX: 'poll()' returns immediately if there is no work ready.
+    // 'run()' blocks and waits for work (incoming connections).
+    // This keeps your program alive.
+    m_io_context.run();
+}
+
+void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
+{
+    int32_t clientId = m_sessionManager->addSession(std::move(socket));
+
+    std::cout << "New client assigned ID: " << clientId << "\n";
+
+    auto session = m_sessionManager->getSession(clientId);
+    if (session) {
+        session->startReceiving([this, clientId](const Packet& packet) {
+            handleClientPacket(clientId, packet);
+        });
+    }
+}
+
+void Server::handleClientPacket(int32_t clientId, const Packet& packet)
+{
+    std::cout << "Received packet from client " << clientId
+              << " (ID: " << packet.getId() << ")\n";
+
+    if (m_onPacketReceived) {
+        m_onPacketReceived(clientId, packet);
+    }
+}
+
+void Server::sendToClient(int32_t clientId, const Packet& packet)
+{
+    m_sessionManager->sendTo(clientId, packet);
+}
+
+void Server::broadcast(const Packet& packet)
+{
+    m_sessionManager->broadcast(packet);
+}
+
+void Server::broadcastExcept(const Packet& packet, int32_t excludeClientId)
+{
+    m_sessionManager->broadcastExcept(packet, excludeClientId);
+}
+
+void Server::disconnectClient(int32_t clientId)
+{
+    auto session = m_sessionManager->getSession(clientId);
+    if (session) {
+        session->close();
+    }
+    m_sessionManager->removeSession(clientId);
+}
+
+void Server::setPacketCallback(std::function<void(int32_t, const Packet&)> callback)
+{
+    m_onPacketReceived = callback;
+}
+
+size_t Server::getClientCount() const
+{
+    return m_sessionManager->getSessionCount();
 }

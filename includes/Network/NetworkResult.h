@@ -1,3 +1,5 @@
+#include "Enums/NetworkError.h"
+
 class NetworkResult {
 public:
     NetworkError error;
