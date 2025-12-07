@@ -67,10 +67,9 @@ set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
 
-# Allow overriding which Box2D ref to fetch; default to a release compatible with the
-# existing C++ API used in the codebase.
+# Allow overriding which Box2D ref to fetch; default to the repository main branch
 if (NOT DEFINED BOX2D_GIT_TAG)
-    set(BOX2D_GIT_TAG "v2.4.1" CACHE STRING "Box2D git tag/branch/commit to fetch")
+    set(BOX2D_GIT_TAG "main" CACHE STRING "Box2D git tag/branch/commit to fetch")
 endif()
 
 # Prefer a local checkout if present, otherwise fetch Box2D via FetchContent
