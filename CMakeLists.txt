@@ -1,3 +1,4 @@
+# language: cmake
 cmake_minimum_required(VERSION 3.16)
 project(GameEngine LANGUAGES CXX)
 
@@ -67,16 +68,22 @@ set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
 
+# Allow overriding which Box2D ref to fetch; default to 'main' to avoid missing tag errors
+if (NOT DEFINED BOX2D_GIT_TAG)
+    set(BOX2D_GIT_TAG "main" CACHE STRING "Box2D git tag/branch/commit to fetch")
+endif()
+
 # Prefer a local checkout if present, otherwise fetch Box2D via FetchContent
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/box2d/CMakeLists.txt")
     message(STATUS "Using local external/box2d")
     add_subdirectory(external/box2d EXCLUDE_FROM_ALL)
 else()
-    message(STATUS "Fetching Box2D via FetchContent")
+    message(STATUS "Fetching Box2D via FetchContent (ref: ${BOX2D_GIT_TAG})")
     FetchContent_Declare(
             box2d
             GIT_REPOSITORY https://github.com/erincatto/box2d.git
-            GIT_TAG v2.5.0
+            GIT_TAG ${BOX2D_GIT_TAG}
+            GIT_SHALLOW TRUE
     )
     # Make sure Box2D options are off for tests/testbed
     set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
