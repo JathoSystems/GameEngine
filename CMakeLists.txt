@@ -1,4 +1,3 @@
-# language: cmake
 cmake_minimum_required(VERSION 3.16)
 project(GameEngine LANGUAGES CXX)
 
@@ -68,9 +67,10 @@ set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
 
-# Allow overriding which Box2D ref to fetch; default to 'main' to avoid missing tag errors
+# Allow overriding which Box2D ref to fetch; default to a release compatible with the
+# existing C++ API used in the codebase.
 if (NOT DEFINED BOX2D_GIT_TAG)
-    set(BOX2D_GIT_TAG "main" CACHE STRING "Box2D git tag/branch/commit to fetch")
+    set(BOX2D_GIT_TAG "v2.4.1" CACHE STRING "Box2D git tag/branch/commit to fetch")
 endif()
 
 # Prefer a local checkout if present, otherwise fetch Box2D via FetchContent
@@ -103,7 +103,7 @@ if(NOT EXISTS ${DR_MP3_FILE})
     )
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
     if(NOT STATUS_CODE EQUAL 0)
-        message(FATAL_ERROR "Failed to download dr_mp3.h")
+        message(FATAL_ERROR "Failed to download dr_mp3.h (status: ${DOWNLOAD_STATUS})")
     endif()
     message(STATUS "Downloaded dr_mp3.h successfully")
 else()
@@ -346,10 +346,11 @@ if (WIN32 AND MINGW)
 endif ()
 
 include(CTest)
-list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
-include(Catch)
-
-catch_discover_tests(EngineTests
-        DISCOVERY_MODE PRE_TEST
-        REPORTER console
-)
+if (DEFINED Catch2_SOURCE_DIR)
+    list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+    include(Catch)
+    catch_discover_tests(EngineTests
+            DISCOVERY_MODE PRE_TEST
+            REPORTER console
+    )
+endif()
