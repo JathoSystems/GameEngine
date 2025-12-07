@@ -5,7 +5,7 @@
 TcpNetworkListener::TcpNetworkListener(asio::io_context& io, int port, int max_clients)
     : INetworkListener(io, max_clients, NetworkProtocol::TCP),
       port(port),
-      acceptor(io, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
+      acceptor(nullptr),  // Don't create acceptor yet!
       isRunning(false)
 {
     std::cout << "TCP Listener initialized on port " << port << "\n";
@@ -21,6 +21,17 @@ void TcpNetworkListener::start(int port)
     if (isRunning) {
         std::cout << "Server already running\n";
         return;
+    }
+
+    // Create and bind the acceptor NOW (not in constructor)
+    try {
+        acceptor = std::make_unique<asio::ip::tcp::acceptor>(
+            io_context,
+            asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)
+        );
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to create acceptor on port " << port << ": " << e.what() << "\n";
+        throw;
     }
 
     isRunning = true;
@@ -42,9 +53,9 @@ void TcpNetworkListener::stop()
     isRunning = false;
 
     // Stop accepting new connections
-    if (acceptor.is_open()) {
+    if (acceptor && acceptor->is_open()) {
         asio::error_code ec;
-        acceptor.close(ec);
+        acceptor->close(ec);
     }
 
     std::cout << "Server stopped\n";
@@ -52,7 +63,12 @@ void TcpNetworkListener::stop()
 
 void TcpNetworkListener::startAccept()
 {
-    acceptor.async_accept(
+    if (!acceptor) {
+        std::cerr << "Acceptor not initialized!\n";
+        return;
+    }
+
+    acceptor->async_accept(
         [this](const asio::error_code& ec, asio::ip::tcp::socket socket) {
             if (!ec) {
                 std::cout << "New client connected from "
@@ -93,5 +109,3 @@ void TcpNetworkListener::setClientConnectedCallback(
 {
     onClientConnected = callback;
 }
-
-

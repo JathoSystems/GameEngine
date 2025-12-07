@@ -1,6 +1,8 @@
 #pragma once
 #include "Network/SessionManager.h"
 #include "Network/Enums/NetworkProtocol.h"
+#include "asio/io_context.hpp"
+#include "Network/Sockets/INetworkSocket.h"
 
 class INetworkListener
 {

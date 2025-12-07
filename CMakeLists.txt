@@ -96,7 +96,6 @@ add_library(Engine SHARED
         src/Scenes/Camera/FixedCamera.cpp
         src/Scenes/Camera/AttachedCamera.cpp
         src/Scenes/Camera/Viewport.cpp
-        game/Main.cpp
         src/Network/Client.cpp
         src/Network/Server.cpp
         src/Network/Session.cpp
@@ -214,6 +213,14 @@ add_executable(EngineTests
         tests/Animation/KeyframeTests.cpp
         tests/Animation/Converter/BounceConverterTests.cpp
         tests/Animation/Converter/ElasticConverterTests.cpp
+        tests/Network/test_tcp_listener.cpp
+        tests/Network/test_server.cpp
+        tests/Network/test_buffer.cpp
+        tests/Network/test_packet.cpp
+        tests/Network/test_session_manager.cpp
+        tests/Network/test_client.cpp
+        tests/Network/test_integration.cpp
+        tests/Network/test_helpers.h
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

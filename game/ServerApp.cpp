@@ -33,6 +33,7 @@ int main() {
         PacketRegistery::getInstance().registerPacket<ChatPacket>(1);
 
         auto listener = std::make_unique<TcpNetworkListener>(io_context, 8080, 100);
+
         Server server(io_context, std::move(listener), 8080);
 
         server.setPacketCallback([](int32_t clientId, const Packet& packet) {

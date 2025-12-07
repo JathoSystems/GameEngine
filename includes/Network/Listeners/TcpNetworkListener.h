@@ -1,5 +1,6 @@
 #pragma once
 #include "Network/Listeners/INetworkListener.h"
+#include "asio/ip/tcp.hpp"
 #include "Network/SessionManager.h"
 #include <thread>
 #include <memory>
@@ -9,7 +10,7 @@ class TcpNetworkListener : public INetworkListener
 {
 private:
     int port;
-    asio::ip::tcp::acceptor acceptor;
+    std::unique_ptr<asio::ip::tcp::acceptor> acceptor;
     bool isRunning;
     std::unique_ptr<std::thread> ioThread;
 
