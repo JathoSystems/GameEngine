@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# --- Debug/Release optimalisaties ---
+# --- Debug/Release optimizations ---
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -g)
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -37,21 +37,22 @@ set(SDL3TTF_INSTALL OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_TESTS OFF CACHE BOOL "" FORCE)
 
-# --- Externe libraries ---
+# --- External libraries (local checkouts) ---
 add_subdirectory(external/SDL3 EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_image EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_TTF EXCLUDE_FROM_ALL)
 
 include(FetchContent)
 
+# Catch2
 FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
         GIT_TAG v3.5.2
 )
-
 FetchContent_MakeAvailable(Catch2)
 
+# nlohmann/json
 FetchContent_Declare(
         json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
@@ -62,10 +63,28 @@ FetchContent_MakeAvailable(json)
 set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 
+# Ensure Box2D tests/testbed are disabled (applies whether local or fetched)
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/box2d EXCLUDE_FROM_ALL)
 
+# Prefer a local checkout if present, otherwise fetch Box2D via FetchContent
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/box2d/CMakeLists.txt")
+    message(STATUS "Using local external/box2d")
+    add_subdirectory(external/box2d EXCLUDE_FROM_ALL)
+else()
+    message(STATUS "Fetching Box2D via FetchContent")
+    FetchContent_Declare(
+            box2d
+            GIT_REPOSITORY https://github.com/erincatto/box2d.git
+            GIT_TAG v2.5.0
+    )
+    # Make sure Box2D options are off for tests/testbed
+    set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(box2d)
+endif()
+
+# Download dr_mp3.h if missing
 if(NOT EXISTS ${DR_MP3_FILE})
     message(STATUS "Downloading dr_mp3.h...")
     file(MAKE_DIRECTORY ${DR_MP3_DIR})
@@ -203,7 +222,7 @@ target_include_directories(GameEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
 )
 
-# --- Post-build: DLLs koppiëren ---
+# --- Post-build: copy shared libs to executable dir ---
 add_custom_command(TARGET GameEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
