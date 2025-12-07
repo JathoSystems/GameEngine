@@ -72,3 +72,19 @@ void Scene::render(const std::unique_ptr<Window>& window, float delta) {
 
     SDL_RenderPresent(renderer);
 }
+
+
+void Scene::setHUD(std::unique_ptr<HUD> hud) {
+    _hud = std::move(hud);
+}
+
+HUD* Scene::getHUD() {
+    return _hud.get();
+}
+
+void Scene::addHUDObject(std::unique_ptr<GameObject> object) {
+    if (!_hud) {
+        _hud = std::make_unique<HUD>();
+    }
+    _hud->addObject(std::move(object));
+}
