@@ -78,6 +78,5 @@ int main() {
     } catch (std::exception& e) {
         std::cerr << "Client Error: " << e.what() << "\n";
     }
-
     return 0;
 }
