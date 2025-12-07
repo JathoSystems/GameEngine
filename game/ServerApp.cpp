@@ -12,7 +12,7 @@ public:
     ChatPacket() {
         packetId = 1; // MUST match the Client's ID
     }
-    
+
     void serialize() override {
         buffer.writeInt(packetId);
         buffer.writeString(message);
@@ -20,8 +20,6 @@ public:
 
     void deserialize() override {
         size_t offset = 0;
-        // Skip the ID (already read by the factory)
-        int32_t readId = buffer.readInt(offset);
         // Read the message
         message = buffer.readString(offset);
     }

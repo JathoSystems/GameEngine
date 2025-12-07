@@ -12,20 +12,16 @@ public:
     std::string message;
 
     ChatPacket() {
-        packetId = 1; // MUST match the Client's ID
+        packetId = 1;
     }
 
-    // Server needs to know how to WRITE it (if it sends it back)
     void serialize() override {
         buffer.writeInt(packetId);
         buffer.writeString(message);
     }
 
-    // Server needs to know how to READ it (what came from Client)
     void deserialize() override {
         size_t offset = 0;
-        // Skip the ID (already read by the factory)
-        int32_t readId = buffer.readInt(offset);
         // Read the message
         message = buffer.readString(offset);
     }
