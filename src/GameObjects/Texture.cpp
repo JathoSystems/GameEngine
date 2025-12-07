@@ -57,16 +57,11 @@ void Texture::render(Window *window) {
     if (!_texture)
         load(window);
 
-    std::cout << "RENDER: Drawing at (" << _rectangle.x << ", " << _rectangle.y
-              << ") with size (" << _rectangle.w << ", " << _rectangle.h << ")" << std::endl;
-
     SDL_FRect screenRect = _rectangle;
     if (viewport) {
         Position viewportPos = viewport->getPosition();
         screenRect.x = _rectangle.x - viewportPos.getX();
         screenRect.y = _rectangle.y - viewportPos.getY();
-
-        std::cout << "  -> Screen position after viewport: (" << screenRect.x << ", " << screenRect.y << ")" << std::endl;
     }
 
     SDL_RenderTexture(renderer, _texture, nullptr, &screenRect);

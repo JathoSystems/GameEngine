@@ -1,4 +1,7 @@
 #include "Physics/PhysicsSystem.h"
+
+#include <iostream>
+
 #include "Physics/PhysicsComponent.h"
 #include "GameObjects/GameObject.h"
 #include "Collision/CollisionData.h"
@@ -38,8 +41,23 @@ void PhysicsSystem::processCollisions() {
         GameObject* objB = static_cast<GameObject*>(b2Body_GetUserData(bodyB));
 
         if (objA && objB) {
-            CollisionData dataA(objB, 0.0f, -1.0f, true);
-            CollisionData dataB(objA, 0.0f, 1.0f, true);
+            b2Vec2 posA = b2Body_GetPosition(bodyA);
+            b2Vec2 posB = b2Body_GetPosition(bodyB);
+
+            float dx = posB.x - posA.x;
+            float dy = posB.y - posA.y;
+            float length = sqrtf(dx * dx + dy * dy);
+
+            float normalX = 0.0f;
+            float normalY = 0.0f;
+
+            if (length > 0.0001f) {
+                normalX = dx / length;
+                normalY = dy / length;
+            }
+
+            CollisionData dataA(objB, normalX, normalY, true);
+            CollisionData dataB(objA, -normalX, -normalY, true);
 
             objA->onCollisionEnter(dataA);
             objB->onCollisionEnter(dataB);

@@ -57,19 +57,24 @@ public:
             case Key::SPACE:
             case Key::W:
             case Key::UP:
-                std::cout << "Jump key pressed. Grounded: " << (_isGrounded ? "YES" : "NO") << std::endl;
+                std::cout << "=== JUMP KEY PRESSED ===" << std::endl;
+                std::cout << "Physics component valid: " << (_physics ? "YES" : "NO") << std::endl;
+                std::cout << "Physics initialized: " << (_physics && _physics->isInitialized() ? "YES" : "NO") << std::endl;
+                std::cout << "Currently grounded: " << (_isGrounded ? "YES" : "NO") << std::endl;
+
                 if (_isGrounded) {
                     float vx, vy;
                     _physics->getVelocity(vx, vy);
-                    std::cout << "Pre-jump velocity: " << vx << ", " << vy << std::endl;
+                    std::cout << "Pre-jump velocity: (" << vx << ", " << vy << ")" << std::endl;
 
-                    // Set upward velocity directly instead of impulse
                     _physics->setVelocity(vx, -_jumpForce);
                     _isGrounded = false;
 
                     _physics->getVelocity(vx, vy);
-                    std::cout << "Post-jump velocity: " << vx << ", " << vy << std::endl;
-                    std::cout << "Jump applied: " << _jumpForce << std::endl;
+                    std::cout << "Post-jump velocity: (" << vx << ", " << vy << ")" << std::endl;
+                    std::cout << "Jump force applied: " << _jumpForce << std::endl;
+                } else {
+                    std::cout << "Cannot jump - not grounded!" << std::endl;
                 }
                 break;
             default:
@@ -107,8 +112,11 @@ public:
             vx = 0.0f;
         }
 
-        _physics->setVelocity(vx, vy);
+        float currentVx, currentVy;
+        _physics->getVelocity(currentVx, currentVy);
+        _physics->setVelocity(vx, currentVy);
     }
+
 };
 
 class Player : public GameObject {
@@ -135,13 +143,14 @@ public:
         std::cout << "=== COLLISION ENTER ===" << std::endl;
         std::cout << "Normal: (" << collision.normalX << ", " << collision.normalY << ")" << std::endl;
 
-        if (collision.normalY < -0.1f) {
-            std::cout << "Landing detected! Setting grounded to true." << std::endl;
+        if (collision.normalY > 0.5f) {
+            std::cout << "Ground detected! Setting grounded to true" << std::endl;
             _controller.setGrounded(true);
         } else {
-            std::cout << "Normal Y not high enough: " << collision.normalY << std::endl;
+            std::cout << "Not a ground collision. Normal Y: " << collision.normalY << std::endl;
         }
     }
+
 
     void onCollisionExit(const CollisionData& collision) override {
         std::cout << "=== COLLISION EXIT ===" << std::endl;
@@ -158,13 +167,15 @@ int main() {
         InputSystem* inputSystem = gameEngine->getInputSystem();
         SceneManager* sceneManager = gameEngine->getSceneManager();
 
-        // Lower gravity for easier testing
+        if (!inputSystem) {
+            std::cerr << "FATAL: InputSystem is NULL!" << std::endl;
+            return 1;
+        }
+        std::cout << "InputSystem retrieved successfully: " << inputSystem << std::endl;
+
         physicsSystem->setGravity(0.0f, 981.0f);
-        std::cout << "Gravity set to: 981.0f" << std::endl;
 
         auto scene = std::make_unique<Scene>("MainScene");
-
-        // Create camera
         auto viewport = std::make_unique<Viewport>(Size(1280, 720), Position(0, 0));
         auto camera = std::make_unique<FixedCamera>(std::move(viewport), Position(640, 360));
         scene->setCamera(std::move(camera));
@@ -187,7 +198,6 @@ int main() {
         ground->addComponent(std::move(groundRenderer));
 
         scene->addObject(std::move(ground));
-        std::cout << "Ground created at (640, 650) with size (1280, 100)" << std::endl;
 
         // Platform
         auto platform = std::make_unique<GameObject>();
@@ -200,23 +210,21 @@ int main() {
         platformPhysics->setBodyType(BodyType::STATIC);
         platformPhysics->setCollider(std::make_unique<BoxCollider>(300.0f, 50.0f));
         platformPhysics->setMaterial(Material::Wood());
-        platform->addComponent(std::move(platformPhysics));  // Just add it directly
+        platform->addComponent(std::move(platformPhysics));
 
         auto platformRenderer = std::make_unique<SpriteRenderer>("resources/square_blue.png");
         platformRenderer->setParent(platform.get());
         platform->addComponent(std::move(platformRenderer));
 
         scene->addObject(std::move(platform));
-        std::cout << "Platform created at (400, 400) with size (300, 50)" << std::endl;
 
         // Player
         auto player = std::make_unique<Player>();
-        player->getTransform()->getPosition()->setX(400.0f);  // Start above platform
+        player->getTransform()->getPosition()->setX(400.0f);
         player->getTransform()->getPosition()->setY(200.0f);
         player->getTransform()->getSize()->setWidth(50.0f);
         player->getTransform()->getSize()->setHeight(50.0f);
 
-        // Player - store pointer BEFORE moving, for setup
         auto playerPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
         playerPhysics->setBodyType(BodyType::DYNAMIC);
         playerPhysics->setCollider(std::make_unique<BoxCollider>(50.0f, 50.0f));
@@ -227,20 +235,20 @@ int main() {
 
         auto* physicsPtr = playerPhysics.get();
         player->addComponent(std::move(playerPhysics));
-        physicsPtr->update(0.0f);
 
         auto playerRenderer = std::make_unique<SpriteRenderer>("resources/square_lime.png");
         playerRenderer->setParent(player.get());
         player->addComponent(std::move(playerRenderer));
 
+        std::cout << "Setting up player with InputSystem: " << inputSystem << std::endl;
         player->setup(physicsPtr, inputSystem);
 
         scene->addObject(std::move(player));
-        std::cout << "Player created at (400, 200) with size (50, 50)" << std::endl;
 
         sceneManager->addScene(std::move(scene));
         sceneManager->setScene("MainScene");
 
+        std::cout << "=== Starting game loop ===" << std::endl;
         gameEngine->start();
 
     } catch (const std::exception& e) {

@@ -33,11 +33,6 @@ void PhysicsComponent::initializePhysicsBody() {
     Transform* transform = _parent->getTransform();
     float x = transform->getPosition()->getX();
     float y = transform->getPosition()->getY();
-    float width = transform->getSize()->getWidth();
-    float height = transform->getSize()->getHeight();
-
-    std::cout << "Creating physics body at (" << x << ", " << y
-              << ") with size " << width << "x" << height << std::endl;
 
     float angle = transform->getRotation()->getRotation();
     _bodyId = _box2DFacade->createBody(_parent, _rigidBody.getBodyType(), x, y, angle);
@@ -71,11 +66,6 @@ void PhysicsComponent::syncTransformFromPhysics() {
     float angle = _box2DFacade->getRotation(_bodyId);
 
     Transform* transform = _parent->getTransform();
-    float width = transform->getSize()->getWidth();
-    float height = transform->getSize()->getHeight();
-
-    std::cout << "Physics body at (" << x << ", " << y
-              << ") - Size: " << width << "x" << height << std::endl;
 
     transform->getPosition()->setX(x);
     transform->getPosition()->setY(y);

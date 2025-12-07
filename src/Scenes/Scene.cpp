@@ -32,9 +32,7 @@ const std::string& Scene::getName() const {
 }
 
 void Scene::update(float deltaTime) {
-    std::cout << "=== SCENE UPDATE: " << _objects.size() << " objects ===" << std::endl;
     for (auto& obj : _objects) {
-        std::cout << "Updating object at layer: " << obj->getLayer() << std::endl;
         obj->update(deltaTime);
     }
 }
