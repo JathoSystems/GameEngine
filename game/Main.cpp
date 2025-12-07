@@ -19,9 +19,9 @@
 class PlayerController : public IKeyListener {
 private:
     PhysicsComponent* _physics = nullptr;
-    float _moveSpeed = 30000.0f;
+    float _moveSpeed = 300.0f;
     float _jumpForce = 5000.0f;
-    bool _isGrounded = false;
+    int _groundContactCount = 0;
     bool _movingLeft = false;
     bool _movingRight = false;
 
@@ -30,12 +30,19 @@ public:
         _physics = physics;
     }
 
-    void setGrounded(bool grounded) {
-        std::cout << "setGrounded called: " << (grounded ? "true" : "false") << std::endl;
-        _isGrounded = grounded;
+    void addGroundContact() {
+        _groundContactCount++;
+        std::cout << "Ground contact added. Total: " << _groundContactCount << std::endl;
     }
 
-    bool isGrounded() const { return _isGrounded; }
+    void removeGroundContact() {
+        _groundContactCount = std::max(0, _groundContactCount - 1);
+        std::cout << "Ground contact removed. Total: " << _groundContactCount << std::endl;
+    }
+
+    bool isGrounded() const {
+        return _groundContactCount > 0;  // Use contact count directly
+    }
 
     void onKeyPress(Key key) override {
         if (!_physics) {
@@ -60,15 +67,15 @@ public:
                 std::cout << "=== JUMP KEY PRESSED ===" << std::endl;
                 std::cout << "Physics component valid: " << (_physics ? "YES" : "NO") << std::endl;
                 std::cout << "Physics initialized: " << (_physics && _physics->isInitialized() ? "YES" : "NO") << std::endl;
-                std::cout << "Currently grounded: " << (_isGrounded ? "YES" : "NO") << std::endl;
+                std::cout << "Ground contacts: " << _groundContactCount << std::endl;
+                std::cout << "Currently grounded: " << (isGrounded() ? "YES" : "NO") << std::endl;
 
-                if (_isGrounded) {
+                if (isGrounded()) {  // Use isGrounded() method instead of _isGrounded flag
                     float vx, vy;
                     _physics->getVelocity(vx, vy);
                     std::cout << "Pre-jump velocity: (" << vx << ", " << vy << ")" << std::endl;
 
                     _physics->setVelocity(vx, -_jumpForce);
-                    _isGrounded = false;
 
                     _physics->getVelocity(vx, vy);
                     std::cout << "Post-jump velocity: (" << vx << ", " << vy << ")" << std::endl;
@@ -101,19 +108,15 @@ public:
         if (!_physics || !_physics->isInitialized()) return;
 
         float vx = 0.0f;
-        float vy = 0.0f;
-        _physics->getVelocity(vx, vy);
-
         if (_movingLeft) {
             vx = -_moveSpeed;
         } else if (_movingRight) {
             vx = _moveSpeed;
-        } else {
-            vx = 0.0f;
         }
 
         float currentVx, currentVy;
         _physics->getVelocity(currentVx, currentVy);
+
         _physics->setVelocity(vx, currentVy);
     }
 
@@ -143,18 +146,19 @@ public:
         std::cout << "=== COLLISION ENTER ===" << std::endl;
         std::cout << "Normal: (" << collision.normalX << ", " << collision.normalY << ")" << std::endl;
 
-        if (collision.normalY > 0.5f) {
-            std::cout << "Ground detected! Setting grounded to true" << std::endl;
-            _controller.setGrounded(true);
-        } else {
-            std::cout << "Not a ground collision. Normal Y: " << collision.normalY << std::endl;
+        // Lower threshold to 0.2 and count all ground contacts
+        if (collision.normalY > 0.2f) {
+            std::cout << "Ground contact detected!" << std::endl;
+            _controller.addGroundContact();
         }
     }
 
-
     void onCollisionExit(const CollisionData& collision) override {
         std::cout << "=== COLLISION EXIT ===" << std::endl;
-        _controller.setGrounded(false);
+
+        // Always remove one ground contact when ANY collision ends
+        // This works because exit normals are (0,0)
+        _controller.removeGroundContact();
     }
 };
 
