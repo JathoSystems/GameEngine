@@ -248,7 +248,8 @@ jobs:
             let coveragePercentage = '0%';
             try {
               coverageText = fs.readFileSync('build/coverage.txt', 'utf8');
-              const match = coverageText.match(/TOTAL\s+\d+\s+\d+\s+\d+\s+(\d+%)/);
+              // Match the TOTAL line: "TOTAL  1890  1404  74%"
+              const match = coverageText.match(/TOTAL\s+\d+\s+\d+\s+(\d+%)/);
               if (match) {
                 coveragePercentage = match[1];
               }
