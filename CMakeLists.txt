@@ -246,6 +246,11 @@ add_executable(EngineTests
         tests/GameObjects/components/AudioComponentTests.cpp
         tests/UI/ColorTests.cpp
         tests/Scenes/SceneSystemTests.cpp
+        tests/Physics/BodyTypeTests.cpp
+        tests/Physics/Box2DFacadeTests.cpp
+        tests/Physics/ColliderTests.cpp
+        tests/Physics/CollisionDataTests.cpp
+        tests/Physics/MaterialTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
