@@ -189,7 +189,7 @@ int main() {
         auto groundPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
         groundPhysics->setBodyType(BodyType::STATIC);
         groundPhysics->setCollider(std::make_unique<BoxCollider>(1280.0f, 100.0f));
-        groundPhysics->setMaterial(Material::Wood());
+        groundPhysics->setMaterial(Material(1.0f, 0.8f, 0.0f));
         ground->addComponent(std::move(groundPhysics));
 
         auto groundRenderer = std::make_unique<SpriteRenderer>("resources/square.png");
@@ -208,7 +208,7 @@ int main() {
         auto platformPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
         platformPhysics->setBodyType(BodyType::STATIC);
         platformPhysics->setCollider(std::make_unique<BoxCollider>(300.0f, 50.0f));
-        platformPhysics->setMaterial(Material::Wood());
+        platformPhysics->setMaterial(Material(1.0f, 0.8f, 0.0f));
         platform->addComponent(std::move(platformPhysics));
 
         auto platformRenderer = std::make_unique<SpriteRenderer>("resources/square_blue.png");
@@ -227,8 +227,7 @@ int main() {
         auto boxPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
         boxPhysics->setBodyType(BodyType::DYNAMIC);  // Dynamic for physics interactions
         boxPhysics->setCollider(std::make_unique<BoxCollider>(60.0f, 60.0f));
-        Material heavyMaterial(50.0f, 0.8f, 0.3f);  // density, friction, restitution
-        boxPhysics->setMaterial(heavyMaterial);
+        boxPhysics->setMaterial(Material(50.0f, 0.8f, 0.0f));
         boxPhysics->setGravityScale(1.0f);  // Full gravity
         boxPhysics->setFixedRotation(true);  // Prevents rotation when pushed
         boxPhysics->setParent(box.get());
@@ -250,7 +249,7 @@ int main() {
         auto playerPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
         playerPhysics->setBodyType(BodyType::DYNAMIC);
         playerPhysics->setCollider(std::make_unique<BoxCollider>(50.0f, 50.0f));
-        playerPhysics->setMaterial(Material::Wood());
+        playerPhysics->setMaterial(Material(1.0f, 0.8f, 0.0f));
         playerPhysics->setGravityScale(1.0f);
         playerPhysics->setFixedRotation(true);
         playerPhysics->setParent(player.get());
