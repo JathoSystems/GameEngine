@@ -41,7 +41,7 @@ public:
     }
 
     bool isGrounded() const {
-        return _groundContactCount > 0;  // Use contact count directly
+        return _groundContactCount > 0;
     }
 
     void onKeyPress(Key key) override {
@@ -70,7 +70,7 @@ public:
                 std::cout << "Ground contacts: " << _groundContactCount << std::endl;
                 std::cout << "Currently grounded: " << (isGrounded() ? "YES" : "NO") << std::endl;
 
-                if (isGrounded()) {  // Use isGrounded() method instead of _isGrounded flag
+                if (isGrounded()) {
                     float vx, vy;
                     _physics->getVelocity(vx, vy);
                     std::cout << "Pre-jump velocity: (" << vx << ", " << vy << ")" << std::endl;
@@ -119,7 +119,6 @@ public:
 
         _physics->setVelocity(vx, currentVy);
     }
-
 };
 
 class Player : public GameObject {
@@ -146,7 +145,6 @@ public:
         std::cout << "=== COLLISION ENTER ===" << std::endl;
         std::cout << "Normal: (" << collision.normalX << ", " << collision.normalY << ")" << std::endl;
 
-        // Lower threshold to 0.2 and count all ground contacts
         if (collision.normalY > 0.2f) {
             std::cout << "Ground contact detected!" << std::endl;
             _controller.addGroundContact();
@@ -155,9 +153,6 @@ public:
 
     void onCollisionExit(const CollisionData& collision) override {
         std::cout << "=== COLLISION EXIT ===" << std::endl;
-
-        // Always remove one ground contact when ANY collision ends
-        // This works because exit normals are (0,0)
         _controller.removeGroundContact();
     }
 };
@@ -221,6 +216,29 @@ int main() {
         platform->addComponent(std::move(platformRenderer));
 
         scene->addObject(std::move(platform));
+
+        // Pushable Box (NEW - on the platform)
+        auto box = std::make_unique<GameObject>();
+        box->getTransform()->getPosition()->setX(450.0f);  // Centered on platform
+        box->getTransform()->getPosition()->setY(330.0f);  // Above platform at Y=400
+        box->getTransform()->getSize()->setWidth(60.0f);
+        box->getTransform()->getSize()->setHeight(60.0f);
+
+        auto boxPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
+        boxPhysics->setBodyType(BodyType::DYNAMIC);  // Dynamic for physics interactions
+        boxPhysics->setCollider(std::make_unique<BoxCollider>(60.0f, 60.0f));
+        Material heavyMaterial(50.0f, 0.8f, 0.3f);  // density, friction, restitution
+        boxPhysics->setMaterial(heavyMaterial);
+        boxPhysics->setGravityScale(1.0f);  // Full gravity
+        boxPhysics->setFixedRotation(true);  // Prevents rotation when pushed
+        boxPhysics->setParent(box.get());
+        box->addComponent(std::move(boxPhysics));
+
+        auto boxRenderer = std::make_unique<SpriteRenderer>("resources/square.png");
+        boxRenderer->setParent(box.get());
+        box->addComponent(std::move(boxRenderer));
+
+        scene->addObject(std::move(box));
 
         // Player
         auto player = std::make_unique<Player>();
