@@ -65,5 +65,10 @@ void Scene::render(const std::unique_ptr<Window>& window, float delta) {
         }
     }
 
+    if (_hud) {
+        _hud->update(delta);
+        _hud->render(window);
+    }
+
     SDL_RenderPresent(renderer);
 }

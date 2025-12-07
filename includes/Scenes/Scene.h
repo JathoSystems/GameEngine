@@ -7,6 +7,7 @@
 #include "GameObjects/GameObject.h"
 #include "Scenes/Camera/Camera.h"
 #include "SDL/Window.h"
+#include "UI/HUD.h"
 
 class Scene {
 private:

@@ -1,8 +1,10 @@
+#define _USE_MATH_DEFINES
 #include <catch2/catch_test_macros.hpp>
 #include "Audio/AudioEngine.h"
 #include "Audio/DecodedAudio.h"
 #include <cmath>
 #include <cstring>
+#include <numbers>
 
 static DecodedAudio createTestDecodedAudio() {
     DecodedAudio testAudio;
@@ -12,7 +14,7 @@ static DecodedAudio createTestDecodedAudio() {
 
     std::vector<float> floatSamples(numSamples * channels);
     for (int i = 0; i < numSamples; ++i) {
-        float sample = sin(2.0f * M_PI * 440.0f * i / sampleRate) * 0.5f;
+        float sample = sin(2.0f * std::numbers::pi_v<float> * 440.0f * i / sampleRate) * 0.5f;
         floatSamples[i * 2] = sample;
         floatSamples[i * 2 + 1] = sample;
     }
@@ -26,6 +28,7 @@ static DecodedAudio createTestDecodedAudio() {
 
     return testAudio;
 }
+
 
 TEST_CASE("AudioEngine", "[audio][engine]") {
     auto audioEngine = std::make_unique<AudioEngine>();
