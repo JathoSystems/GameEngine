@@ -292,6 +292,9 @@ add_executable(EngineTests
         tests/Physics/ColliderTests.cpp
         tests/Physics/CollisionDataTests.cpp
         tests/Physics/MaterialTests.cpp
+        tests/Physics/RigidBodyTests.cpp
+        tests/Physics/PhysicsComponentTests.cpp
+        tests/Physics/PhysicsSystemTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
