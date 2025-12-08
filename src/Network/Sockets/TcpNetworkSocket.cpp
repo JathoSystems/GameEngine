@@ -51,47 +51,62 @@ void TcpNetworkSocket::disconnect()
     }
 }
 
-void TcpNetworkSocket::asyncReceive(std::function<void(const Packet&)> callback)
-{
-    // Allocate buffer for the size header (4 bytes)
+void TcpNetworkSocket::asyncReceive(std::function<void(const Packet&)> callback, std::function<void()> onError) {
     auto sizeBuffer = std::make_shared<std::vector<uint8_t>>(4);
 
     asio::async_read(socket, asio::buffer(*sizeBuffer),
-        [this, sizeBuffer, callback](const asio::error_code& ec, std::size_t bytes_transferred) {
+        [this, sizeBuffer, callback, onError](const asio::error_code& ec, std::size_t bytes_transferred) {
             if (ec) {
-                std::cerr << "Error reading packet size: " << ec.message() << "\n";
+                // VERBETERD: Categoriseer de errors
+                if (ec == asio::error::eof) {
+                    std::cout << "Client disconnected (EOF)\n";
+                }
+                else if (ec == asio::error::connection_reset) {
+                    std::cout << "Client disconnected (connection reset)\n";
+                }
+                else if (ec == asio::error::operation_aborted) {
+                    std::cout << "Socket disconnected\n";
+                }
+                else {
+                    // Dit zijn ECHTE errors
+                    std::cerr << "Error reading packet size: " << ec.message() << "\n";
+                }
+
+                if (onError) onError();
                 return;
             }
 
-            // Parse the size
+            // ... rest van de code blijft hetzelfde
             uint32_t packetSize = (static_cast<uint32_t>((*sizeBuffer)[0]) << 24) |
                                   (static_cast<uint32_t>((*sizeBuffer)[1]) << 16) |
                                   (static_cast<uint32_t>((*sizeBuffer)[2]) << 8) |
-                                  static_cast<uint32_t>((*sizeBuffer)[3]);
+                                   static_cast<uint32_t>((*sizeBuffer)[3]);
 
-            // Now read the actual packet data
             auto dataBuffer = std::make_shared<std::vector<uint8_t>>(packetSize);
 
             asio::async_read(socket, asio::buffer(*dataBuffer),
-                [this, dataBuffer, callback](const asio::error_code& ec2, std::size_t) {
+                [this, dataBuffer, callback, onError](const asio::error_code& ec2, std::size_t) {
                     if (ec2) {
-                        std::cerr << "Error reading packet data: " << ec2.message() << "\n";
+                        // Ook hier: categoriseer errors
+                        if (ec2 == asio::error::operation_aborted) {
+                            // Normaal bij shutdown - stil blijven
+                        } else {
+                            std::cerr << "Error reading packet data: " << ec2.message() << "\n";
+                        }
+                        if (onError) onError();
                         return;
                     }
 
                     try {
-                        // Create packet from buffer
                         auto packet = Packet::createFromBuffer(*dataBuffer);
                         if (packet) {
                             callback(*packet);
                         }
-
-                        // Continue receiving
-                        asyncReceive(callback);
+                        asyncReceive(callback, onError);
 
                     } catch (std::exception& e) {
                         std::cerr << "Error deserializing packet: " << e.what() << "\n";
-                        asyncReceive(callback);
+                        asyncReceive(callback, onError);
                     }
                 });
         });

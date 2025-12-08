@@ -10,6 +10,8 @@ private:
     std::unique_ptr<INetworkSocket> socket;
     bool isActive = true;
 
+    std::function<void()> onDisconnected;
+
 public:
     Session(int id, std::unique_ptr<INetworkSocket> sock)
         : id(id), socket(std::move(sock)) {}
@@ -18,10 +20,13 @@ public:
     bool active() const { return isActive; }
 
     void send(const Packet& p);
-
     void asyncSend(const Packet& p, std::function<void(bool)> callback);
 
-    void startReceiving(std::function<void(const Packet&)> callback);
+    // AANGEPAST: nu met disconnect callback
+    void startReceiving(
+        std::function<void(const Packet&)> onPacket,
+        std::function<void()> onDisconnect
+    );
 
     void close();
 };

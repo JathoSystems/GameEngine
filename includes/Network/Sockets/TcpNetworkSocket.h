@@ -19,7 +19,7 @@ public:
     void send(const Packet& packet) override;
     void disconnect() override;
 
-    void asyncReceive(std::function<void(const Packet&)> callback) override;
+    void asyncReceive(std::function<void(const Packet&)> onPacket, std::function<void()> onError = nullptr ) override;
     void asyncSend(const Packet& packet, std::function<void(bool)> callback) override;
 
     void setSocket(asio::ip::tcp::socket &&newSocket);

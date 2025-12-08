@@ -173,6 +173,9 @@ add_library(Engine SHARED
         src/SaveLoad/SaveCaretaker.cpp
         src/SaveLoad/SaveLoadSystem.cpp
         src/Network/NetworkMiddleWare.cpp
+        includes/Network/Packet/Packets/NetworkEventPacket.h
+        game/ChatEvent.h
+        src/Network/NetworkSystem.cpp
 )
 
 target_precompile_headers(Engine

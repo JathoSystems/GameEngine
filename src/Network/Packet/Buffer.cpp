@@ -25,6 +25,10 @@ void Buffer::writeString(const std::string& str)
     data.insert(data.end(), str.begin(), str.end());
 }
 
+void Buffer::writeBytes(const std::vector<uint8_t> &bytes) {
+    data.insert(data.end(), bytes.begin(), bytes.end());
+}
+
 int32_t Buffer::readInt(size_t& offset)
 {
     if (offset + 4 > data.size()) {
@@ -66,4 +70,11 @@ std::string Buffer::readString(size_t& offset)
     std::string str(data.begin() + offset, data.begin() + offset + length);
     offset += length;
     return str;
+}
+
+std::vector<uint8_t> Buffer::readBytes(size_t &offset, size_t size) {
+    if (offset + size > data.size()) return {};
+    std::vector<uint8_t> result(data.begin() + offset, data.begin() + offset + size);
+    offset += size;
+    return result;
 }

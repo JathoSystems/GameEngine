@@ -1,61 +1,89 @@
 #include <iostream>
-
 #include "asio/io_context.hpp"
 #include "Network/Server.h"
 #include "Network/Listeners/TcpNetworkListener.h"
 #include "Network/Packet/PacketRegistery.h"
-
-class ChatPacket : public Packet {
-public:
-    std::string message;
-
-    ChatPacket() {
-        packetId = 1; // MUST match the Client's ID
-    }
-
-    void serialize() override {
-        buffer.writeInt(packetId);
-        buffer.writeString(message);
-    }
-
-    void deserialize() override {
-        size_t offset = 0;
-        // Read the message
-        int id = buffer.readInt(offset);
-        message = buffer.readString(offset);
-    }
-};
+#include "Network/Packet/Packets/NetworkEventPacket.h"
+#include "Events/EventRegistry.h"
+#include "ChatEvent.h"
 
 int main() {
     try {
         asio::io_context io_context;
 
-        // registering the packets
-        PacketRegistery::getInstance().registerPacket<ChatPacket>(1);
+        // Register packets (we only need NetworkEventPacket now!)
+        PacketRegistery::getInstance().registerPacket<NetworkEventPacket>(100);
 
+        // Register events
+        EventRegistry::getInstance()->registerEvent("ChatEvent", []() {
+            return std::make_shared<ChatEvent>();
+        });
+
+        // Create server
         auto listener = std::make_unique<TcpNetworkListener>(io_context, 8080, 100);
 
         Server server(io_context, std::move(listener), 8080);
 
+        // Set packet callback to handle NetworkEventPackets
         server.setPacketCallback([&server](int32_t clientId, const Packet& packet) {
-            if (packet.getId() == 1) {
-                const auto& chatPacket = static_cast<const ChatPacket&>(packet);
-                std::cout << "[Client " << clientId << " says]: " << chatPacket.message << "\n";
+            // Check if it's a NetworkEventPacket
+            if (packet.getId() == 100) {
+                std::cout << "NetworkEventPacket ontvangen van client " << clientId << "\n";
 
-                server.broadcastExcept(packet, clientId);
+                // Deserialize the NetworkEventPacket
+                NetworkEventPacket eventPacket;
+                eventPacket.getBuffer().setData(packet.getBuffer().getData());
+
+                try {
+                    eventPacket.deserialize();
+
+                    std::string eventName = eventPacket.getEventName();
+                    std::vector<uint8_t> eventData = eventPacket.getEventData();
+
+                    std::cout << "Event type: " << eventName << "\n";
+
+                    // Create the event from the registry
+                    EventRegistry::getInstance()->createEvent(eventName);
+                    auto event = EventRegistry::getInstance()->getEvent(eventName);
+
+                    if (event) {
+                        event->deserialize(eventData);
+
+                        // Handle specific event types
+                        if (eventName == "ChatEvent") {
+                            auto chatEvent = std::dynamic_pointer_cast<ChatEvent>(event);
+                            if (chatEvent) {
+                                std::cout << "[Client " << clientId << " says]: "
+                                          << chatEvent->getMessage() << "\n";
+                            }
+                        }
+
+                        // Broadcast to all other clients
+                        server.broadcastExcept(packet, clientId);
+                        std::cout << "Event broadcasted to other clients\n";
+                    }
+
+                } catch (const std::exception& e) {
+                    std::cerr << "Error processing event: " << e.what() << "\n";
+                }
+            } else {
+                std::cout << "Unknown packet type: " << packet.getId() << "\n";
             }
         });
 
-
-        // 3. Start the server (Non-blocking)
+        // 5. Start the server
         server.startServer();
 
-        std::cout << "Server draait... (Druk op Ctrl+C om te stoppen)\n";
+        std::cout << "=================================\n";
+        std::cout << "Server running on port 8080\n";
+        std::cout << "Using Event System!\n";
+        std::cout << "Press Ctrl+C to stop\n";
+        std::cout << "=================================\n";
 
         server.run();
 
     } catch (std::exception& e) {
-        std::cerr << "Fout: " << e.what() << "\n";
+        std::cerr << "Server Error: " << e.what() << "\n";
     }
 
     return 0;

@@ -40,23 +40,27 @@ void Server::stopServer()
 
 void Server::run()
 {
-    // FIX: 'poll()' returns immediately if there is no work ready.
-    // 'run()' blocks and waits for work (incoming connections).
-    // This keeps your program alive.
     m_io_context.run();
 }
 
 void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
 {
     int32_t clientId = m_sessionManager->addSession(std::move(socket));
-
     std::cout << "New client assigned ID: " << clientId << "\n";
 
     auto session = m_sessionManager->getSession(clientId);
     if (session) {
-        session->startReceiving([this, clientId](const Packet& packet) {
-            handleClientPacket(clientId, packet);
-        });
+        session->startReceiving(
+            // Packet callback
+            [this, clientId](const Packet& packet) {
+                handleClientPacket(clientId, packet);
+            },
+            // Disconnect callback - NIEUW!
+            [this, clientId]() {
+                std::cout << "Client " << clientId << " disconnected\n";
+                m_sessionManager->removeSession(clientId);
+            }
+        );
     }
 }
 
