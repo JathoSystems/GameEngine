@@ -5,6 +5,7 @@
 #include "Network/Client.h"
 #include "Network/Sockets/TcpNetworkSocket.h"
 #include "Network/Packet/Packet.h"
+#include "Network/Packet/PacketRegistery.h"
 
 // Simple test packet (Ensure you register this ID on the server if you want it to work!)
 class ChatPacket : public Packet {
@@ -23,6 +24,7 @@ public:
     void deserialize() override {
         size_t offset = 0;
         // Read the message
+        int id = buffer.readInt(offset);
         message = buffer.readString(offset);
     }
 };
@@ -30,6 +32,8 @@ public:
 int main() {
     try {
         asio::io_context io_context;
+
+        PacketRegistery::getInstance().registerPacket<ChatPacket>(1);
 
         std::cout << "Creating client...\n";
 
@@ -43,7 +47,11 @@ int main() {
 
         // 3. Receive loop
         client.startReceiving([](const Packet& p) {
-             std::cout << "[Server Packet ID: " << p.getId() << "]\n";
+            const auto& chatPacket = static_cast<const ChatPacket&>(p);
+
+            std::cout << "\n[Chat]: " << chatPacket.message << "\n> ";
+            std::cout.flush(); // Zorgt dat je cursor weer netjes achter '> ' staat
+             // std::cout << "[Server Packet ID: " << p.getId() << "]\n";
         });
 
         // 4. Background thread for ASIO

@@ -82,6 +82,14 @@ else()
     message(STATUS "dr_mp3.h already exists")
 endif()
 
+FetchContent_Declare(
+        asio
+        GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+        GIT_TAG asio-1-30-2
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/asio
+)
+FetchContent_MakeAvailable(asio)
+
 # --- Engine library ---
 add_library(Engine SHARED
         src/Engine/GameEngine.cpp
@@ -164,6 +172,7 @@ add_library(Engine SHARED
         src/SaveLoad/JsonSaveFormat.cpp
         src/SaveLoad/SaveCaretaker.cpp
         src/SaveLoad/SaveLoadSystem.cpp
+        src/Network/NetworkMiddleWare.cpp
 )
 
 target_precompile_headers(Engine
@@ -177,7 +186,7 @@ target_precompile_headers(Engine
 target_include_directories(Engine
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/asio/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
