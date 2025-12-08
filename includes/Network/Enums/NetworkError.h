@@ -1,3 +1,5 @@
+#pragma once
+
 enum class NetworkError {
     SUCCESS,
     CONNECTION_FAILED,

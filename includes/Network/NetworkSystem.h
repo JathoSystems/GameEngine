@@ -1,26 +1,43 @@
 #pragma once
 #include "Engine/ISystem.h"
+#include "Network/Client.h"
+#include "Network/NetworkMiddleware.h"
+#include "Network/NetworkResult.h"         // <--- Nieuw
+#include "Network/Enums/ConnectionState.h" // <--- Nieuw
+#include "asio.hpp"
+#include <thread>
+#include <memory>
+#include <string>
 
-class NetworkSystem : public ISystem
-{
+class NetworkSystem : public ISystem {
 private:
-    bool multiplayerEnabled = false;
+    asio::io_context io_context;
+    std::shared_ptr<Client> client;
+    std::shared_ptr<NetworkMiddleware> middleware;
+
+    std::thread networkThread;
+
+    // Houd de status bij via jouw Enum
+    ConnectionState currentState = ConnectionState::DISCONNECTED;
 
 public:
     NetworkSystem() = default;
+    ~NetworkSystem();
 
-    void update(float deltaTime) override {
-    }
+    // Geeft nu een NetworkResult terug i.p.v. void
+    NetworkResult connect(const std::string& ip, int port);
 
-    void enableMultiplayer(bool enable) {
-        multiplayerEnabled = enable;
-    }
+    void disconnect();
 
-    bool isMultiplayerEnabled() const {
-        return multiplayerEnabled;
-    }
+    // Getters
+    std::shared_ptr<NetworkMiddleware> getMiddleware() const { return middleware; }
 
-    void shutdown() {
-        multiplayerEnabled = false;
-    }
+    // Checkt nu de enum state
+    bool isConnected() const { return currentState == ConnectionState::CONNECTED; }
+
+    ConnectionState getState() const { return currentState; }
+
+    // ISystem interface
+    void update(float deltaTime) override;
+    void shutdown();
 };

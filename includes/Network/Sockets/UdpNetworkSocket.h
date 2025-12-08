@@ -1,5 +1,7 @@
 #pragma once
 #include "INetworkSocket.h"
+#include "asio/io_context.hpp"
+#include "asio/ip/udp.hpp"
 #include "Network/Packet/Packet.h"
 
 class UdpNetworkSocket : public INetworkSocket
@@ -14,6 +16,6 @@ public:
     void send(const Packet& packet) override;
     void disconnect() override;
 
-    void asyncReceive(std::function<void(const Packet&)> callback) override;
+    void asyncReceive(std::function<void(const Packet&)> callback, std::function<void()> onError) override;
     void asyncSend(const Packet& packet, std::function<void(bool)> callback) override;
 };

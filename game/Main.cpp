@@ -1,90 +1,99 @@
 #include <iostream>
-#include <thread>
 #include <string>
-#include "asio.hpp"
-#include "Network/Client.h"
-#include "Network/Sockets/TcpNetworkSocket.h"
-#include "Network/Packet/Packet.h"
+#include <memory>
+#include <limits> // Nodig voor cin.ignore
+
+// Network & Events
+#include "Network/NetworkSystem.h"
+#include "Events/EventManager.h"
+#include "ChatEvent.h"
+
+// Registries (CRUCIAAL! Deze misten we nog)
 #include "Network/Packet/PacketRegistery.h"
-
-// Simple test packet (Ensure you register this ID on the server if you want it to work!)
-class ChatPacket : public Packet {
-public:
-    std::string message;
-
-    ChatPacket() {
-        packetId = 1;
-    }
-
-    void serialize() override {
-        buffer.writeInt(packetId);
-        buffer.writeString(message);
-    }
-
-    void deserialize() override {
-        size_t offset = 0;
-        // Read the message
-        int id = buffer.readInt(offset);
-        message = buffer.readString(offset);
-    }
-};
+#include "Network/Packet/Packets/NetworkEventPacket.h"
+#include "Events/EventRegistry.h"
 
 int main() {
+    // -----------------------------------------------------------
+    // 1. GLOBAL TRY-CATCH (Zodat het venster niet direct sluit)
+    // -----------------------------------------------------------
     try {
-        asio::io_context io_context;
+        std::cout << "=== CLIENT STARTING ===" << std::endl;
 
-        PacketRegistery::getInstance().registerPacket<ChatPacket>(1);
+        // -----------------------------------------------------------
+        // 2. REGISTRATIES (Dit moet gebeuren VOORDAT we verbinden!)
+        // -----------------------------------------------------------
+        // A. Packets registreren (Zodat we weten wat ID 100 is)
+        PacketRegistery::getInstance().registerPacket<NetworkEventPacket>(100);
 
-        std::cout << "Creating client...\n";
-
-        // 1. Create socket and client
-        auto socket = std::make_unique<TcpNetworkSocket>(io_context);
-        Client client(std::move(socket));
-
-        // 2. Connect
-        client.connect("127.0.0.1", 8080);
-        std::cout << "Connected to server!\n";
-
-        // 3. Receive loop
-        client.startReceiving([](const Packet& p) {
-            const auto& chatPacket = static_cast<const ChatPacket&>(p);
-
-            std::cout << "\n[Chat]: " << chatPacket.message << "\n> ";
-            std::cout.flush(); // Zorgt dat je cursor weer netjes achter '> ' staat
-             // std::cout << "[Server Packet ID: " << p.getId() << "]\n";
+        // B. Events registreren (Zodat we 'ChatEvent' kunnen aanmaken als er data binnenkomt)
+        EventRegistry::getInstance()->registerEvent("ChatEvent", []() {
+            return std::make_shared<ChatEvent>();
         });
 
-        // 4. Background thread for ASIO
-        std::thread networkThread([&io_context]() {
-            io_context.run();
-        });
+        std::cout << "[System] Registries initialized." << std::endl;
 
-        // 5. Input loop
-        std::string line;
-        while (client.isConnected()) {
-            std::cout << "> ";
-            std::getline(std::cin, line);
+        // -----------------------------------------------------------
+        // 3. NETWERK SETUP
+        // -----------------------------------------------------------
+        auto network = std::make_shared<NetworkSystem>();
 
-            if (line == "exit") {
-                client.disconnect();
-                break;
+        std::cout << "[System] Connecting to 127.0.0.1:8080..." << std::endl;
+        auto result = network->connect("127.0.0.1", 8080);
+
+        std::shared_ptr<NetworkMiddleware> middleware = nullptr;
+
+        // Callback voor inkomende berichten
+        auto onMessage = [](std::shared_ptr<IEvent> event) {
+            if (auto chat = std::dynamic_pointer_cast<ChatEvent>(event)) {
+                // Zet cursor terug, print bericht, print prompt opnieuw
+                std::cout << "\r"<< chat->getMessage() << "\n> " << std::flush;
             }
+        };
 
-            // Create the packet
-            auto p = std::make_shared<ChatPacket>();
-            p->message = line;      // Fill the data
-            p->serialize();         // Pack the data into the buffer
-
-            // Send it!
-            client.send(*p);
+        if (result.isSuccess()) {
+            std::cout << "[System] Connected! Type 'exit' to quit.\n> ";
+            middleware = network->getMiddleware();
+            middleware->setOnEventReceived(onMessage);
+        } else {
+            // Als verbinden mislukt, printen we waarom en stoppen we niet direct (zodat je het kan lezen)
+            throw std::runtime_error("Connection failed: " + result.message);
         }
 
-        if (networkThread.joinable()) {
-            networkThread.join();
+        auto eventManager = std::make_shared<EventManager>(middleware);
+        eventManager->setEventCallback(onMessage);
+
+        // -----------------------------------------------------------
+        // 4. MAIN LOOP
+        // -----------------------------------------------------------
+        while (true) {
+            std::string input;
+            if (std::getline(std::cin, input)) {
+                if (input == "exit") break;
+                if (input.empty()) continue;
+
+                // Verstuur bericht
+                eventManager->broadcast(std::make_shared<ChatEvent>(input, 1));
+
+                // Print prompt opnieuw
+                std::cout << "> " << std::flush;
+            }
         }
 
-    } catch (std::exception& e) {
-        std::cerr << "Client Error: " << e.what() << "\n";
+        network->disconnect();
+
+    } catch (const std::exception& e) {
+        // -----------------------------------------------------------
+        // FOUTAFHANDELING (Houdt scherm open)
+        // -----------------------------------------------------------
+        std::cerr << "\n\n❌ FATAL ERROR: " << e.what() << std::endl;
+        std::cerr << "------------------------------------------------" << std::endl;
+        std::cerr << "Press ENTER to close window..." << std::endl;
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.get();
+        return 1;
     }
+
     return 0;
 }
