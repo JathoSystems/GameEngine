@@ -183,13 +183,13 @@ TEST_CASE("Client - Receiving packets", "[client]") {
     SECTION("StartReceiving sets up callback") {
         auto mockSocket = std::make_unique<MockNetworkSocket>();
         auto* socketPtr = mockSocket.get();
-        
+
         Client client(std::move(mockSocket));
         client.connect("127.0.0.1", 8080);
-        
+
         bool callbackCalled = false;
         int32_t receivedValue = 0;
-        
+
         client.startReceiving([&](const Packet& packet) {
             callbackCalled = true;
             const auto* tp = dynamic_cast<const TestPacket*>(&packet);
@@ -197,13 +197,12 @@ TEST_CASE("Client - Receiving packets", "[client]") {
                 receivedValue = tp->value;
             }
         });
-        
-        // Queue and simulate receiving a packet
+
         auto testPacket = std::make_shared<TestPacket>();
         testPacket->value = 999;
         socketPtr->queuePacketToReceive(testPacket);
         socketPtr->simulateReceive();
-        
+
         REQUIRE(callbackCalled);
         REQUIRE(receivedValue == 999);
     }
@@ -225,13 +224,13 @@ TEST_CASE("Client - Receiving packets", "[client]") {
     SECTION("Receive multiple packets") {
         auto mockSocket = std::make_unique<MockNetworkSocket>();
         auto* socketPtr = mockSocket.get();
-        
+
         Client client(std::move(mockSocket));
         client.connect("127.0.0.1", 8080);
-        
+
         int packetCount = 0;
         std::vector<int32_t> receivedValues;
-        
+
         client.startReceiving([&](const Packet& packet) {
             packetCount++;
             const auto* tp = dynamic_cast<const TestPacket*>(&packet);
@@ -239,16 +238,15 @@ TEST_CASE("Client - Receiving packets", "[client]") {
                 receivedValues.push_back(tp->value);
             }
         });
-        
-        // Queue multiple packets
+
         for (int i = 0; i < 5; ++i) {
             auto packet = std::make_shared<TestPacket>();
             packet->value = i * 10;
             socketPtr->queuePacketToReceive(packet);
         }
-        
+
         socketPtr->simulateReceive();
-        
+
         REQUIRE(packetCount == 5);
         REQUIRE(receivedValues.size() == 5);
         REQUIRE(receivedValues[0] == 0);

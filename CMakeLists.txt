@@ -172,7 +172,8 @@ add_library(Engine SHARED
         src/SaveLoad/JsonSaveFormat.cpp
         src/SaveLoad/SaveCaretaker.cpp
         src/SaveLoad/SaveLoadSystem.cpp
-        src/Network/NetworkMiddleWare.cpp
+        src/Network/NetworkMiddleware.cpp
+        src/Network/NetworkMiddleware.cpp
         includes/Network/Packet/Packets/NetworkEventPacket.h
         game/ChatEvent.h
         src/Network/NetworkSystem.cpp

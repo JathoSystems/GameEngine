@@ -87,28 +87,33 @@ TEST_CASE("Session - Basic operations", "[session]") {
         auto mockSocket = std::make_unique<MockNetworkSocket>();
         mockSocket->connect("127.0.0.1", "8080");
         auto* socketPtr = mockSocket.get();
-        
-        // Queue a packet to be received
+
         auto testPacket = std::make_shared<TestPacket>();
         testPacket->value = 999;
         socketPtr->queuePacketToReceive(testPacket);
-        
+
         Session session(1, std::move(mockSocket));
-        
+
         bool receivedPacket = false;
         int32_t receivedValue = 0;
-        
-        session.startReceiving([&](const Packet& packet) {
-            receivedPacket = true;
-            const auto* tp = dynamic_cast<const TestPacket*>(&packet);
-            if (tp) {
-                receivedValue = tp->value;
+        bool disconnected = false;
+
+        // FIX: Voeg disconnect callback toe
+        session.startReceiving(
+            [&](const Packet& packet) {
+                receivedPacket = true;
+                const auto* tp = dynamic_cast<const TestPacket*>(&packet);
+                if (tp) {
+                    receivedValue = tp->value;
+                }
+            },
+            [&]() {
+                disconnected = true;
             }
-        });
-        
-        // Simulate receiving
+        );
+
         socketPtr->simulateReceive();
-        
+
         REQUIRE(receivedPacket);
         REQUIRE(receivedValue == 999);
     }

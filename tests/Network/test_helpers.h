@@ -28,7 +28,6 @@ public:
     }
 
     void serialize() override {
-        // FIX: Gebruik setData({}) om de buffer te wissen i.p.v. clear()
         buffer.setData({});
         buffer.writeInt(packetId);
         buffer.writeInt(value);
@@ -50,7 +49,7 @@ public:
     }
 
     void serialize() override {
-        buffer.setData({}); // FIX
+        buffer.setData({});
         buffer.writeInt(packetId);
     }
 
@@ -69,7 +68,7 @@ public:
     }
 
     void serialize() override {
-        buffer.setData({}); // FIX
+        buffer.setData({});
         buffer.writeInt(packetId);
         buffer.writeInt(static_cast<int32_t>(data.size()));
         for (int32_t val : data) {
@@ -120,13 +119,13 @@ private:
     std::queue<std::shared_ptr<Packet>> receivedPackets;
     std::queue<std::shared_ptr<Packet>> packetsToReceive;
     std::function<void(const Packet&)> receiveCallback;
+    std::function<void()> errorCallback; // NIEUW
 
-    // Helper om het juiste packet type te maken op basis van ID
     std::shared_ptr<Packet> createPacketFromId(int32_t id) {
         if (id == 100) return std::make_shared<TestPacket>();
         if (id == 200) return std::make_shared<EmptyPacket>();
         if (id == 300) return std::make_shared<LargePacket>();
-        return std::make_shared<TestPacket>(); // Default fallback
+        return std::make_shared<TestPacket>();
     }
 
 public:
@@ -155,26 +154,20 @@ public:
         connected = true;
     }
 
-    // FIX: Send methode die het juiste type herkent
     void send(const Packet& packet) override {
         if (!connected) throw std::runtime_error("Not connected");
         if (shouldFailSend) throw std::runtime_error("Mock send failed");
 
-        // 1. Haal de ruwe data op
         Packet& pRef = const_cast<Packet&>(packet);
         pRef.serialize();
         std::vector<uint8_t> data = pRef.getBuffer().getData();
 
-        // 2. Lees het ID uit de ruwe data om te weten welk packet het is
         Buffer tempBuf;
         tempBuf.setData(data);
         size_t offset = 0;
         int32_t id = tempBuf.readInt(offset);
 
-        // 3. Maak het juiste packet aan
         auto copy = createPacketFromId(id);
-
-        // 4. Vul data en deserialize
         copy->getBuffer().setData(data);
         copy->deserialize();
 
@@ -185,8 +178,13 @@ public:
         connected = false;
     }
 
-    void asyncReceive(std::function<void(const Packet&)> callback) override {
-        receiveCallback = callback;
+    // FIX: Nieuwe signature met onError callback
+    void asyncReceive(
+        std::function<void(const Packet&)> onPacket,
+        std::function<void()> onError = nullptr
+    ) override {
+        receiveCallback = onPacket;
+        errorCallback = onError;
     }
 
     void asyncSend(const Packet& packet, std::function<void(bool)> callback) override {
@@ -195,7 +193,6 @@ public:
             return;
         }
 
-        // Zelfde logica als bij send()
         Packet& pRef = const_cast<Packet&>(packet);
         pRef.serialize();
         std::vector<uint8_t> data = pRef.getBuffer().getData();
@@ -211,6 +208,13 @@ public:
 
         receivedPackets.push(copy);
         callback(true);
+    }
+
+    // Helper om disconnect te simuleren
+    void simulateDisconnect() {
+        if (errorCallback) {
+            errorCallback();
+        }
     }
 };
 

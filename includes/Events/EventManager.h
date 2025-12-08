@@ -1,5 +1,6 @@
 #ifndef EVENTS_EVENTMANAGER_H
 #define EVENTS_EVENTMANAGER_H
+
 #include "IEvent.h"
 #include <memory>
 #include "Network/NetworkMiddleware.h"
