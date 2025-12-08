@@ -21,6 +21,7 @@ public:
     void deserialize() override {
         size_t offset = 0;
         // Read the message
+        int id = buffer.readInt(offset);
         message = buffer.readString(offset);
     }
 };
@@ -35,12 +36,15 @@ int main() {
         auto listener = std::make_unique<TcpNetworkListener>(io_context, 8080, 100);
         Server server(io_context, std::move(listener), 8080);
 
-        server.setPacketCallback([](int32_t clientId, const Packet& packet) {
+        server.setPacketCallback([&server](int32_t clientId, const Packet& packet) {
             if (packet.getId() == 1) {
                 const auto& chatPacket = static_cast<const ChatPacket&>(packet);
                 std::cout << "[Client " << clientId << " says]: " << chatPacket.message << "\n";
+
+                server.broadcastExcept(packet, clientId);
             }
         });
+
 
         // 3. Start the server (Non-blocking)
         server.startServer();
