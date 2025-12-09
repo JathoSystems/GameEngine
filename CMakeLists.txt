@@ -234,6 +234,7 @@ add_custom_command(TARGET GameEngine POST_BUILD
         $<TARGET_FILE:SDL3::SDL3>
         $<TARGET_FILE:SDL3_image::SDL3_image>
         $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+        $<TARGET_FILE:box2d>
         $<TARGET_FILE_DIR:GameEngine>
 )
 
@@ -323,6 +324,10 @@ add_custom_command(TARGET EngineTests POST_BUILD
         $<TARGET_FILE:SDL3::SDL3>
         $<TARGET_FILE:SDL3_image::SDL3_image>
         $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+        $<TARGET_FILE_DIR:EngineTests>
+
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:box2d>
         $<TARGET_FILE_DIR:EngineTests>
 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
