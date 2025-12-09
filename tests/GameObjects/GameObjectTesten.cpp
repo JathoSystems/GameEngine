@@ -82,8 +82,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
 
     REQUIRE(componentPtr->getParent() == &gameObject);
 
-    SECTION("AddComponent stores component", "[GameObject][addComponent]")
-    {
+    SECTION("AddComponent stores component", "[GameObject][addComponent]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -96,8 +95,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getRenderCallCount() == 1);
     }
 
-    SECTION("AddComponent handles multiple components", "[GameObject][addComponent]")
-    {
+    SECTION("AddComponent handles multiple components", "[GameObject][addComponent]") {
         GameObject gameObject;
         auto component1 = std::make_unique<TestComponent>();
         auto component2 = std::make_unique<TestComponent>();
@@ -116,8 +114,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(ptr3->getParent() == &gameObject);
     }
 
-    SECTION("AddComponent moves ownership", "[GameObject][addComponent]")
-    {
+    SECTION("AddComponent moves ownership", "[GameObject][addComponent]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
 
@@ -126,8 +123,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(component == nullptr);
     }
 
-    SECTION("Render calls render on all components", "[GameObject][render]")
-    {
+    SECTION("Render calls render on all components", "[GameObject][render]") {
         GameObject gameObject;
         auto component1 = std::make_unique<TestComponent>();
         auto component2 = std::make_unique<TestComponent>();
@@ -145,16 +141,14 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(ptr2->getRenderCallCount() == 1);
     }
 
-    SECTION("Render with no components does not crash", "[GameObject][render]")
-    {
+    SECTION("Render with no components does not crash", "[GameObject][render]") {
         GameObject gameObject;
         const std::unique_ptr<Window> window = std::make_unique<TestWindow>();
 
         REQUIRE_NOTHROW(gameObject.render(window));
     }
 
-    SECTION("Render passes correct window", "[GameObject][render]")
-    {
+    SECTION("Render passes correct window", "[GameObject][render]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -169,8 +163,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getLastWindow() == windowPtr);
     }
 
-    SECTION("Render renders components in order", "[GameObject][render]")
-    {
+    SECTION("Render renders components in order", "[GameObject][render]") {
         GameObject gameObject;
         auto component1 = std::make_unique<OrderedTestComponent>(1);
         auto component2 = std::make_unique<OrderedTestComponent>(2);
@@ -194,8 +187,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(ptr3->getRenderOrder() == 2);
     }
 
-    SECTION("Render can be called multiple times", "[GameObject][render]")
-    {
+    SECTION("Render can be called multiple times", "[GameObject][render]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -211,8 +203,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getRenderCallCount() == 3);
     }
 
-    SECTION("Update calls update on all components", "[GameObject][update]")
-    {
+    SECTION("Update calls update on all components", "[GameObject][update]") {
         GameObject gameObject;
         auto component1 = std::make_unique<TestComponent>();
         auto component2 = std::make_unique<TestComponent>();
@@ -230,15 +221,13 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(ptr2->getUpdateCallCount() == 1);
     }
 
-    SECTION("Update with no components does not crash", "[GameObject][update]")
-    {
+    SECTION("Update with no components does not crash", "[GameObject][update]") {
         GameObject gameObject;
 
         REQUIRE_NOTHROW(gameObject.update(0.016f));
     }
 
-    SECTION("Update passes correct delta time", "[GameObject][update]")
-    {
+    SECTION("Update passes correct delta time", "[GameObject][update]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -251,8 +240,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getLastDeltaTime() == expectedDelta);
     }
 
-    SECTION("Update updates components in order", "[GameObject][update]")
-    {
+    SECTION("Update updates components in order", "[GameObject][update]") {
         GameObject gameObject;
         auto component1 = std::make_unique<OrderedTestComponent>(1);
         auto component2 = std::make_unique<OrderedTestComponent>(2);
@@ -275,8 +263,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(ptr3->getUpdateOrder() == 2);
     }
 
-    SECTION("Update with zero delta", "[GameObject][update]")
-    {
+    SECTION("Update with zero delta", "[GameObject][update]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -288,8 +275,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getLastDeltaTime() == 0.0f);
     }
 
-    SECTION("Update with negative delta", "[GameObject][update]")
-    {
+    SECTION("Update with negative delta", "[GameObject][update]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -301,8 +287,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getLastDeltaTime() == -0.5f);
     }
 
-    SECTION("Update can be called multiple times", "[GameObject][update]")
-    {
+    SECTION("Update can be called multiple times", "[GameObject][update]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -317,8 +302,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getLastDeltaTime() == 0.048f);
     }
 
-    SECTION("SetLayer changes layer value", "[GameObject][layer]")
-    {
+    SECTION("SetLayer changes layer value", "[GameObject][layer]") {
         GameObject gameObject;
 
         gameObject.setLayer(5);
@@ -326,15 +310,13 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(gameObject.getLayer() == 5);
     }
 
-    SECTION("GetLayer returns default value of one", "[GameObject][layer]")
-    {
+    SECTION("GetLayer returns default value of one", "[GameObject][layer]") {
         GameObject gameObject;
 
         REQUIRE(gameObject.getLayer() == 1);
     }
 
-    SECTION("SetLayer with negative value", "[GameObject][layer]")
-    {
+    SECTION("SetLayer with negative value", "[GameObject][layer]") {
         GameObject gameObject;
 
         gameObject.setLayer(-3);
@@ -342,8 +324,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(gameObject.getLayer() == -3);
     }
 
-    SECTION("SetLayer with zero", "[GameObject][layer]")
-    {
+    SECTION("SetLayer with zero", "[GameObject][layer]") {
         GameObject gameObject;
 
         gameObject.setLayer(0);
@@ -351,8 +332,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(gameObject.getLayer() == 0);
     }
 
-    SECTION("SetLayer multiple times", "[GameObject][layer]")
-    {
+    SECTION("SetLayer multiple times", "[GameObject][layer]") {
         GameObject gameObject;
 
         gameObject.setLayer(2);
@@ -365,8 +345,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(gameObject.getLayer() == -5);
     }
 
-    SECTION("SetLayer with large values", "[GameObject][layer]")
-    {
+    SECTION("SetLayer with large values", "[GameObject][layer]") {
         GameObject gameObject;
 
         gameObject.setLayer(999999);
@@ -376,8 +355,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(gameObject.getLayer() == -999999);
     }
 
-    SECTION("GetTransform returns non-null", "[GameObject][transform]")
-    {
+    SECTION("GetTransform returns non-null", "[GameObject][transform]") {
         GameObject gameObject;
 
         Transform *transform = gameObject.getTransform();
@@ -385,8 +363,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(transform != nullptr);
     }
 
-    SECTION("GetTransform returns same instance", "[GameObject][transform]")
-    {
+    SECTION("GetTransform returns same instance", "[GameObject][transform]") {
         GameObject gameObject;
 
         Transform *transform1 = gameObject.getTransform();
@@ -395,8 +372,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(transform1 == transform2);
     }
 
-    SECTION("GameObject integration: add components, update and render", "[GameObject][integration]")
-    {
+    SECTION("GameObject integration: add components, update and render", "[GameObject][integration]") {
         GameObject gameObject;
         auto component1 = std::make_unique<TestComponent>();
         auto component2 = std::make_unique<TestComponent>();
@@ -421,8 +397,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(ptr2->getRenderCallCount() == 1);
     }
 
-    SECTION("GameObject integration: multiple update/render cycles", "[GameObject][integration]")
-    {
+    SECTION("GameObject integration: multiple update/render cycles", "[GameObject][integration]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *componentPtr = component.get();
@@ -440,8 +415,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE(componentPtr->getRenderCallCount() == 5);
     }
 
-    SECTION("GameObject integration: layer management with components", "[GameObject][integration]")
-    {
+    SECTION("GameObject integration: layer management with components", "[GameObject][integration]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
 
@@ -458,8 +432,7 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
         REQUIRE_NOTHROW(gameObject.update(0.016f));
     }
 
-    SECTION("GameObject component management", "[GameObject]")
-    {
+    SECTION("GameObject component management", "[GameObject]") {
         GameObject gameObject;
 
         SECTION("Adding single component") {
@@ -497,10 +470,126 @@ TEST_CASE("GameObject", "[GameObject][addComponent]") {
             gameObject.update(1.0f);
             REQUIRE(ptr->getLastDeltaTime() == 1.0f);
         }
+
+        SECTION("getComponent returns correct component type", "[GameObject][getComponent]") {
+            GameObject gameObject;
+
+            auto t1 = std::make_unique<TestComponent>();
+            auto *ptr1 = t1.get();
+            gameObject.addComponent(std::move(t1));
+
+            auto *result = gameObject.getComponent<TestComponent>();
+            REQUIRE(result == ptr1);
+        }
+
+        SECTION("getComponent returns nullptr when type does not exist", "[GameObject][getComponent]") {
+            GameObject gameObject;
+
+            auto t1 = std::make_unique<TestComponent>();
+            gameObject.addComponent(std::move(t1));
+
+            auto *result = gameObject.getComponent<OrderedTestComponent>();
+            REQUIRE(result == nullptr);
+        }
+
+        SECTION("getComponent returns first occurrence when multiple exist", "[GameObject][getComponent]") {
+            GameObject gameObject;
+
+            auto c1 = std::make_unique<TestComponent>();
+            auto c2 = std::make_unique<TestComponent>();
+
+            auto *ptr1 = c1.get();
+            gameObject.addComponent(std::move(c1));
+            gameObject.addComponent(std::move(c2));
+
+            auto *result = gameObject.getComponent<TestComponent>();
+            REQUIRE(result == ptr1);
+        }
+
+        SECTION("getComponents returns all components of a given type", "[GameObject][getComponents]") {
+            GameObject gameObject;
+
+            auto c1 = std::make_unique<TestComponent>();
+            auto c2 = std::make_unique<TestComponent>();
+            auto c3 = std::make_unique<OrderedTestComponent>(1);
+
+            auto *ptr1 = c1.get();
+            auto *ptr2 = c2.get();
+
+            gameObject.addComponent(std::move(c1));
+            gameObject.addComponent(std::move(c2));
+            gameObject.addComponent(std::move(c3));
+
+            std::vector<TestComponent *> components = gameObject.getComponents<TestComponent>();
+            REQUIRE(components.size() == 2);
+            REQUIRE(components[0] == ptr1);
+            REQUIRE(components[1] == ptr2);
+        }
+
+        SECTION("getComponents returns empty vector when none match", "[GameObject][getComponents]") {
+            GameObject gameObject;
+
+            auto c1 = std::make_unique<TestComponent>();
+            gameObject.addComponent(std::move(c1));
+
+            auto list = gameObject.getComponents<OrderedTestComponent>();
+            REQUIRE(list.empty());
+        }
+
+        SECTION("removeComponent removes only the first matching component", "[GameObject][removeComponent]") {
+            GameObject gameObject;
+
+            auto c1 = std::make_unique<TestComponent>();
+            auto c2 = std::make_unique<TestComponent>();
+            auto c3 = std::make_unique<TestComponent>();
+
+            auto *ptr2 = c2.get();
+            auto *ptr3 = c3.get();
+
+            gameObject.addComponent(std::move(c1));
+            gameObject.addComponent(std::move(c2));
+            gameObject.addComponent(std::move(c3));
+
+            gameObject.removeComponent<TestComponent>(false);
+
+            auto remaining = gameObject.getComponents<TestComponent>();
+            REQUIRE(remaining.size() == 2);
+            REQUIRE(remaining[0] == ptr2);
+            REQUIRE(remaining[1] == ptr3);
+        }
+
+        SECTION("removeComponent removes all matching components", "[GameObject][removeComponent]") {
+            GameObject gameObject;
+
+            gameObject.addComponent(std::make_unique<TestComponent>());
+            gameObject.addComponent(std::make_unique<TestComponent>());
+            gameObject.addComponent(std::make_unique<TestComponent>());
+
+            gameObject.removeComponent<TestComponent>(true);
+
+            auto list = gameObject.getComponents<TestComponent>();
+            REQUIRE(list.empty());
+        }
+
+        SECTION("removeComponent only removes components of the given type", "[GameObject][removeComponent]") {
+            GameObject gameObject;
+
+            auto t1 = std::make_unique<TestComponent>();
+            auto o1 = std::make_unique<OrderedTestComponent>(42);
+
+            auto *ptrOrdered = o1.get();
+
+            gameObject.addComponent(std::move(t1));
+            gameObject.addComponent(std::move(o1));
+
+            gameObject.removeComponent<TestComponent>(true);
+
+            REQUIRE(gameObject.getComponent<OrderedTestComponent>() == ptrOrdered);
+            REQUIRE(gameObject.getComponent<TestComponent>() == nullptr);
+        }
     }
 
-    SECTION("GameObject lifecycle methods", "[GameObject]")
-    {
+    SECTION("GameObject lifecycle methods", "[GameObject]") {
         GameObject gameObject;
         auto component = std::make_unique<TestComponent>();
         auto *ptr = component.get();
