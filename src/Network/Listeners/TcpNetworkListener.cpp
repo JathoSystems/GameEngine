@@ -23,7 +23,7 @@ void TcpNetworkListener::start(int port)
         return;
     }
 
-    // Create and bind the acceptor NOW (not in constructor)
+    // Create and bind the acceptor
     try {
         acceptor = std::make_unique<asio::ip::tcp::acceptor>(
             io_context,

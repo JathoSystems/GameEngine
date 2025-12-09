@@ -41,8 +41,7 @@ public:
     }
 
     void apply(std::shared_ptr<GameObject> gameObject) override {
-        // Voor chat hoeven we niks te doen met GameObjects
-        // De UI/console handled dit
+
     }
 
     // Getters

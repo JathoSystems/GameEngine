@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "Enums/NetworkError.h"
 
 class NetworkResult {

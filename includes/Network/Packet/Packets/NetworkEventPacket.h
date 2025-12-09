@@ -19,7 +19,6 @@ public:
     void serialize() override {
         buffer.writeInt(packetId);
 
-        // Dan de event data
         buffer.writeString(eventName);
         buffer.writeInt(static_cast<int32_t>(eventData.size()));
         buffer.writeBytes(eventData);
@@ -28,9 +27,10 @@ public:
     void deserialize() override {
         size_t offset = 0;
 
+        // first is packet id
         packetId = buffer.readInt(offset);
 
-        // Dan de event data
+        // then the event data
         eventName = buffer.readString(offset);
         int32_t size = buffer.readInt(offset);
         eventData = buffer.readBytes(offset, size);

@@ -17,14 +17,12 @@ private:
 
     std::thread networkThread;
 
-    // Houd de status bij via jouw Enum
     ConnectionState currentState = ConnectionState::DISCONNECTED;
 
 public:
     NetworkSystem() = default;
     ~NetworkSystem();
 
-    // Geeft nu een NetworkResult terug i.p.v. void
     NetworkResult connect(const std::string& ip, int port);
 
     void disconnect();
@@ -32,12 +30,10 @@ public:
     // Getters
     std::shared_ptr<NetworkMiddleware> getMiddleware() const { return middleware; }
 
-    // Checkt nu de enum state
     bool isConnected() const { return currentState == ConnectionState::CONNECTED; }
 
     ConnectionState getState() const { return currentState; }
 
-    // ISystem interface
     void update(float deltaTime) override;
     void shutdown();
 };

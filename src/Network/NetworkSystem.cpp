@@ -20,7 +20,7 @@ NetworkResult NetworkSystem::connect(const std::string& ip, int port) {
         }
 
         std::cout << "[NetworkSystem] Connecting to " << ip << ":" << port << "...\n";
-        client->connect(ip, port); // Dit gooit een exception als het faalt
+        client->connect(ip, port);
 
         if (!middleware) {
             middleware = std::make_shared<NetworkMiddleware>(client);
@@ -70,8 +70,7 @@ void NetworkSystem::disconnect() {
 }
 
 void NetworkSystem::update(float deltaTime) {
-    // Hier kun je later auto-reconnect logic toevoegen
-    // if (currentState == ConnectionState::DISCONNECTED && autoReconnect) ...
+
 }
 
 void NetworkSystem::shutdown() {
