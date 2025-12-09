@@ -1,128 +1,152 @@
 #include <iostream>
 #include <memory>
+#include <sstream>
+#include <iomanip>
 #include "Engine/GameEngine.h"
 #include "GameObjects/GameObject.h"
-#include "GameObjects/Component/KeyInputComponent.h"
 #include "GameObjects/Component/SpriteRenderer.h"
+#include "GameObjects/Component/Behaviour.h"
+#include "GameObjects/Spritesheet/Animator.h"
+#include "Animation/Animation.hpp"
+#include "Animation/Keyframe.hpp"
+#include "GameObjects/Component/KeyInputComponent.h"
 #include "Input/IKeyListener.h"
 #include "Input/InputSystem.h"
 #include "Scenes/Scene.h"
-#include "Scenes/SceneManager.h"
 #include "Scenes/SceneSystem.h"
-#include "Scenes/Camera/AttachedCamera.h"
 #include "Scenes/Camera/FixedCamera.h"
+#include "UI/Button.h"
 #include "UI/Text.h"
 #include "UI/Color.h"
 
-class KeyInput : public IKeyListener {
+class SpeedDisplayUpdater : public Behaviour {
+private:
+    GameEngine* _engine;
 public:
-    KeyInput(GameObject *player) : player(player) {}
-    GameObject *player;
-    void onKeyPress(Key key) override {
-        switch (key) {
-            case Key::W:
-                std::cout << "Key::W is pressed" << std::endl;
-                player->getTransform()->getPosition()->setY(player->getTransform()->getPosition()->getY() - 10);
-                break;
-            case Key::S:
-                std::cout << "Key::S is pressed" << std::endl;
-                player->getTransform()->getPosition()->setY(player->getTransform()->getPosition()->getY() + 10);
-                break;
-            case Key::A:
-                std::cout << "Key::A is pressed" << std::endl;
-                player->getTransform()->getPosition()->setX(player->getTransform()->getPosition()->getX() - 10);
-                break;
-            case Key::D:
-                std::cout << "Key::D is pressed" << std::endl;
-                player->getTransform()->getPosition()->setX(player->getTransform()->getPosition()->getX() + 10);
-                break;
-            default:
-                break;
+    SpeedDisplayUpdater(GameEngine* engine) : _engine(engine) {}
+    
+    void onUpdate() override {
+        if (!_parent || !_engine) return;
+        
+        Text* textComponent = _parent->getComponent<Text>();
+        if (textComponent) {
+            float speed = _engine->getTimeManager()->getTimeScale();
+            std::stringstream ss;
+            ss << "Speed: " << std::fixed << std::setprecision(2) << speed << "x";
+            textComponent->setText(ss.str());
         }
     }
-    void onKeyRelease(Key key) override {
-        std::cout << "Key Released: " << static_cast<int>(key) << "\n";
+};
+
+class SpeedInputHandler : public IKeyListener {
+private:
+    GameEngine* _engine;
+public:
+    SpeedInputHandler(GameEngine* engine) : _engine(engine) {}
+    void onKeyPress(Key key) {
+        switch (key) {
+            case Key::W:
+                _engine->getTimeManager()->setTimeScale(_engine->getTimeManager()->getTimeScale() + 0.1);
+                break;
+            case Key::S:
+                _engine->getTimeManager()->setTimeScale(_engine->getTimeManager()->getTimeScale() - 0.1);
+        }
+    }
+
+    void onKeyRelease(Key key) {
+
     }
 };
 
 int main() {
     try {
         auto gameEngine = std::make_unique<GameEngine>();
-        gameEngine->init("HUD Demo", 800, 600);
+        gameEngine->init("Game Speed Demo", 800, 600);
 
         auto gameScene = std::make_unique<Scene>("GameScene");
 
-        auto scoreText = std::make_unique<GameObject>();
-        scoreText->setLayer(1);
-        scoreText->getTransform()->getPosition()->setX(10);
-        scoreText->getTransform()->getPosition()->setY(10);
-        scoreText->getTransform()->getSize()->setWidth(100);
-        scoreText->getTransform()->getSize()->setHeight(50);
+        auto keyListenerObject = std::make_unique<GameObject>();
+        auto keyInputComponent = std::make_unique<KeyInputComponent>(keyListenerObject.get());
+        auto keyListener = std::make_unique<SpeedInputHandler>(gameEngine.get());
+        keyInputComponent->setListener(keyListener.get());
+        gameEngine->getSystem<InputSystem>()->registerKeyComponent(keyInputComponent.get());
+        keyListenerObject->addComponent(std::move(keyInputComponent));
+        gameScene->addObject(std::move(keyListenerObject));
 
-        auto textComponent = std::make_unique<Text>("Score: 0");
-        textComponent->setFont("resources/fonts/default.ttf", "default");
-        textComponent->setFontSize(24);
-        textComponent->setColor(std::make_unique<Color>(255, 255, 255));
-        scoreText->addComponent(std::move(textComponent));
-        gameScene->addHUDObject(std::move(scoreText));
+        auto forceButton = std::make_unique<GameObject>();
+        forceButton->setLayer(2);
+        forceButton->getTransform()->getPosition()->setX(20);
+        forceButton->getTransform()->getPosition()->setY(120);
+        auto forceBtnComponent = std::make_unique<Button>("Apply Force", std::make_unique<Color>(0, 0, 150));
+        forceBtnComponent->setTextColor(std::make_unique<Color>(255, 255, 255));
+        forceBtnComponent->setFont("resources/fonts/default.ttf", "force");
+        gameScene->addHUDObject(std::move(forceButton));
 
-        auto healthText = std::make_unique<GameObject>();
-        healthText->setLayer(1);
-        healthText->getTransform()->getPosition()->setX(10);
-        healthText->getTransform()->getPosition()->setY(40);
-        healthText->getTransform()->getSize()->setWidth(100);
-        healthText->getTransform()->getSize()->setHeight(50);
+        auto speedText = std::make_unique<GameObject>();
+        speedText->setLayer(2);
+        speedText->getTransform()->getPosition()->setX(20);
+        speedText->getTransform()->getPosition()->setY(560);
+        speedText->getTransform()->getSize()->setWidth(150);
+        speedText->getTransform()->getSize()->setHeight(30);
+        auto speedTextComponent = std::make_unique<Text>("Speed: 1.00x");
+        speedTextComponent->setFont("resources/fonts/default.ttf", "speedDisplay");
+        speedTextComponent->setFontSize(20);
+        speedTextComponent->setColor(std::make_unique<Color>(255, 255, 255));
+        speedText->addComponent(std::move(speedTextComponent));
+        auto speedUpdater = std::make_unique<SpeedDisplayUpdater>(gameEngine.get());
+        speedText->addComponent(std::move(speedUpdater));
+        gameScene->addHUDObject(std::move(speedText));
 
-        auto healthComponent = std::make_unique<Text>("Health: 100");
-        healthComponent->setFont("resources/fonts/default.ttf", "default");
-        healthComponent->setFontSize(24);
-        healthComponent->setColor(std::make_unique<Color>(255, 0, 0));
-        healthText->addComponent(std::move(healthComponent));
-        gameScene->addHUDObject(std::move(healthText));
+        auto spritesheetAnimObj = std::make_unique<GameObject>();
+        spritesheetAnimObj->setLayer(1);
+        spritesheetAnimObj->getTransform()->getPosition()->setX(300);
+        spritesheetAnimObj->getTransform()->getPosition()->setY(150);
+        spritesheetAnimObj->getTransform()->getSize()->setWidth(64);
+        spritesheetAnimObj->getTransform()->getSize()->setHeight(64);
+        auto animator = std::make_unique<Animator>("resources/robot.png", 4, 4);
+        animator->setMin(0);
+        animator->setMax(16);
+        spritesheetAnimObj->addComponent(std::move(animator));
+        gameScene->addObject(std::move(spritesheetAnimObj));
 
-        auto titleText = std::make_unique<GameObject>();
-        titleText->setLayer(2);
-        titleText->getTransform()->getPosition()->setX(300);
-        titleText->getTransform()->getPosition()->setY(550);
-        titleText->getTransform()->getSize()->setWidth(100);
-        titleText->getTransform()->getSize()->setHeight(50);
-
-        auto titleComponent = std::make_unique<Text>("HUD Demo");
-        titleComponent->setFont("resources/fonts/default.ttf", "default");
-        titleComponent->setFontSize(18);
-        titleComponent->setColor(std::make_unique<Color>(200, 200, 200));
-        titleText->addComponent(std::move(titleComponent));
-        gameScene->addHUDObject(std::move(titleText));
-
-        auto player = std::make_unique<GameObject>();
-        auto spriteRenderer = std::make_unique<SpriteRenderer>( "resources/sprite.jpeg");
-        player->addComponent(std::move(spriteRenderer));
-        GameObject *playerPtr = player.get();
-        KeyInput keyInput(playerPtr);
-        KeyInputComponent *keyInputComponent = new KeyInputComponent(player.get());
-        keyInputComponent->setListener(&keyInput);
-        player->addComponent(std::unique_ptr<KeyInputComponent>(keyInputComponent));
-        player->setLayer(1);
-        player->getTransform()->getPosition()->setX(400);
-        player->getTransform()->getPosition()->setY(300);
-        player->getTransform()->getSize()->setWidth(50);
-        player->getTransform()->getSize()->setHeight(50);
-        gameScene->addObject(std::move(player));
-
-        auto object = std::make_unique<GameObject>();
-        auto objectSprite = std::make_unique<SpriteRenderer>( "resources/WaterGirl.png");
-        object->addComponent(std::move(objectSprite));
-        object->getTransform()->getPosition()->setX(400);
-        object->getTransform()->getPosition()->setY(100);
-        object->getTransform()->getSize()->setWidth(50);
-        object->getTransform()->getSize()->setHeight(50);
-        gameScene->addObject(std::move(object));
+        auto keyframeAnimObj = std::make_unique<GameObject>();
+        keyframeAnimObj->setLayer(1);
+        keyframeAnimObj->getTransform()->getPosition()->setX(100);
+        keyframeAnimObj->getTransform()->getPosition()->setY(250);
+        keyframeAnimObj->getTransform()->getSize()->setWidth(50);
+        keyframeAnimObj->getTransform()->getSize()->setHeight(50);
+        auto sprite1 = std::make_unique<SpriteRenderer>("resources/square_blue.png");
+        keyframeAnimObj->addComponent(std::move(sprite1));
+        auto keyframeAnim = std::make_unique<Animation>(AnimationType::EIEO);
+        
+        auto transform1 = std::make_unique<Transform>();
+        transform1->getPosition()->setX(0);
+        transform1->getPosition()->setY(0);
+        transform1->getSize()->setWidth(50);
+        transform1->getSize()->setHeight(50);
+        keyframeAnim->addKeyframe(0.0f, std::make_unique<Keyframe>(std::move(transform1)));
+        
+        auto transform2 = std::make_unique<Transform>();
+        transform2->getPosition()->setX(200);
+        transform2->getPosition()->setY(200);
+        transform2->getSize()->setWidth(50);
+        transform2->getSize()->setHeight(50);
+        keyframeAnim->addKeyframe(2.0f, std::make_unique<Keyframe>(std::move(transform2)));
+        
+        auto transform3 = std::make_unique<Transform>();
+        transform3->getPosition()->setX(0);
+        transform3->getPosition()->setY(0);
+        transform3->getSize()->setWidth(50);
+        transform3->getSize()->setHeight(50);
+        keyframeAnim->addKeyframe(4.0f, std::make_unique<Keyframe>(std::move(transform3)));
+        
+        keyframeAnimObj->addComponent(std::move(keyframeAnim));
+        gameScene->addObject(std::move(keyframeAnimObj));
 
         auto viewport = std::make_unique<Viewport>(Size(800, 600), Position(0, 0));
-        auto camera = std::make_unique<AttachedCamera>(std::move(viewport), playerPtr);
+        auto camera = std::make_unique<FixedCamera>(std::move(viewport), Position(0,0));
         gameScene->setCamera(std::move(camera));
 
-        gameEngine->getSystem<InputSystem>()->registerKeyComponent(keyInputComponent);
         gameEngine->getSystem<SceneSystem>()->addScene(std::move(gameScene));
         gameEngine->getSystem<SceneSystem>()->setScene("GameScene");
 

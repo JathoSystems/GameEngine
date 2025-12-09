@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "ISystem.h"
+#include "TimeManager.h"
 #include "Audio/AudioSystem.h"
 #include "SDL/Window.h"
 
@@ -13,6 +14,7 @@ private:
 	std::vector<std::unique_ptr<ISystem>> _systems;
 	std::unique_ptr<Window> _window;
     std::unique_ptr<AudioSystem> _audioSystem;
+    std::unique_ptr<TimeManager> _timeManager;
 
 public:
 	GameEngine();
@@ -22,6 +24,7 @@ public:
 	void stop();
 	const std::unique_ptr<Window>& getWindow() const;
 	AudioSystem* getAudioSystem() const { return _audioSystem.get(); }
+	TimeManager* getTimeManager() const { return _timeManager.get(); }
 
 	template<typename T>  T* getSystem() {
 		for (auto& system : _systems) {

@@ -27,6 +27,7 @@ void GameEngine::init(std::string name, int width, int height) {
         SDL_Log("Failed to initialize AudioSystem");
     }
 
+    _timeManager = std::make_unique<TimeManager>();
     _systems.emplace_back(std::make_unique<SceneSystem>(_window));
     _systems.emplace_back(std::make_unique<InputSystem>());
     _systems.emplace_back(std::make_unique<AiSystem>());
@@ -37,11 +38,10 @@ void GameEngine::init(std::string name, int width, int height) {
 void GameEngine::start() {
     _isRunning = true;
 
-    TimeManager timeManager;
-    timeManager.start();
+    _timeManager->start();
 
     while (_isRunning) {
-        float deltaTime = timeManager.update();
+        float deltaTime = _timeManager->update();
 
         for (const std::unique_ptr<ISystem>& system : _systems) {
             system->update(deltaTime);
