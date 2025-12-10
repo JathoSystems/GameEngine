@@ -138,6 +138,7 @@ add_library(Engine SHARED
         src/UI/Font.cpp
         src/UI/Text.cpp
         src/UI/HUD.cpp
+        src/UI/FPSCounter.cpp
         src/Animation/Animation.cpp
         src/Animation/Keyframe.cpp
         src/Animation/Converter/ConverterFactory.cpp
@@ -297,6 +298,7 @@ add_executable(EngineTests
         tests/Physics/RigidBodyTests.cpp
         tests/Physics/PhysicsComponentTests.cpp
         tests/Physics/PhysicsSystemTests.cpp
+        tests/UI/FPSCounterTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
