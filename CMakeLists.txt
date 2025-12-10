@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# --- Debug/Release optimizations ---
+add_compile_definitions(ASIO_STANDALONE)
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -g)
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -109,6 +110,14 @@ else()
     message(STATUS "dr_mp3.h already exists")
 endif()
 
+FetchContent_Declare(
+        asio
+        GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+        GIT_TAG asio-1-30-2
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/asio
+)
+FetchContent_MakeAvailable(asio)
+
 # --- Engine library ---
 add_library(Engine SHARED
         src/Engine/GameEngine.cpp
@@ -154,6 +163,20 @@ add_library(Engine SHARED
         src/Scenes/Camera/FixedCamera.cpp
         src/Scenes/Camera/AttachedCamera.cpp
         src/Scenes/Camera/Viewport.cpp
+        src/Network/Client.cpp
+        src/Network/Server.cpp
+        src/Network/Session.cpp
+        src/Network/Packet/PacketRegistery.cpp
+        src/Network/Sockets/TcpNetworkSocket.cpp
+        src/Network/Sockets/UdpNetworkSocket.cpp
+        src/Network/Listeners/TcpNetworkListener.cpp
+        src/Network/Listeners/UdpNetworkListener.cpp
+        src/Network/Packet/Buffer.cpp
+        src/Network/SessionManager.cpp
+        includes/Network/SessionManager.h
+        includes/Network/Enums/NetworkError.h
+        includes/Network/NetworkResult.h
+        src/Network/Packet/Packet.cpp
         includes/AI/states/State.hpp
         src/AI/states/State.cpp
         includes/AI/transition/ITransition.h
@@ -184,6 +207,11 @@ add_library(Engine SHARED
         src/SaveLoad/JsonSaveFormat.cpp
         src/SaveLoad/SaveCaretaker.cpp
         src/SaveLoad/SaveLoadSystem.cpp
+        src/Network/NetworkMiddleware.cpp
+        src/Network/NetworkMiddleware.cpp
+        includes/Network/Packet/Packets/NetworkEventPacket.h
+        game/ChatEvent.h
+        src/Network/NetworkSystem.cpp
 )
 
 target_precompile_headers(Engine
@@ -191,12 +219,14 @@ target_precompile_headers(Engine
         <SDL3/SDL.h>
         <SDL3_image/SDL_image.h>
         <SDL3_ttf/SDL_ttf.h>
+        <asio.hpp>
         <box2d/box2d.h>
 )
 
 target_include_directories(Engine
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
@@ -209,6 +239,17 @@ target_link_libraries(Engine
         box2d
         nlohmann_json::nlohmann_json
 )
+
+
+
+# Platform-specific libraries for ASIO
+if(WIN32)
+    target_link_libraries(Engine PUBLIC ws2_32 mswsock)
+elseif(UNIX AND NOT APPLE)
+    target_link_libraries(Engine PUBLIC pthread)
+elseif(APPLE)
+     target_link_libraries(Engine PUBLIC "-framework CoreFoundation")
+endif()
 
 # --- Game executable ---
 add_executable(GameEngine
@@ -278,6 +319,14 @@ add_executable(EngineTests
         tests/Animation/KeyframeTests.cpp
         tests/Animation/Converter/BounceConverterTests.cpp
         tests/Animation/Converter/ElasticConverterTests.cpp
+        tests/Network/test_tcp_listener.cpp
+        tests/Network/test_server.cpp
+        tests/Network/test_buffer.cpp
+        tests/Network/test_packet.cpp
+        tests/Network/test_session_manager.cpp
+        tests/Network/test_client.cpp
+        tests/Network/test_integration.cpp
+        tests/Network/test_helpers.h
         tests/Engine/GameEngineTests.cpp
         tests/Engine/TimeManagerTests.cpp
         tests/GameObjects/components/SpriteRenderer.cpp
@@ -356,6 +405,46 @@ if (WIN32 AND MINGW)
 endif ()
 
 include(CTest)
+
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(Catch)
+
+
+catch_discover_tests(EngineTests
+        DISCOVERY_MODE PRE_TEST
+        REPORTER console
+)
+
+# --- Server App ---
+add_executable(ServerApp
+        game/ServerApp.cpp
+)
+
+target_link_libraries(ServerApp
+        PRIVATE
+        Engine
+)
+
+target_include_directories(ServerApp
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/includes
+)
+
+target_compile_definitions(ServerApp
+        PRIVATE
+        ASIO_STANDALONE
+)
+
+target_precompile_headers(ServerApp
+        REUSE_FROM Engine
+)
+
+add_custom_command(TARGET ServerApp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3::SDL3>
+        $<TARGET_FILE:Engine>
+        $<TARGET_FILE_DIR:ServerApp>
+)
 if (DEFINED Catch2_SOURCE_DIR)
     list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
     include(Catch)

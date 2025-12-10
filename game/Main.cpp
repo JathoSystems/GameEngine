@@ -1,67 +1,78 @@
-#include "Engine/GameEngine.h"
-#include "Scenes/Scene.h"
-#include "Scenes/Camera/FixedCamera.h"
-#include "UI/HUD.h"
-#include "UI/FPSCounter.h"
-#include "GameObjects/GameObject.h"
-#include "GameObjects/Component/KeyInputComponent.h"
-#include "Input/IKeyListener.h"
+#include <iostream>
+#include <string>
 #include <memory>
+#include <limits> // Nodig voor cin.ignore
 
-class FPSToggleListener : public IKeyListener {
-private:
-    FPSCounter* _fpsCounter;
+// Network & Events
+#include "Network/NetworkSystem.h"
+#include "Events/EventManager.h"
+#include "ChatEvent.h"
 
-public:
-    explicit FPSToggleListener(FPSCounter* fpsCounter) : _fpsCounter(fpsCounter) {}
-
-    void onKeyPress(Key key) override {
-        if (key == Key::F3) {
-            _fpsCounter->toggleVisibility();
-        }
-    }
-
-    void onKeyRelease(Key key) override {}
-};
+// Registries (CRUCIAAL! Deze misten we nog)
+#include "Network/Packet/PacketRegistery.h"
+#include "Network/Packet/Packets/NetworkEventPacket.h"
+#include "Events/EventRegistry.h"
 
 int main() {
-    GameEngine engine;
-    engine.init("FPS Counter Demo", 800, 600);
 
-    auto scene = std::make_unique<Scene>("MainScene");
+    try {
+        std::cout << "=== CLIENT STARTING ===" << std::endl;
 
-    auto viewport = std::make_unique<Viewport>(
-        Size(800, 600),
-        Position(0, 0)
-    );
-    auto camera = std::make_unique<FixedCamera>(std::move(viewport), Position(400, 300));
-    scene->setCamera(std::move(camera));
+        PacketRegistery::getInstance().registerPacket<NetworkEventPacket>(100);
 
-    auto hud = std::make_unique<HUD>();
+        EventRegistry::getInstance()->registerEvent("ChatEvent", []() {
+            return std::make_shared<ChatEvent>();
+        });
 
-    auto fpsCounter = std::make_unique<FPSCounter>();
-    fpsCounter->setPosition(700.0f, 10.0f);
-    fpsCounter->setSize(100.0f, 30.0f);
-    fpsCounter->setFontSize(20);
+        std::cout << "[System] Registries initialized." << std::endl;
 
-    hud->setFPSCounter(std::move(fpsCounter));
+        auto network = std::make_shared<NetworkSystem>();
 
-    auto inputObj = std::make_unique<GameObject>();
-    auto toggleListener = std::make_shared<FPSToggleListener>(hud->getFPSCounter());
-    auto keyInput = std::make_unique<KeyInputComponent>(inputObj.get());
-    keyInput->setListener(toggleListener.get());
+        std::cout << "[System] Connecting to 127.0.0.1:8080..." << std::endl;
+        auto result = network->connect("127.0.0.1", 8080);
 
-    engine.getInputSystem()->registerKeyComponent(keyInput.get());
+        std::shared_ptr<NetworkMiddleware> middleware = nullptr;
 
-    inputObj->addComponent(std::move(keyInput));
-    scene->addObject(std::move(inputObj));
+        auto onMessage = [](std::shared_ptr<IEvent> event) {
+            if (auto chat = std::dynamic_pointer_cast<ChatEvent>(event)) {
+                std::cout << "\r"<< chat->getMessage() << "\n> " << std::flush;
+            }
+        };
 
-    scene->setHUD(std::move(hud));
+        if (result.isSuccess()) {
+            std::cout << "[System] Connected! Type 'exit' to quit.\n> ";
+            middleware = network->getMiddleware();
+            middleware->setOnEventReceived(onMessage);
+        } else {
+            throw std::runtime_error("Connection failed: " + result.message);
+        }
 
-    engine.getSceneManager()->addScene(std::move(scene));
-    engine.getSceneManager()->setScene("MainScene");
+        auto eventManager = std::make_shared<EventManager>(middleware);
+        eventManager->setEventCallback(onMessage);
 
-    engine.start();
+        while (true) {
+            std::string input;
+            if (std::getline(std::cin, input)) {
+                if (input == "exit") break;
+                if (input.empty()) continue;
+
+                eventManager->broadcast(std::make_shared<ChatEvent>(input, 1));
+
+                std::cout << "> " << std::flush;
+            }
+        }
+
+        network->disconnect();
+
+    } catch (const std::exception& e) {
+        std::cerr << "\n\nFATAL ERROR: " << e.what() << std::endl;
+        std::cerr << "------------------------------------------------" << std::endl;
+        std::cerr << "Press ENTER to close window..." << std::endl;
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin.get();
+        return 1;
+    }
 
     return 0;
 }

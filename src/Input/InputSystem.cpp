@@ -18,7 +18,7 @@ static const std::unordered_map<SDL_Keycode, Key> SDL_TO_KEY_MAP = {
     {SDLK_6, Key::NUM_6}, {SDLK_7, Key::NUM_7}, {SDLK_8, Key::NUM_8},
     {SDLK_9, Key::NUM_9},
     {SDLK_SPACE, Key::SPACE}, {SDLK_RETURN, Key::ENTER}, {SDLK_ESCAPE, Key::ESCAPE},
-    {SDLK_TAB, Key::TAB}, {SDLK_BACKSPACE, Key::BACKSPACE}, {SDLK_DELETE, Key::DELETE},
+    {SDLK_TAB, Key::TAB}, {SDLK_BACKSPACE, Key::BACKSPACE}, {SDLK_DELETE, Key::DEL},
     {SDLK_LEFT, Key::LEFT}, {SDLK_RIGHT, Key::RIGHT}, {SDLK_UP, Key::UP}, {SDLK_DOWN, Key::DOWN},
     {SDLK_LSHIFT, Key::SHIFT_LEFT}, {SDLK_RSHIFT, Key::SHIFT_RIGHT},
     {SDLK_LCTRL, Key::CTRL_LEFT}, {SDLK_RCTRL, Key::CTRL_RIGHT},

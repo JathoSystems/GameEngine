@@ -24,7 +24,7 @@ public:
         return Package{0x01};
     }
 
-    Data deserialize(const Package& package) const override {
+    Data deserialize(const Package& package) override {
         (void)package;
         deserializeCalled = true;
         return Data{0x02};
