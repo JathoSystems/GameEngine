@@ -4,129 +4,274 @@
 #include "GameObjects/GameObject.h"
 #include "GameObjects/Component/KeyInputComponent.h"
 #include "GameObjects/Component/SpriteRenderer.h"
+#include "Physics/PhysicsComponent.h"
+#include "Physics/Material.h"
+#include "Physics/Collider.h"
+#include "Physics/BodyType.h"
 #include "Input/IKeyListener.h"
-#include "Input/InputSystem.h"
+#include "UI/Color.h"
 #include "Scenes/Scene.h"
 #include "Scenes/SceneManager.h"
-#include "Scenes/SceneSystem.h"
-#include "Scenes/Camera/AttachedCamera.h"
 #include "Scenes/Camera/FixedCamera.h"
-#include "UI/Text.h"
-#include "UI/Color.h"
+#include "Scenes/Camera/Viewport.h"
+#include "Collision/CollisionData.h"
 
-class KeyInput : public IKeyListener {
+class PlayerController : public IKeyListener {
+private:
+    PhysicsComponent* _physics = nullptr;
+    float _moveSpeed = 300.0f;
+    float _jumpForce = 5000.0f;
+    int _groundContactCount = 0;
+    bool _movingLeft = false;
+    bool _movingRight = false;
+
 public:
-    KeyInput(GameObject *player) : player(player) {}
-    GameObject *player;
+    void setPhysicsComponent(PhysicsComponent* physics) {
+        _physics = physics;
+    }
+
+    void addGroundContact() {
+        _groundContactCount++;
+        std::cout << "Ground contact added. Total: " << _groundContactCount << std::endl;
+    }
+
+    void removeGroundContact() {
+        _groundContactCount = std::max(0, _groundContactCount - 1);
+        std::cout << "Ground contact removed. Total: " << _groundContactCount << std::endl;
+    }
+
+    bool isGrounded() const {
+        return _groundContactCount > 0;
+    }
+
     void onKeyPress(Key key) override {
+        if (!_physics) {
+            std::cout << "Physics is null!" << std::endl;
+            return;
+        }
+
         switch (key) {
-            case Key::W:
-                std::cout << "Key::W is pressed" << std::endl;
-                player->getTransform()->getPosition()->setY(player->getTransform()->getPosition()->getY() - 10);
-                break;
-            case Key::S:
-                std::cout << "Key::S is pressed" << std::endl;
-                player->getTransform()->getPosition()->setY(player->getTransform()->getPosition()->getY() + 10);
-                break;
             case Key::A:
-                std::cout << "Key::A is pressed" << std::endl;
-                player->getTransform()->getPosition()->setX(player->getTransform()->getPosition()->getX() - 10);
+            case Key::LEFT:
+                _movingLeft = true;
+                std::cout << "Moving left" << std::endl;
                 break;
             case Key::D:
-                std::cout << "Key::D is pressed" << std::endl;
-                player->getTransform()->getPosition()->setX(player->getTransform()->getPosition()->getX() + 10);
+            case Key::RIGHT:
+                _movingRight = true;
+                std::cout << "Moving right" << std::endl;
+                break;
+            case Key::SPACE:
+            case Key::W:
+            case Key::UP:
+                std::cout << "=== JUMP KEY PRESSED ===" << std::endl;
+                std::cout << "Physics component valid: " << (_physics ? "YES" : "NO") << std::endl;
+                std::cout << "Physics initialized: " << (_physics && _physics->isInitialized() ? "YES" : "NO") << std::endl;
+                std::cout << "Ground contacts: " << _groundContactCount << std::endl;
+                std::cout << "Currently grounded: " << (isGrounded() ? "YES" : "NO") << std::endl;
+
+                if (isGrounded()) {
+                    float vx, vy;
+                    _physics->getVelocity(vx, vy);
+                    std::cout << "Pre-jump velocity: (" << vx << ", " << vy << ")" << std::endl;
+
+                    _physics->setVelocity(vx, -_jumpForce);
+
+                    _physics->getVelocity(vx, vy);
+                    std::cout << "Post-jump velocity: (" << vx << ", " << vy << ")" << std::endl;
+                    std::cout << "Jump force applied: " << _jumpForce << std::endl;
+                } else {
+                    std::cout << "Cannot jump - not grounded!" << std::endl;
+                }
                 break;
             default:
                 break;
         }
     }
+
     void onKeyRelease(Key key) override {
-        std::cout << "Key Released: " << static_cast<int>(key) << "\n";
+        switch (key) {
+            case Key::A:
+            case Key::LEFT:
+                _movingLeft = false;
+                break;
+            case Key::D:
+            case Key::RIGHT:
+                _movingRight = false;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void update() {
+        if (!_physics || !_physics->isInitialized()) return;
+
+        float vx = 0.0f;
+        if (_movingLeft) {
+            vx = -_moveSpeed;
+        } else if (_movingRight) {
+            vx = _moveSpeed;
+        }
+
+        float currentVx, currentVy;
+        _physics->getVelocity(currentVx, currentVy);
+
+        _physics->setVelocity(vx, currentVy);
+    }
+};
+
+class Player : public GameObject {
+private:
+    PlayerController _controller;
+
+public:
+    void setup(PhysicsComponent* physics, InputSystem* inputSystem) {
+        _controller.setPhysicsComponent(physics);
+
+        auto keyInput = std::make_unique<KeyInputComponent>(this);
+        keyInput->setListener(&_controller);
+        inputSystem->registerKeyComponent(keyInput.get());
+        addComponent(std::move(keyInput));
+    }
+
+    void update(float deltaTime) {
+        GameObject::update(deltaTime);
+        _controller.update();
+    }
+
+    void onCollisionEnter(const CollisionData& collision) override {
+        GameObject::onCollisionEnter(collision);
+        std::cout << "=== COLLISION ENTER ===" << std::endl;
+        std::cout << "Normal: (" << collision.normalX << ", " << collision.normalY << ")" << std::endl;
+
+        if (collision.normalY > 0.2f) {
+            std::cout << "Ground contact detected!" << std::endl;
+            _controller.addGroundContact();
+        }
+    }
+
+    void onCollisionExit(const CollisionData& collision) override {
+        std::cout << "=== COLLISION EXIT ===" << std::endl;
+        _controller.removeGroundContact();
     }
 };
 
 int main() {
     try {
         auto gameEngine = std::make_unique<GameEngine>();
-        gameEngine->init("HUD Demo", 800, 600);
+        gameEngine->init("Physics Platformer Demo", 1280, 720);
 
-        auto gameScene = std::make_unique<Scene>("GameScene");
+        PhysicsSystem* physicsSystem = gameEngine->getPhysicsSystem();
+        InputSystem* inputSystem = gameEngine->getInputSystem();
+        SceneManager* sceneManager = gameEngine->getSceneManager();
 
-        auto scoreText = std::make_unique<GameObject>();
-        scoreText->setLayer(1);
-        scoreText->getTransform()->getPosition()->setX(10);
-        scoreText->getTransform()->getPosition()->setY(10);
-        scoreText->getTransform()->getSize()->setWidth(100);
-        scoreText->getTransform()->getSize()->setHeight(50);
+        if (!inputSystem) {
+            std::cerr << "FATAL: InputSystem is NULL!" << std::endl;
+            return 1;
+        }
+        std::cout << "InputSystem retrieved successfully: " << inputSystem << std::endl;
 
-        auto textComponent = std::make_unique<Text>("Score: 0");
-        textComponent->setFont("resources/fonts/default.ttf", "default");
-        textComponent->setFontSize(24);
-        textComponent->setColor(std::make_unique<Color>(255, 255, 255));
-        scoreText->addComponent(std::move(textComponent));
-        gameScene->addHUDObject(std::move(scoreText));
+        physicsSystem->setGravity(0.0f, 981.0f);
 
-        auto healthText = std::make_unique<GameObject>();
-        healthText->setLayer(1);
-        healthText->getTransform()->getPosition()->setX(10);
-        healthText->getTransform()->getPosition()->setY(40);
-        healthText->getTransform()->getSize()->setWidth(100);
-        healthText->getTransform()->getSize()->setHeight(50);
+        auto scene = std::make_unique<Scene>("MainScene");
+        auto viewport = std::make_unique<Viewport>(Size(1280, 720), Position(0, 0));
+        auto camera = std::make_unique<FixedCamera>(std::move(viewport), Position(640, 360));
+        scene->setCamera(std::move(camera));
 
-        auto healthComponent = std::make_unique<Text>("Health: 100");
-        healthComponent->setFont("resources/fonts/default.ttf", "default");
-        healthComponent->setFontSize(24);
-        healthComponent->setColor(std::make_unique<Color>(255, 0, 0));
-        healthText->addComponent(std::move(healthComponent));
-        gameScene->addHUDObject(std::move(healthText));
+        // Ground
+        auto ground = std::make_unique<GameObject>();
+        ground->getTransform()->getPosition()->setX(640.0f);
+        ground->getTransform()->getPosition()->setY(650.0f);
+        ground->getTransform()->getSize()->setWidth(1280.0f);
+        ground->getTransform()->getSize()->setHeight(100.0f);
 
-        auto titleText = std::make_unique<GameObject>();
-        titleText->setLayer(2);
-        titleText->getTransform()->getPosition()->setX(300);
-        titleText->getTransform()->getPosition()->setY(550);
-        titleText->getTransform()->getSize()->setWidth(100);
-        titleText->getTransform()->getSize()->setHeight(50);
+        auto groundPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
+        groundPhysics->setBodyType(BodyType::STATIC);
+        groundPhysics->setCollider(std::make_unique<BoxCollider>(1280.0f, 100.0f));
+        groundPhysics->setMaterial(Material(1.0f, 0.8f, 0.0f));
+        ground->addComponent(std::move(groundPhysics));
 
-        auto titleComponent = std::make_unique<Text>("HUD Demo");
-        titleComponent->setFont("resources/fonts/default.ttf", "default");
-        titleComponent->setFontSize(18);
-        titleComponent->setColor(std::make_unique<Color>(200, 200, 200));
-        titleText->addComponent(std::move(titleComponent));
-        gameScene->addHUDObject(std::move(titleText));
+        auto groundRenderer = std::make_unique<SpriteRenderer>("resources/square.png");
+        groundRenderer->setParent(ground.get());
+        ground->addComponent(std::move(groundRenderer));
 
-        auto player = std::make_unique<GameObject>();
-        auto spriteRenderer = std::make_unique<SpriteRenderer>( "resources/sprite.jpeg");
-        player->addComponent(std::move(spriteRenderer));
-        GameObject *playerPtr = player.get();
-        KeyInput keyInput(playerPtr);
-        KeyInputComponent *keyInputComponent = new KeyInputComponent(player.get());
-        keyInputComponent->setListener(&keyInput);
-        player->addComponent(std::unique_ptr<KeyInputComponent>(keyInputComponent));
-        player->setLayer(1);
-        player->getTransform()->getPosition()->setX(400);
-        player->getTransform()->getPosition()->setY(300);
-        player->getTransform()->getSize()->setWidth(50);
-        player->getTransform()->getSize()->setHeight(50);
-        gameScene->addObject(std::move(player));
+        scene->addObject(std::move(ground));
 
-        auto object = std::make_unique<GameObject>();
-        auto objectSprite = std::make_unique<SpriteRenderer>( "resources/WaterGirl.png");
-        object->addComponent(std::move(objectSprite));
-        object->getTransform()->getPosition()->setX(400);
-        object->getTransform()->getPosition()->setY(100);
-        object->getTransform()->getSize()->setWidth(50);
-        object->getTransform()->getSize()->setHeight(50);
-        gameScene->addObject(std::move(object));
+        // Platform
+        auto platform = std::make_unique<GameObject>();
+        platform->getTransform()->getPosition()->setX(400.0f);
+        platform->getTransform()->getPosition()->setY(400.0f);
+        platform->getTransform()->getSize()->setWidth(300.0f);
+        platform->getTransform()->getSize()->setHeight(50.0f);
 
-        auto viewport = std::make_unique<Viewport>(Size(800, 600), Position(0, 0));
-        auto camera = std::make_unique<AttachedCamera>(std::move(viewport), playerPtr);
-        gameScene->setCamera(std::move(camera));
+        auto platformPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
+        platformPhysics->setBodyType(BodyType::STATIC);
+        platformPhysics->setCollider(std::make_unique<BoxCollider>(300.0f, 50.0f));
+        platformPhysics->setMaterial(Material(1.0f, 0.8f, 0.0f));
+        platform->addComponent(std::move(platformPhysics));
 
-        gameEngine->getSystem<InputSystem>()->registerKeyComponent(keyInputComponent);
-        gameEngine->getSystem<SceneSystem>()->addScene(std::move(gameScene));
-        gameEngine->getSystem<SceneSystem>()->setScene("GameScene");
+        auto platformRenderer = std::make_unique<SpriteRenderer>("resources/square_blue.png");
+        platformRenderer->setParent(platform.get());
+        platform->addComponent(std::move(platformRenderer));
 
+        scene->addObject(std::move(platform));
+
+        // Pushable Box (NEW - on the platform)
+        auto box = std::make_unique<GameObject>();
+        box->getTransform()->getPosition()->setX(450.0f);  // Centered on platform
+        box->getTransform()->getPosition()->setY(330.0f);  // Above platform at Y=400
+        box->getTransform()->getSize()->setWidth(60.0f);
+        box->getTransform()->getSize()->setHeight(60.0f);
+
+        auto boxPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
+        boxPhysics->setBodyType(BodyType::DYNAMIC);  // Dynamic for physics interactions
+        boxPhysics->setCollider(std::make_unique<BoxCollider>(60.0f, 60.0f));
+        boxPhysics->setMaterial(Material(50.0f, 0.8f, 0.0f));
+        boxPhysics->setGravityScale(1.0f);  // Full gravity
+        boxPhysics->setFixedRotation(true);  // Prevents rotation when pushed
+        boxPhysics->setParent(box.get());
+        box->addComponent(std::move(boxPhysics));
+
+        auto boxRenderer = std::make_unique<SpriteRenderer>("resources/square.png");
+        boxRenderer->setParent(box.get());
+        box->addComponent(std::move(boxRenderer));
+
+        scene->addObject(std::move(box));
+
+        // Player
+        auto player = std::make_unique<Player>();
+        player->getTransform()->getPosition()->setX(400.0f);
+        player->getTransform()->getPosition()->setY(200.0f);
+        player->getTransform()->getSize()->setWidth(50.0f);
+        player->getTransform()->getSize()->setHeight(50.0f);
+
+        auto playerPhysics = std::make_unique<PhysicsComponent>(physicsSystem->getBox2DFacade());
+        playerPhysics->setBodyType(BodyType::DYNAMIC);
+        playerPhysics->setCollider(std::make_unique<BoxCollider>(50.0f, 50.0f));
+        playerPhysics->setMaterial(Material(1.0f, 0.8f, 0.0f));
+        playerPhysics->setGravityScale(1.0f);
+        playerPhysics->setFixedRotation(true);
+        playerPhysics->setParent(player.get());
+
+        auto* physicsPtr = playerPhysics.get();
+        player->addComponent(std::move(playerPhysics));
+
+        auto playerRenderer = std::make_unique<SpriteRenderer>("resources/square_lime.png");
+        playerRenderer->setParent(player.get());
+        player->addComponent(std::move(playerRenderer));
+
+        std::cout << "Setting up player with InputSystem: " << inputSystem << std::endl;
+        player->setup(physicsPtr, inputSystem);
+
+        scene->addObject(std::move(player));
+
+        sceneManager->addScene(std::move(scene));
+        sceneManager->setScene("MainScene");
+
+        std::cout << "=== Starting game loop ===" << std::endl;
         gameEngine->start();
+
     } catch (const std::exception& e) {
         std::cerr << "[EXCEPTION] " << e.what() << "\n";
         return 1;

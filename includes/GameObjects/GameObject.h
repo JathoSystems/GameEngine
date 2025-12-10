@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <vector>
+
+#include "Collision/CollisionData.h"
 #include "Component/Component.h"
 #include "Transform/Transform.h"
 
@@ -17,14 +19,14 @@ public:
     void addComponent(std::unique_ptr<Component> component);
 
     void render(const std::unique_ptr<Window> &window);
-
-    void update(float delta);
-
+    virtual void update(float delta);
     void setLayer(int layer);
 
     int getLayer();
+    Transform* getTransform();
 
-    Transform *getTransform();
+    virtual void onCollisionEnter(const CollisionData& collision) {}
+    virtual void onCollisionExit(const CollisionData& collision) {}
 
     template<typename T>
     std::vector<T *> getComponents() {

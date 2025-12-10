@@ -1,0 +1,10 @@
+#ifndef GAMEENGINE_BODYTYPE_H
+#define GAMEENGINE_BODYTYPE_H
+
+enum class BodyType {
+    STATIC,
+    DYNAMIC,
+    KINEMATIC
+};
+
+#endif //GAMEENGINE_BODYTYPE_H

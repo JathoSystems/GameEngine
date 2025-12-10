@@ -8,20 +8,17 @@
 
 class SceneSystem : public ISystem {
 private:
-    SceneManager _sceneManager;
+    SceneManager* _sceneManager;
     const std::unique_ptr<Window> & _window;
 
 public:
     ~SceneSystem() = default;
 
-    SceneSystem(const std::unique_ptr<Window> &window);
+    SceneSystem(const std::unique_ptr<Window> &window, SceneManager* sceneManager);  // Add parameter
 
     void update(float deltaTime) override;
-
     void addScene(std::unique_ptr<Scene> scene);
-
     void setScene(std::string name);
-
     Scene* getActiveSceneObj();
 };
 

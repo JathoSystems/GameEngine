@@ -1,21 +1,26 @@
-#pragma once
+#ifndef SCENEMANAGER_H
+#define SCENEMANAGER_H
 
 #include <memory>
-
-#include "Scene.h"
-#include "Camera/Camera.h"
+#include <string>
+#include <vector>
+#include "Scenes/Scene.h"
+#include "SDL/Window.h"
 
 class SceneManager {
 private:
-    std::string _activeScene;
     std::vector<std::unique_ptr<Scene>> _scenes;
+    std::string _activeScene;
 
 public:
     SceneManager();
-    void render(const std::unique_ptr<Window> &window, float delta);
+
+    void update(float deltaTime);
+    void render(const std::unique_ptr<Window>& window, float delta);
     void addScene(std::unique_ptr<Scene> scene);
     void setScene(std::string name);
     std::string getActiveScene();
     Scene* getActiveSceneObj();
-
 };
+
+#endif
