@@ -1,8 +1,6 @@
 #include "Scenes/Scene.h"
-
 #include <algorithm>
 #include <iostream>
-
 
 Scene::Scene(std::string name) {
     _name = name;
@@ -21,34 +19,25 @@ void Scene::addObject(std::unique_ptr<GameObject> newObject) {
     _objects.insert(pos, std::move(newObject));
 }
 
-void Scene::setHUD(std::unique_ptr<HUD> hud) {
-    _hud = std::move(hud);
-}
-
-HUD* Scene::getHUD() {
-    return _hud.get();
-}
-
-void Scene::addHUDObject(std::unique_ptr<GameObject> object) {
-    if (!_hud) {
-        _hud = std::make_unique<HUD>();
-    }
-    _hud->addObject(std::move(object));
-}
-
-std::vector<std::unique_ptr<GameObject>> & Scene::getObjects() {
+std::vector<std::unique_ptr<GameObject>>& Scene::getObjects() {
     return _objects;
 }
 
-std::unique_ptr<GameObject> & Scene::getObject(size_t index) {
+std::unique_ptr<GameObject>& Scene::getObject(size_t index) {
     return _objects.at(index);
 }
 
-const std::string & Scene::getName() const {
+const std::string& Scene::getName() const {
     return _name;
 }
 
-void Scene::render(const std::unique_ptr<Window> &window, float delta) {
+void Scene::update(float deltaTime) {
+    for (auto& obj : _objects) {
+        obj->update(deltaTime);
+    }
+}
+
+void Scene::render(const std::unique_ptr<Window>& window, float delta) {
     SDL_Renderer* renderer = window->getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -69,8 +58,7 @@ void Scene::render(const std::unique_ptr<Window> &window, float delta) {
         }
     }
 
-    for (const std::unique_ptr<GameObject> & obj : _objects) {
-        obj->update(delta);
+    for (const std::unique_ptr<GameObject>& obj : _objects) {
 
         if (!viewport || viewport->isInViewPort(obj.get())) {
             obj->render(window);
@@ -83,4 +71,20 @@ void Scene::render(const std::unique_ptr<Window> &window, float delta) {
     }
 
     SDL_RenderPresent(renderer);
+}
+
+
+void Scene::setHUD(std::unique_ptr<HUD> hud) {
+    _hud = std::move(hud);
+}
+
+HUD* Scene::getHUD() {
+    return _hud.get();
+}
+
+void Scene::addHUDObject(std::unique_ptr<GameObject> object) {
+    if (!_hud) {
+        _hud = std::make_unique<HUD>();
+    }
+    _hud->addObject(std::move(object));
 }

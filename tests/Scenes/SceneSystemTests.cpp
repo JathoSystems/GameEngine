@@ -14,8 +14,9 @@ public:
 };
 
 TEST_CASE("SceneSystem basic functionality", "[SceneSystem]") {
-
-    SceneSystem sceneSystem(std::make_unique<Window>());
+    auto window = std::make_unique<Window>();
+    auto sceneManager = std::make_unique<SceneManager>();
+    SceneSystem sceneSystem(window, sceneManager.get());
 
     SECTION("addScene adds a scene") {
         auto scene = std::make_unique<DummyScene>("Scene1");

@@ -19,6 +19,15 @@ void HUD::removeObject(size_t index) {
 
 void HUD::clear() {
     _hudObjects.clear();
+    _fpsCounter.reset();
+}
+
+void HUD::setFPSCounter(std::unique_ptr<FPSCounter> fpsCounter) {
+    _fpsCounter = std::move(fpsCounter);
+}
+
+FPSCounter* HUD::getFPSCounter() const {
+    return _fpsCounter.get();
 }
 
 std::vector<std::unique_ptr<GameObject>>& HUD::getObjects() {
@@ -37,6 +46,10 @@ size_t HUD::getObjectCount() const {
 }
 
 void HUD::update(float delta) {
+    if (_fpsCounter) {
+        _fpsCounter->update(delta);
+    }
+
     for (const auto& obj : _hudObjects) {
         obj->update(delta);
     }
@@ -45,6 +58,10 @@ void HUD::update(float delta) {
 void HUD::render(const std::unique_ptr<Window>& window) {
     const Viewport* currentViewport = window->getActiveViewport();
     window->setActiveViewport(nullptr);
+
+    if (_fpsCounter) {
+        _fpsCounter->render(window);
+    }
 
     for (const auto& obj : _hudObjects) {
         obj->render(window);
