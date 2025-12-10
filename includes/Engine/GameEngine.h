@@ -13,8 +13,7 @@ private:
 	bool _isRunning;
 	std::vector<std::unique_ptr<ISystem>> _systems;
 	std::unique_ptr<Window> _window;
-    std::unique_ptr<AudioSystem> _audioSystem;
-    std::unique_ptr<TimeManager> _timeManager;
+	std::unique_ptr<TimeManager> _timeManager;
 
 public:
 	GameEngine();
@@ -23,7 +22,6 @@ public:
 	void start();
 	void stop();
 	const std::unique_ptr<Window>& getWindow() const;
-	AudioSystem* getAudioSystem() const { return _audioSystem.get(); }
 	TimeManager* getTimeManager() const { return _timeManager.get(); }
 
 	template<typename T>  T* getSystem() {

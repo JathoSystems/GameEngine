@@ -1,13 +1,14 @@
 #ifndef GAMEENGINE_AUDIOSYSTEM_H
 #define GAMEENGINE_AUDIOSYSTEM_H
 
+#include "Engine/ISystem.h"
 #include <memory>
 #include <string>
 #include "AudioEngine.h"
 #include "SoundCache.h"
 #include "AudioLoaderFactory.h"
 
-class AudioSystem {
+class AudioSystem : public ISystem {
 private:
     std::unique_ptr<AudioEngine> engine;
     std::unique_ptr<SoundCache> cache;
@@ -19,7 +20,7 @@ private:
 
 public:
     AudioSystem();
-    ~AudioSystem();
+    ~AudioSystem() override;
 
     bool initialize(
         int frequency = AudioEngine::DEFAULT_FREQUENCY,
@@ -41,6 +42,9 @@ public:
     void resumeMusic();
     void stopMusic();
     bool isMusicPlaying() const;
+
+    // ISystem interface
+    void update(float deltaTime) override;
 };
 
 #endif // GAMEENGINE_AUDIOSYSTEM_HPP

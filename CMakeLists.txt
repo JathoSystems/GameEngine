@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# --- Debug/Release optimalisaties ---
+# --- Debug/Release optimizations ---
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-O0 -g)
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -37,21 +37,22 @@ set(SDL3TTF_INSTALL OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_TESTS OFF CACHE BOOL "" FORCE)
 
-# --- Externe libraries ---
+# --- External libraries (local checkouts) ---
 add_subdirectory(external/SDL3 EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_image EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_TTF EXCLUDE_FROM_ALL)
 
 include(FetchContent)
 
+# Catch2
 FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
         GIT_TAG v3.5.2
 )
-
 FetchContent_MakeAvailable(Catch2)
 
+# nlohmann/json
 FetchContent_Declare(
         json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
@@ -62,6 +63,34 @@ FetchContent_MakeAvailable(json)
 set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 
+# Ensure Box2D tests/testbed are disabled (applies whether local or fetched)
+set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+
+# Allow overriding which Box2D ref to fetch; default to v3.0.0 (modern C API)
+if (NOT DEFINED BOX2D_GIT_TAG)
+    set(BOX2D_GIT_TAG "v3.0.0" CACHE STRING "Box2D git tag/branch/commit to fetch")
+endif()
+
+# Prefer a local checkout if present, otherwise fetch Box2D via FetchContent
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/box2d/CMakeLists.txt")
+    message(STATUS "Using local external/box2d")
+    add_subdirectory(external/box2d EXCLUDE_FROM_ALL)
+else()
+    message(STATUS "Fetching Box2D via FetchContent (ref: ${BOX2D_GIT_TAG})")
+    FetchContent_Declare(
+            box2d
+            GIT_REPOSITORY https://github.com/erincatto/box2d.git
+            GIT_TAG ${BOX2D_GIT_TAG}
+            GIT_SHALLOW TRUE
+    )
+    # Make sure Box2D options are off for tests/testbed
+    set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(box2d)
+endif()
+
+# Download dr_mp3.h if missing
 if(NOT EXISTS ${DR_MP3_FILE})
     message(STATUS "Downloading dr_mp3.h...")
     file(MAKE_DIRECTORY ${DR_MP3_DIR})
@@ -73,7 +102,7 @@ if(NOT EXISTS ${DR_MP3_FILE})
     )
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
     if(NOT STATUS_CODE EQUAL 0)
-        message(FATAL_ERROR "Failed to download dr_mp3.h")
+        message(FATAL_ERROR "Failed to download dr_mp3.h (status: ${DOWNLOAD_STATUS})")
     endif()
     message(STATUS "Downloaded dr_mp3.h successfully")
 else()
@@ -144,6 +173,12 @@ add_library(Engine SHARED
         src/Audio/AudioEngine.cpp
         src/Audio/AudioLoaderFactory.cpp
         src/Audio/SoundCache.cpp
+        src/Physics/PhysicsSystem.cpp
+        src/Physics/PhysicsComponent.cpp
+        src/Physics/Box2DFacade.cpp
+        src/Physics/Material.cpp
+        src/Physics/RigidBody.cpp
+        src/Physics/Collider.cpp
         src/SaveLoad/BaseMemento.cpp
         src/SaveLoad/JsonSaveFormat.cpp
         src/SaveLoad/SaveCaretaker.cpp
@@ -155,6 +190,7 @@ target_precompile_headers(Engine
         <SDL3/SDL.h>
         <SDL3_image/SDL_image.h>
         <SDL3_ttf/SDL_ttf.h>
+        <box2d/box2d.h>
 )
 
 target_include_directories(Engine
@@ -169,9 +205,9 @@ target_link_libraries(Engine
         SDL3::SDL3
         SDL3_image::SDL3_image
         SDL3_ttf::SDL3_ttf
+        box2d
         nlohmann_json::nlohmann_json
 )
-
 
 # --- Game executable ---
 add_executable(GameEngine
@@ -192,12 +228,13 @@ target_include_directories(GameEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
 )
 
-# --- Post-build: DLLs koppiëren ---
+# --- Post-build: copy shared libs to executable dir ---
 add_custom_command(TARGET GameEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
         $<TARGET_FILE:SDL3_image::SDL3_image>
         $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+        $<TARGET_FILE:box2d>
         $<TARGET_FILE_DIR:GameEngine>
 )
 
@@ -252,6 +289,14 @@ add_executable(EngineTests
         tests/Scenes/SceneSystemTests.cpp
         tests/SaveLoad/SaveLoadSystemTests.cpp
         tests/SaveLoad/BaseMementoTests.cpp
+        tests/Physics/BodyTypeTests.cpp
+        tests/Physics/Box2DFacadeTests.cpp
+        tests/Physics/ColliderTests.cpp
+        tests/Physics/CollisionDataTests.cpp
+        tests/Physics/MaterialTests.cpp
+        tests/Physics/RigidBodyTests.cpp
+        tests/Physics/PhysicsComponentTests.cpp
+        tests/Physics/PhysicsSystemTests.cpp
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -283,6 +328,10 @@ add_custom_command(TARGET EngineTests POST_BUILD
         $<TARGET_FILE_DIR:EngineTests>
 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:box2d>
+        $<TARGET_FILE_DIR:EngineTests>
+
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:Catch2::Catch2>
         $<TARGET_FILE:Catch2::Catch2WithMain>
         $<TARGET_FILE_DIR:EngineTests>
@@ -305,10 +354,11 @@ if (WIN32 AND MINGW)
 endif ()
 
 include(CTest)
-list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
-include(Catch)
-
-catch_discover_tests(EngineTests
-        DISCOVERY_MODE PRE_TEST
-        REPORTER console
-)
+if (DEFINED Catch2_SOURCE_DIR)
+    list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+    include(Catch)
+    catch_discover_tests(EngineTests
+            DISCOVERY_MODE PRE_TEST
+            REPORTER console
+    )
+endif()

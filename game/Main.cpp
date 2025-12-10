@@ -12,6 +12,8 @@
 #include "GameObjects/Component/KeyInputComponent.h"
 #include "Input/IKeyListener.h"
 #include "Input/InputSystem.h"
+#include "Physics/PhysicsComponent.h"
+#include "Physics/PhysicsSystem.h"
 #include "Scenes/Scene.h"
 #include "Scenes/SceneSystem.h"
 #include "Scenes/Camera/FixedCamera.h"
@@ -41,8 +43,9 @@ public:
 class SpeedInputHandler : public IKeyListener {
 private:
     GameEngine* _engine;
+    GameObject* _forceTarget;
 public:
-    SpeedInputHandler(GameEngine* engine) : _engine(engine) {}
+    SpeedInputHandler(GameEngine* engine, GameObject* forceTarget) : _engine(engine), _forceTarget(forceTarget) {}
     void onKeyPress(Key key) {
         switch (key) {
             case Key::W:
@@ -50,6 +53,10 @@ public:
                 break;
             case Key::S:
                 _engine->getTimeManager()->setTimeScale(_engine->getTimeManager()->getTimeScale() - 0.1);
+                break;
+            case Key::UP:
+                _forceTarget->getComponent<PhysicsComponent>()->setVelocity(0.f, -2000.f);
+                break;
         }
     }
 
@@ -64,23 +71,6 @@ int main() {
         gameEngine->init("Game Speed Demo", 800, 600);
 
         auto gameScene = std::make_unique<Scene>("GameScene");
-
-        auto keyListenerObject = std::make_unique<GameObject>();
-        auto keyInputComponent = std::make_unique<KeyInputComponent>(keyListenerObject.get());
-        auto keyListener = std::make_unique<SpeedInputHandler>(gameEngine.get());
-        keyInputComponent->setListener(keyListener.get());
-        gameEngine->getSystem<InputSystem>()->registerKeyComponent(keyInputComponent.get());
-        keyListenerObject->addComponent(std::move(keyInputComponent));
-        gameScene->addObject(std::move(keyListenerObject));
-
-        auto forceButton = std::make_unique<GameObject>();
-        forceButton->setLayer(2);
-        forceButton->getTransform()->getPosition()->setX(20);
-        forceButton->getTransform()->getPosition()->setY(120);
-        auto forceBtnComponent = std::make_unique<Button>("Apply Force", std::make_unique<Color>(0, 0, 150));
-        forceBtnComponent->setTextColor(std::make_unique<Color>(255, 255, 255));
-        forceBtnComponent->setFont("resources/fonts/default.ttf", "force");
-        gameScene->addHUDObject(std::move(forceButton));
 
         auto speedText = std::make_unique<GameObject>();
         speedText->setLayer(2);
@@ -143,8 +133,43 @@ int main() {
         keyframeAnimObj->addComponent(std::move(keyframeAnim));
         gameScene->addObject(std::move(keyframeAnimObj));
 
+        auto physicsObject = std::make_unique<GameObject>();
+        physicsObject->setLayer(1);
+        physicsObject->getTransform()->getPosition()->setX(50);
+        physicsObject->getTransform()->getPosition()->setY(50);
+        physicsObject->getTransform()->getSize()->setWidth(50);
+        physicsObject->getTransform()->getSize()->setHeight(50);
+        auto physicsSprite = std::make_unique<SpriteRenderer>("resources/sprite.jpeg");
+        physicsObject->addComponent(std::move(physicsSprite));
+        auto physicsComp = std::make_unique<PhysicsComponent>(gameEngine->getSystem<PhysicsSystem>()->getBox2DFacade());
+        physicsComp->setBodyType(BodyType::DYNAMIC);
+        physicsComp->setCollider(std::make_unique<BoxCollider>(50.f, 50.f));
+        physicsObject->addComponent(std::move(physicsComp));
+        GameObject* physicsObjectPtr = physicsObject.get();
+        gameScene->addObject(std::move(physicsObject));
+
+        auto floorObject = std::make_unique<GameObject>();
+        floorObject->setLayer(1);
+        floorObject->getTransform()->getPosition()->setX(0);;
+        floorObject->getTransform()->getPosition()->setY(600);
+        floorObject->getTransform()->getSize()->setWidth(800);
+        floorObject->getTransform()->getSize()->setHeight(50);
+        auto floorPhysicsComp = std::make_unique<PhysicsComponent>(gameEngine->getSystem<PhysicsSystem>()->getBox2DFacade());
+        floorPhysicsComp->setBodyType(BodyType::STATIC);
+        floorPhysicsComp->setCollider(std::make_unique<BoxCollider>(800.f, 50.f));
+        floorObject->addComponent(std::move(floorPhysicsComp));
+        gameScene->addObject(std::move(floorObject));
+
+        auto keyListenerObject = std::make_unique<GameObject>();
+        auto keyInputComponent = std::make_unique<KeyInputComponent>(keyListenerObject.get());
+        auto keyListener = std::make_unique<SpeedInputHandler>(gameEngine.get(), physicsObjectPtr);
+        keyInputComponent->setListener(keyListener.get());
+        gameEngine->getSystem<InputSystem>()->registerKeyComponent(keyInputComponent.get());
+        keyListenerObject->addComponent(std::move(keyInputComponent));
+        gameScene->addObject(std::move(keyListenerObject));
+
         auto viewport = std::make_unique<Viewport>(Size(800, 600), Position(0, 0));
-        auto camera = std::make_unique<FixedCamera>(std::move(viewport), Position(0,0));
+        auto camera = std::make_unique<FixedCamera>(std::move(viewport), Position(400,300));
         gameScene->setCamera(std::move(camera));
 
         gameEngine->getSystem<SceneSystem>()->addScene(std::move(gameScene));
