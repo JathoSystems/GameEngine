@@ -110,3 +110,7 @@ void AudioSystem::stopMusic() {
 bool AudioSystem::isMusicPlaying() const {
     return currentMusicHandle != -1 && !isPaused;
 }
+
+void AudioSystem::update(float deltaTime) {
+    return;
+}

@@ -284,6 +284,7 @@ add_executable(EngineTests
         tests/AI/transitions/LambdaTransitionsTests.cpp
         tests/GameObjects/components/BehaviorTests.cpp
         tests/GameObjects/components/AudioComponentTests.cpp
+        tests/Engine/GameEngineTimeManagerTests.cpp
         tests/UI/ColorTests.cpp
         tests/Scenes/SceneSystemTests.cpp
         tests/SaveLoad/SaveLoadSystemTests.cpp
