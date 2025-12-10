@@ -1,13 +1,14 @@
 #ifndef GAMEENGINE_PHYSICSSYSTEM_H
 #define GAMEENGINE_PHYSICSSYSTEM_H
 
+#include "Engine/ISystem.h"
 #include "Box2DFacade.h"
 #include <memory>
 #include <vector>
 
 class PhysicsComponent;
 
-class PhysicsSystem {
+class PhysicsSystem : public ISystem {
 private:
     std::unique_ptr<Box2DFacade> _box2DFacade;
     std::vector<PhysicsComponent*> _components;

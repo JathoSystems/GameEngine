@@ -4,20 +4,16 @@
 #include <vector>
 
 #include "ISystem.h"
+#include "TimeManager.h"
 #include "Audio/AudioSystem.h"
 #include "SDL/Window.h"
-#include "Physics/PhysicsSystem.h"
-#include "Input/InputSystem.h"
-#include "Scenes/SceneManager.h"
 
 class GameEngine {
 private:
-	bool _isRunning = false;
+	bool _isRunning;
 	std::vector<std::unique_ptr<ISystem>> _systems;
 	std::unique_ptr<Window> _window;
-	std::unique_ptr<AudioSystem> _audioSystem;
-	std::unique_ptr<PhysicsSystem> _physicsSystem;
-	std::unique_ptr<SceneManager> _sceneManager;
+	std::unique_ptr<TimeManager> _timeManager;
 
 public:
 	GameEngine();
@@ -26,12 +22,9 @@ public:
 	void start();
 	void stop();
 	const std::unique_ptr<Window>& getWindow() const;
-	AudioSystem* getAudioSystem() const { return _audioSystem.get(); }
-	PhysicsSystem* getPhysicsSystem() { return _physicsSystem.get(); }
-	SceneManager* getSceneManager() { return _sceneManager.get(); }
-	InputSystem* getInputSystem();
+	TimeManager* getTimeManager() const { return _timeManager.get(); }
 
-	template<typename T> T* getSystem() {
+	template<typename T>  T* getSystem() {
 		for (auto& system : _systems) {
 			if (T* casted = dynamic_cast<T*>(system.get())) {
 				return casted;
@@ -41,4 +34,4 @@ public:
 	}
 };
 
-#endif
+#endif //GAMEENGINE_GAMEENGINE_H

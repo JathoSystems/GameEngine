@@ -7,7 +7,9 @@
 #include "Collision/CollisionData.h"
 #include <box2d/box2d.h>
 
-PhysicsSystem::PhysicsSystem() : _gravityX(0.0f), _gravityY(981.0f) {}
+PhysicsSystem::PhysicsSystem() : _gravityX(0.0f), _gravityY(981.0f) {
+    this->init(_gravityX, _gravityY);
+}
 
 PhysicsSystem::~PhysicsSystem() = default;
 
