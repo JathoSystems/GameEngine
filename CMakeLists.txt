@@ -16,20 +16,22 @@ endif ()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# --- SDL3 shared ---
+# --- SDL3 Configuration - CRITICAL: Set these BEFORE add_subdirectory ---
 set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 set(SDL_SHARED ON CACHE BOOL "" FORCE)
 set(SDL_STATIC OFF CACHE BOOL "" FORCE)
 set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
 set(SDL_TESTS OFF CACHE BOOL "" FORCE)
+set(SDL_RENDER ON CACHE BOOL "" FORCE)
 
-# --- SDL3_image shared ---
+# --- SDL3_image Configuration ---
 set(SDL3IMAGE_BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 set(SDL3IMAGE_BUILD_STATIC_LIBS OFF CACHE BOOL "" FORCE)
 set(SDL3IMAGE_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL3IMAGE_TESTS OFF CACHE BOOL "" FORCE)
+set(SDL3IMAGE_VENDORED ON CACHE BOOL "" FORCE)
 
-# --- SDL3_ttf shared, always vendored on Windows ---
+# --- SDL3_ttf Configuration ---
 set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
 set(SDL3TTF_HARFBUZZ ON CACHE BOOL "" FORCE)
 set(SDL3TTF_HARFBUZZ_SHARED OFF CACHE BOOL "" FORCE)
@@ -38,7 +40,7 @@ set(SDL3TTF_INSTALL OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SDL3TTF_TESTS OFF CACHE BOOL "" FORCE)
 
-# --- External libraries (local checkouts) ---
+# --- Add External Libraries ---
 add_subdirectory(external/SDL3 EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_image EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL3_TTF EXCLUDE_FROM_ALL)
@@ -61,19 +63,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
-set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
-
-# Ensure Box2D tests/testbed are disabled (applies whether local or fetched)
+# --- Box2D Configuration ---
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
 
-# Allow overriding which Box2D ref to fetch; default to v3.0.0 (modern C API)
 if (NOT DEFINED BOX2D_GIT_TAG)
     set(BOX2D_GIT_TAG "v3.0.0" CACHE STRING "Box2D git tag/branch/commit to fetch")
 endif()
 
-# Prefer a local checkout if present, otherwise fetch Box2D via FetchContent
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/box2d/CMakeLists.txt")
     message(STATUS "Using local external/box2d")
     add_subdirectory(external/box2d EXCLUDE_FROM_ALL)
@@ -85,13 +82,15 @@ else()
             GIT_TAG ${BOX2D_GIT_TAG}
             GIT_SHALLOW TRUE
     )
-    # Make sure Box2D options are off for tests/testbed
     set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(box2d)
 endif()
 
-# Download dr_mp3.h if missing
+# --- dr_mp3 Download ---
+set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
+set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
+
 if(NOT EXISTS ${DR_MP3_FILE})
     message(STATUS "Downloading dr_mp3.h...")
     file(MAKE_DIRECTORY ${DR_MP3_DIR})
@@ -110,15 +109,15 @@ else()
     message(STATUS "dr_mp3.h already exists")
 endif()
 
+# --- ASIO ---
 FetchContent_Declare(
         asio
         GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
         GIT_TAG asio-1-30-2
-        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/asio
 )
 FetchContent_MakeAvailable(asio)
 
-# --- Engine library ---
+# --- Engine Library ---
 add_library(Engine SHARED
         src/Engine/GameEngine.cpp
         src/Engine/TimeManager.cpp
@@ -208,28 +207,22 @@ add_library(Engine SHARED
         src/SaveLoad/SaveCaretaker.cpp
         src/SaveLoad/SaveLoadSystem.cpp
         src/Network/NetworkMiddleware.cpp
-        src/Network/NetworkMiddleware.cpp
         includes/Network/Packet/Packets/NetworkEventPacket.h
         game/ChatEvent.h
         src/Network/NetworkSystem.cpp
 )
 
-target_precompile_headers(Engine
-        PRIVATE
-        <SDL3/SDL.h>
-        <SDL3_image/SDL_image.h>
-        <SDL3_ttf/SDL_ttf.h>
-        <asio.hpp>
-        <box2d/box2d.h>
-)
+# DO NOT use precompiled headers - they cause issues with SDL3
+# target_precompile_headers(Engine PRIVATE ...)
 
 target_include_directories(Engine
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/includes
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/includes
+            ${asio_SOURCE_DIR}/asio/include
         PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/external
+            ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
+
 
 target_link_libraries(Engine
         PUBLIC
@@ -240,24 +233,23 @@ target_link_libraries(Engine
         nlohmann_json::nlohmann_json
 )
 
-
-
 # Platform-specific libraries for ASIO
 if(WIN32)
     target_link_libraries(Engine PUBLIC ws2_32 mswsock)
 elseif(UNIX AND NOT APPLE)
     target_link_libraries(Engine PUBLIC pthread)
 elseif(APPLE)
-     target_link_libraries(Engine PUBLIC "-framework CoreFoundation")
+    target_link_libraries(Engine PUBLIC "-framework CoreFoundation")
 endif()
 
-# --- Game executable ---
+# --- Game Executable ---
 add_executable(GameEngine
         game/Main.cpp
 )
 
-target_precompile_headers(GameEngine
-        REUSE_FROM Engine
+target_compile_definitions(GameEngine
+        PRIVATE
+        ASIO_STANDALONE
 )
 
 target_link_libraries(GameEngine
@@ -268,9 +260,11 @@ target_link_libraries(GameEngine
 target_include_directories(GameEngine
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
+        ${asio_SOURCE_DIR}/asio/include
 )
 
-# --- Post-build: copy shared libs to executable dir ---
+
+# --- Post-build: Copy DLLs ---
 add_custom_command(TARGET GameEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
@@ -280,7 +274,7 @@ add_custom_command(TARGET GameEngine POST_BUILD
         $<TARGET_FILE_DIR:GameEngine>
 )
 
-# --- copy resources directory ---
+# --- Copy Resources ---
 add_custom_command(TARGET GameEngine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
@@ -351,8 +345,8 @@ add_executable(EngineTests
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    target_compile_options(EngineTests PRIVATE --coverage -fprofile-arcs -ftest-coverage)
+    target_link_options(EngineTests PRIVATE --coverage)
 endif ()
 
 target_link_libraries(EngineTests
@@ -366,7 +360,7 @@ target_include_directories(EngineTests
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
 )
 
-# Copy DLLs BEFORE test discovery runs
+# Copy DLLs for tests
 add_custom_command(TARGET EngineTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:Engine>
@@ -401,14 +395,13 @@ if (WIN32 AND MINGW)
             "${MINGW_BIN_DIR}/libstdc++-6.dll"
             "${MINGW_BIN_DIR}/libwinpthread-1.dll"
             $<TARGET_FILE_DIR:EngineTests>
+            COMMAND_EXPAND_LISTS
     )
 endif ()
 
 include(CTest)
-
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 include(Catch)
-
 
 catch_discover_tests(EngineTests
         DISCOVERY_MODE PRE_TEST
@@ -435,21 +428,9 @@ target_compile_definitions(ServerApp
         ASIO_STANDALONE
 )
 
-target_precompile_headers(ServerApp
-        REUSE_FROM Engine
-)
-
 add_custom_command(TARGET ServerApp POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
         $<TARGET_FILE:Engine>
         $<TARGET_FILE_DIR:ServerApp>
 )
-if (DEFINED Catch2_SOURCE_DIR)
-    list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
-    include(Catch)
-    catch_discover_tests(EngineTests
-            DISCOVERY_MODE PRE_TEST
-            REPORTER console
-    )
-endif()

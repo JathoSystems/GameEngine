@@ -1,5 +1,6 @@
 #pragma once
 #include "INetworkListener.h"
+#include "asio/ip/udp.hpp"
 
 class UdpNetworkListener : public INetworkListener
 {
