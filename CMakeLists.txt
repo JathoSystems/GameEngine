@@ -114,7 +114,6 @@ FetchContent_Declare(
         asio
         GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
         GIT_TAG asio-1-30-2
-        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/asio
 )
 FetchContent_MakeAvailable(asio)
 
