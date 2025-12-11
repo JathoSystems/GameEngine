@@ -217,11 +217,12 @@ add_library(Engine SHARED
 
 target_include_directories(Engine
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/includes
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/includes
+            ${asio_SOURCE_DIR}/asio/include
         PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/external
+            ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
+
 
 target_link_libraries(Engine
         PUBLIC
@@ -259,8 +260,9 @@ target_link_libraries(GameEngine
 target_include_directories(GameEngine
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include
+        ${asio_SOURCE_DIR}/asio/include
 )
+
 
 # --- Post-build: Copy DLLs ---
 add_custom_command(TARGET GameEngine POST_BUILD
