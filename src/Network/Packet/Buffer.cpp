@@ -1,5 +1,7 @@
 #include "Network/Packet/Buffer.h"
 
+#include <stdexcept>
+
 void Buffer::writeInt(int32_t value)
 {
     data.push_back((value >> 24) & 0xFF);
