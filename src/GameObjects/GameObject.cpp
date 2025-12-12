@@ -4,7 +4,18 @@
 
 #include "GameObjects/GameObject.h"
 #include <memory>
+
+#include "GameObjects/ObjectRegistry.hpp"
 #include "GameObjects/Component/Component.h"
+
+GameObject::GameObject() {
+    _id = ObjectRegistry::getInstance().registerObject(this);
+}
+
+GameObject::~GameObject() {
+    ObjectRegistry& registry = ObjectRegistry::getInstance();
+    registry.removeObject(_id);
+}
 
 void GameObject::addComponent(std::unique_ptr<Component> component) {
     component->setParent(this);

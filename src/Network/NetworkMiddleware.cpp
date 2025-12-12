@@ -3,6 +3,8 @@
 #include "Events/EventRegistry.h"
 #include <iostream>
 
+#include "../../includes/GameObjects/ObjectRegistry.hpp"
+
 NetworkMiddleware::NetworkMiddleware(std::shared_ptr<Client> client) : _client(client) {
     _client->startReceiving([this](const Packet& packet) {
         this->onPacketReceived(packet);
@@ -63,7 +65,7 @@ void NetworkMiddleware::onPacketReceived(const Packet& packet) {
 
         // Apply the event through the callback system
         if (onEventReceivedCallback) {
-            onEventReceivedCallback(newEvent);
+            onEventReceivedCallback(eventData.at(0), newEvent);
         } else {
             std::cerr << "Warning: No event callback registered. Event received but not processed: "
                       << eventName << std::endl;
@@ -74,7 +76,7 @@ void NetworkMiddleware::onPacketReceived(const Packet& packet) {
     }
 }
 
-void NetworkMiddleware::setOnEventReceived(std::function<void(std::shared_ptr<IEvent>)> callback) {
+void NetworkMiddleware::setOnEventReceived(std::function<void(int id, std::shared_ptr<IEvent>)> callback) {
     onEventReceivedCallback = callback;
 }
 

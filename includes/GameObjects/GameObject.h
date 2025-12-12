@@ -14,8 +14,12 @@ private:
     std::unique_ptr<GameObject> _parent;
     std::vector<std::unique_ptr<Component> > _components;
     std::unique_ptr<Transform> _transform = std::make_unique<Transform>();
+    int _id;
 
 public:
+    GameObject();
+    ~GameObject();
+
     void addComponent(std::unique_ptr<Component> component);
 
     void render(const std::unique_ptr<Window> &window);
@@ -27,6 +31,7 @@ public:
 
     virtual void onCollisionEnter(const CollisionData& collision) {}
     virtual void onCollisionExit(const CollisionData& collision) {}
+    int getId() {return _id;}
 
     template<typename T>
     std::vector<T *> getComponents() {

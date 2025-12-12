@@ -48,19 +48,7 @@ int main() {
 
                     if (event) {
                         event->deserialize(eventData);
-
-                        // Handle specific event types
-                        if (eventName == "ChatEvent") {
-                            auto chatEvent = std::dynamic_pointer_cast<ChatEvent>(event);
-                            if (chatEvent) {
-                                std::cout << "[Client " << clientId << " says]: "
-                                          << chatEvent->getMessage() << "\n";
-                            }
-                        }
-
-                        // Broadcast to all other clients
-                        server.broadcastExcept(packet, clientId);
-                        std::cout << "Event broadcasted to other clients\n";
+                        server.broadcast(packet);
                     }
 
                 } catch (const std::exception& e) {

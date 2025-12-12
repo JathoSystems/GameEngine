@@ -1,0 +1,37 @@
+//
+// Created by jusra on 12-12-2025.
+//
+
+#include "../../includes/GameObjects/ObjectRegistry.hpp"
+#include <random>
+
+ObjectRegistry& ObjectRegistry::getInstance() {
+    static ObjectRegistry instance;
+    return instance;
+}
+
+int ObjectRegistry::generateToken() {
+    static thread_local std::mt19937 rng{ std::random_device{}() };
+    std::uniform_int_distribution<int> dist(10, 99);
+    return dist(rng);
+}
+
+GameObject* ObjectRegistry::getObject(int key) {
+    auto it = _objects.find(key);
+    return (it != _objects.end()) ? it->second : nullptr;
+}
+
+int ObjectRegistry::registerObject(GameObject* obj) {
+    int key;
+    do {
+        key = generateToken();
+    } while (_objects.contains(key));
+
+    _objects[key] = obj;
+    return key;
+}
+
+void ObjectRegistry::removeObject(int key) {
+    _objects.erase(key);
+}
+
