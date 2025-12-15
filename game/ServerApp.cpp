@@ -5,7 +5,7 @@
 #include "Network/Packet/PacketRegistery.h"
 #include "Network/Packet/Packets/NetworkEventPacket.h"
 #include "Events/EventRegistry.h"
-#include "ChatEvent.h"
+// #include "ChatEvent.h"
 
 int main() {
     try {
@@ -15,9 +15,9 @@ int main() {
         PacketRegistery::getInstance().registerPacket<NetworkEventPacket>(100);
 
         // Register events
-        EventRegistry::getInstance()->registerEvent("ChatEvent", []() {
-            return std::make_shared<ChatEvent>();
-        });
+        // EventRegistry::getInstance()->registerEvent("ChatEvent", []() {
+        //     return std::make_shared<ChatEvent>();
+        // });
 
         // Create server
         auto listener = std::make_unique<TcpNetworkListener>(io_context, 8080, 100);

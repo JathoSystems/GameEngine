@@ -61,3 +61,10 @@ void SessionManager::broadcastExcept(const Packet& packet, int32_t excludeId) {
         }
     }
 }
+
+std::optional<int32_t> SessionManager::getAnySessionId() const {
+    if (sessions.empty()) {
+        return std::nullopt;
+    }
+    return sessions.begin()->first;
+}

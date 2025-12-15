@@ -1,5 +1,6 @@
 #include "Network/Server.h"
 #include "Network/SessionManager.h"
+#include "Network/Packet/Packets/GameReadyPacket.h"
 #include <iostream>
 
 Server::Server(asio::io_context& io, std::unique_ptr<INetworkListener> listener, int port)
@@ -50,6 +51,11 @@ void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
 
     auto session = m_sessionManager->getSession(clientId);
     if (session) {
+        if (m_authorityId == -1) {
+            m_authorityId = clientId;
+            std::cout << "Client " << clientId << " set as authoritative host\n";
+        }
+
         session->startReceiving(
             // Packet callback
             [this, clientId](const Packet& packet) {
@@ -57,15 +63,31 @@ void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
             },
             // Disconnect callback - NIEUW!
             [this, clientId]() {
-                std::cout << "Client " << clientId << " disconnected\n";
-                m_sessionManager->removeSession(clientId);
+                handleClientDisconnected(clientId);
             }
         );
+        // Inform game-level code that a client has connected
+        if (m_onClientConnected) {
+            m_onClientConnected(clientId);
+        }
     }
 }
 
 void Server::handleClientPacket(int32_t clientId, const Packet& packet)
 {
+    if (m_authorityId == -1) {
+        promoteNewAuthority();
+    }
+
+    if (clientId != m_authorityId) {
+        std::cout << "Ignoring packet from non-authoritative client " << clientId
+                  << ", forwarding to authority " << m_authorityId << "\n";
+        if (m_authorityId != -1) {
+            m_sessionManager->sendTo(m_authorityId, packet);
+        }
+        return;
+    }
+
     std::cout << "Received packet from client " << clientId
               << " (ID: " << packet.getId() << ")\n";
 
@@ -103,7 +125,32 @@ void Server::setPacketCallback(std::function<void(int32_t, const Packet&)> callb
     m_onPacketReceived = callback;
 }
 
+void Server::setClientConnectedCallback(std::function<void(int32_t)> callback)
+{
+    m_onClientConnected = callback;
+}
+
 size_t Server::getClientCount() const
 {
     return m_sessionManager->getSessionCount();
+}
+
+void Server::handleClientDisconnected(int32_t clientId) {
+    std::cout << "Client " << clientId << " disconnected\n";
+    m_sessionManager->removeSession(clientId);
+
+    if (clientId == m_authorityId) {
+        m_authorityId = -1;
+        promoteNewAuthority();
+    }
+}
+
+void Server::promoteNewAuthority() {
+    auto next = m_sessionManager->getAnySessionId();
+    if (next.has_value()) {
+        m_authorityId = next.value();
+        std::cout << "Client " << m_authorityId << " promoted to authority\n";
+    } else {
+        std::cout << "No clients connected; authority cleared\n";
+    }
 }

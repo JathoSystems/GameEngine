@@ -1,6 +1,8 @@
 #include "Physics/PhysicsSystem.h"
 
+#include <cmath>
 #include <iostream>
+#include <tuple>
 
 #include "Physics/PhysicsComponent.h"
 #include "GameObjects/GameObject.h"
@@ -43,19 +45,35 @@ void PhysicsSystem::processCollisions() {
         GameObject* objB = static_cast<GameObject*>(b2Body_GetUserData(bodyB));
 
         if (objA && objB) {
-            b2Vec2 posA = b2Body_GetPosition(bodyA);
-            b2Vec2 posB = b2Body_GetPosition(bodyB);
+            // Derive a stable contact normal based on shape extents instead of using
+            // world positions only (which caused flaky grounded detection).
+            auto buildBox = [](GameObject* obj) {
+                Transform* t = obj->getTransform();
+                float halfW = t->getSize()->getWidth() * 0.5f;
+                float halfH = t->getSize()->getHeight() * 0.5f;
+                return std::tuple<float, float, float, float>(
+                    t->getPosition()->getX(), t->getPosition()->getY(), halfW, halfH
+                );
+            };
 
-            float dx = posB.x - posA.x;
-            float dy = posB.y - posA.y;
-            float length = sqrtf(dx * dx + dy * dy);
+            auto [ax, ay, aHalfW, aHalfH] = buildBox(objA);
+            auto [bx, by, bHalfW, bHalfH] = buildBox(objB);
+
+            float dx = bx - ax;
+            float dy = by - ay;
+
+            float overlapX = (aHalfW + bHalfW) - std::fabs(dx);
+            float overlapY = (aHalfH + bHalfH) - std::fabs(dy);
 
             float normalX = 0.0f;
             float normalY = 0.0f;
 
-            if (length > 0.0001f) {
-                normalX = dx / length;
-                normalY = dy / length;
+            if (overlapX < overlapY) {
+                // Resolve along X
+                normalX = (dx < 0.0f) ? -1.0f : 1.0f;
+            } else {
+                // Resolve along Y
+                normalY = (dy < 0.0f) ? -1.0f : 1.0f;
             }
 
             CollisionData dataA(objB, normalX, normalY, true);

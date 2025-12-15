@@ -3,7 +3,6 @@
 //
 
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
-#include <random>
 
 ObjectRegistry& ObjectRegistry::getInstance() {
     static ObjectRegistry instance;
@@ -11,9 +10,12 @@ ObjectRegistry& ObjectRegistry::getInstance() {
 }
 
 int ObjectRegistry::generateToken() {
-    static thread_local std::mt19937 rng{ std::random_device{}() };
-    std::uniform_int_distribution<int> dist(10, 99);
-    return dist(rng);
+    // Use a simple monotonically increasing counter so that object IDs
+    // are deterministic across clients that create objects in the same order.
+    // This is important for networking: Move/Jump events send an objectId
+    // that must refer to the same logical object on every client.
+    static int nextId = 10;
+    return nextId++;
 }
 
 GameObject* ObjectRegistry::getObject(int key) {

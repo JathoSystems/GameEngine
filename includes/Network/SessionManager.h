@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include "Network/Session.h"
 
 class SessionManager {
@@ -19,4 +20,7 @@ public:
     std::shared_ptr<Session> getSession(int32_t id);
     size_t getSessionCount() const;
     void broadcastExcept(const Packet& packet, int32_t excludeId);
+
+    // Utility for selecting a new authority when needed
+    std::optional<int32_t> getAnySessionId() const;
 };

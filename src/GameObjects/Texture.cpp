@@ -80,8 +80,12 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     Position* pos = parent->getTransform()->getPosition();
 
     SDL_FRect dstRect;
-    dstRect.x = pos->getX();
-    dstRect.y = pos->getY();
+    dstRect.w = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
+    dstRect.h = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
+
+    // Interpret transform position as the center (consistent with physics)
+    dstRect.x = pos->getX() - dstRect.w * 0.5f;
+    dstRect.y = pos->getY() - dstRect.h * 0.5f;
 
     // Apply viewport offset
     if (viewport) {
@@ -89,9 +93,6 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
         dstRect.x -= viewportPos.getX();
         dstRect.y -= viewportPos.getY();
     }
-
-    dstRect.w = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
-    dstRect.h = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
 
     SDL_FRect srcRect;
     srcRect.x = frame->getX();

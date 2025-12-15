@@ -1,5 +1,8 @@
 #include "Network/NetworkMiddleware.h"
 #include "Network/Packet/Packets/NetworkEventPacket.h"
+#include "Network/Packet/Packets/GameReadyPacket.h"
+#include "Network/Packet/Packets/PlayerAssignPacket.h"
+#include "Network/GameState.h"
 #include "Events/EventRegistry.h"
 #include <iostream>
 
@@ -22,6 +25,24 @@ void NetworkMiddleware::sendEvent(std::shared_ptr<IEvent> event) {
 }
 
 void NetworkMiddleware::onPacketReceived(const Packet& packet) {
+    // Control packet from server: game is ready (e.g. both clients connected)
+    if (packet.getId() == 102) {
+        std::cout << "GameReadyPacket received. Enabling input.\n";
+        GameNetworkState::setReady(true);
+        return;
+    }
+
+    // Player role assignment
+    if (packet.getId() == 110) {
+        PlayerAssignPacket assign;
+        assign.getBuffer().setData(packet.getBuffer().getData());
+        assign.deserialize();
+
+        std::cout << "PlayerAssignPacket received. Role: " << assign.getRole() << "\n";
+        GameNetworkState::setLocalRole(assign.getRole());
+        return;
+    }
+
     // Check if it's a network event packet
     if (packet.getId() != 100) {
         std::cout << "Unknown packet type received: " << packet.getId() << std::endl;
