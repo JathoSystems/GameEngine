@@ -5,6 +5,8 @@
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
 #include <random>
 
+#include "Network/NetworkSystem.h"
+
 ObjectRegistry& ObjectRegistry::getInstance() {
     static ObjectRegistry instance;
     return instance;

@@ -15,8 +15,15 @@ private:
 	std::unique_ptr<Window> _window;
 	std::unique_ptr<TimeManager> _timeManager;
 
-public:
 	GameEngine();
+	GameEngine(const GameEngine&) = delete;
+	GameEngine& operator=(const GameEngine&) = delete;
+public:
+
+	static GameEngine& getInstance() {
+		static GameEngine instance;
+		return instance;
+	}
 
 	void init(std::string name, int width, int height);
 	void start();
