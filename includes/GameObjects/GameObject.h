@@ -18,7 +18,8 @@ private:
 
 public:
     GameObject();
-    ~GameObject();
+
+    virtual ~GameObject();
 
     void addComponent(std::unique_ptr<Component> component);
 

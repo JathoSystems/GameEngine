@@ -19,6 +19,10 @@ public:
     // sends an event to the network
     void sendEvent(std::shared_ptr<IEvent> event);
 
+    void sendPacket(std::shared_ptr<Packet> packet);
+
+    void sendGameObject(std::shared_ptr<GameObject> gameObject);
+
     // callback function for when data is received
     void onPacketReceived(const Packet& packet);
 

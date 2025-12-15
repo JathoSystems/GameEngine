@@ -12,13 +12,20 @@ NetworkMiddleware::NetworkMiddleware(std::shared_ptr<Client> client) : _client(c
 }
 
 void NetworkMiddleware::sendEvent(std::shared_ptr<IEvent> event) {
+    std::shared_ptr<NetworkEventPacket> packet = std::make_shared<NetworkEventPacket>(event->getName(), event->serialize());
+
+    this->sendPacket(packet);
+}
+
+void NetworkMiddleware::sendPacket(std::shared_ptr<Packet> packet) {
     if (!_client || !_client->isConnected()) return;
 
-    NetworkEventPacket packet(event->getName(), event->serialize());
+    packet->serialize();
 
-    packet.serialize();
+    _client->send(*packet.get());
+}
 
-    _client->send(packet);
+void NetworkMiddleware::sendGameObject(std::shared_ptr<GameObject> gameObject) {
 }
 
 void NetworkMiddleware::onPacketReceived(const Packet& packet) {
