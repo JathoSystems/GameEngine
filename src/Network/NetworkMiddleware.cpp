@@ -7,6 +7,7 @@
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
 #include "../../includes/Network/Packet/Packets/PlayerAssignPacket.hpp"
 #include "Engine/GameEngine.h"
+#include "scenes/Game.hpp"
 #include "Scenes/SceneSystem.h"
 
 NetworkMiddleware::NetworkMiddleware(std::shared_ptr<Client> client) : _client(client) {
@@ -46,7 +47,16 @@ void NetworkMiddleware::onPacketReceived(const Packet& packet) {
 
     if (packet.getId() == 102) {
         std::cout << "GameReadyPacket received. Enabling input.\n";
-        GameEngine::getInstance().getSystem<SceneSystem>()->setScene("game");
+        auto gameEngine = &GameEngine::getInstance();
+        auto system = gameEngine->getSystem<SceneSystem>();
+
+        if (system) {
+            std::cout << "Switching to Game scene.\n";
+            system->setScene("Game");
+        } else {
+            std::cerr << "Error: SceneSystem not found in GameEngine.\n";
+            return;
+        }
         return;
     }
 
