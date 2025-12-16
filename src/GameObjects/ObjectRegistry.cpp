@@ -3,6 +3,8 @@
 //
 
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
+
+#include <iostream>
 #include <random>
 
 #include "Network/NetworkSystem.h"
@@ -24,7 +26,11 @@ GameObject* ObjectRegistry::getObject(int key) {
 }
 
 void ObjectRegistry::insert(GameObject *obj, int key) {
-    _objects[key] = obj;
+    try {
+        _objects[key] = obj;
+    } catch (...) {
+        std::cerr << "Failed to insert object with key " << key << std::endl;
+    }
 }
 
 int ObjectRegistry::registerObject(GameObject* obj) {

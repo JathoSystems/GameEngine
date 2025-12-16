@@ -1,19 +1,22 @@
 #include "Events/EventManager.h"
 
-EventManager::EventManager(std::shared_ptr<NetworkMiddleware> network)
-    : networkMiddleware(network) {}
+#include <iostream>
 
-bool EventManager::broadcast(std::shared_ptr<IEvent> event) {
+EventManager::EventManager(std::shared_ptr<NetworkMiddleware> network)
+    : networkMiddleware(network) {
+}
+
+bool EventManager::broadcast(int objectId, std::shared_ptr<IEvent> event) {
     if (!event) return false;
 
     if (networkMiddleware) {
         networkMiddleware->sendEvent(event);
-        return true;
     }
 
     if (onEventReceived) {
-        onEventReceived(event);
+        onEventReceived(objectId, event);
     }
+
 
     return true;
 }

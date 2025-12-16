@@ -3,6 +3,8 @@
 //
 
 #include "GameObjects/GameObject.h"
+
+#include <iostream>
 #include <memory>
 
 #include "GameObjects/ObjectRegistry.hpp"
