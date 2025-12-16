@@ -3,7 +3,11 @@
 #include "Events/EventRegistry.h"
 #include <iostream>
 
+#include "GameState.hpp"
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
+#include "../../includes/Network/Packet/Packets/PlayerAssignPacket.hpp"
+#include "Engine/GameEngine.h"
+#include "Scenes/SceneSystem.h"
 
 NetworkMiddleware::NetworkMiddleware(std::shared_ptr<Client> client) : _client(client) {
     _client->startReceiving([this](const Packet& packet) {
@@ -30,6 +34,22 @@ void NetworkMiddleware::sendGameObject(std::shared_ptr<GameObject> gameObject) {
 
 void NetworkMiddleware::onPacketReceived(const Packet& packet) {
     // Check if it's a network event packet
+    if (packet.getId() == 110) {
+        PlayerAssignPacket assign;
+        assign.getBuffer().setData(packet.getBuffer().getData());
+        assign.deserialize();
+
+        std::cout << "PlayerAssignPacket received. Role: " << assign.getRole() << "\n";
+        GameState::getInstance().set("role", assign.getRole());
+        return;
+    }
+
+    if (packet.getId() == 102) {
+        std::cout << "GameReadyPacket received. Enabling input.\n";
+        GameEngine::getInstance().getSystem<SceneSystem>()->setScene("game");
+        return;
+    }
+
     if (packet.getId() != 100) {
         std::cout << "Unknown packet type received: " << packet.getId() << std::endl;
         return;

@@ -15,6 +15,7 @@ private:
     std::shared_ptr<SessionManager> m_sessionManager; // Renamed
 
     std::function<void(int32_t, const Packet&)> m_onPacketReceived;
+    std::function<void(int32_t)> m_onClientConnected;
 
     void handleNewClient(std::unique_ptr<INetworkSocket> socket);
     void handleClientPacket(int32_t clientId, const Packet& packet);
@@ -23,6 +24,9 @@ public:
     Server(asio::io_context& io, std::unique_ptr<INetworkListener> listener, int port);
 
     void startServer();
+
+    void onConnect(std::function<void(int32_t)> callback);
+
     void stopServer();
     void run();
 

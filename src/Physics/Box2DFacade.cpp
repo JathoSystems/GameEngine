@@ -21,8 +21,6 @@ void Box2DFacade::init(float gravityX, float gravityY) {
 
     if (B2_IS_NULL(_worldId)) {
         std::cerr << "Failed to create Box2D world!" << std::endl;
-    } else {
-        std::cout << "Box2D world created with gravity: (" << gravityX << ", " << gravityY << ")" << std::endl;
     }
 }
 
@@ -35,7 +33,6 @@ void Box2DFacade::step(float timeStep, int subStepCount) {
 void Box2DFacade::setGravity(float x, float y) {
     if (B2_IS_NON_NULL(_worldId)) {
         b2World_SetGravity(_worldId, {x, y});
-        std::cout << "Gravity updated to: (" << x << ", " << y << ")" << std::endl;
     }
 }
 
@@ -66,8 +63,6 @@ b2BodyId Box2DFacade::createBody(GameObject* userData, BodyType type, float x, f
 
     if (B2_IS_NULL(bodyId)) {
         std::cerr << "Failed to create body!" << std::endl;
-    } else {
-        std::cout << "Body created at (" << x << ", " << y << ") with type " << (int)type << std::endl;
     }
 
     return bodyId;
@@ -107,9 +102,6 @@ void Box2DFacade::createBoxShape(b2BodyId bodyId, float width, float height,
 
     if (B2_IS_NULL(shapeId)) {
         std::cerr << "Failed to create box shape!" << std::endl;
-    } else {
-        std::cout << "Box shape created: " << width << "x" << height
-                  << " (half-extents: " << halfWidth << "x" << halfHeight << ")" << std::endl;
     }
 }
 
@@ -133,8 +125,6 @@ void Box2DFacade::createCircleShape(b2BodyId bodyId, float radius,
 
     if (B2_IS_NULL(shapeId)) {
         std::cerr << "Failed to create circle shape!" << std::endl;
-    } else {
-        std::cout << "Circle shape created with radius: " << radius << std::endl;
     }
 }
 
@@ -181,7 +171,6 @@ void Box2DFacade::applyImpulse(b2BodyId bodyId, float ix, float iy) {
         b2Vec2 impulse = {ix, iy};
         b2Vec2 point = b2Body_GetPosition(bodyId);
         b2Body_ApplyLinearImpulse(bodyId, impulse, point, true);
-        std::cout << "Impulse applied: (" << ix << ", " << iy << ")" << std::endl;
     }
 }
 

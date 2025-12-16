@@ -18,9 +18,7 @@ public:
 
     bool broadcast(int objectId, std::shared_ptr<IEvent> event);
 
-    // if we are offline we use this callback so we can directly do the event internally
     void setEventCallback(std::function<void(int objectId, std::shared_ptr<IEvent>)> callback) {
-        std::cout << "Setting event callback" << std::endl;
         onEventReceived = callback;
     }
 };
