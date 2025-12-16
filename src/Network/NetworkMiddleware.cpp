@@ -3,7 +3,7 @@
 #include "Events/EventRegistry.h"
 #include <iostream>
 
-#include "GameState.hpp"
+#include "../../includes/Network/GameState.hpp"
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
 #include "../../includes/Network/Packet/Packets/PlayerAssignPacket.hpp"
 #include "Engine/GameEngine.h"

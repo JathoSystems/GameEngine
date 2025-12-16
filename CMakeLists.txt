@@ -215,6 +215,8 @@ add_library(Engine SHARED
         includes/GameObjects/ObjectRegistry.hpp
         src/GameObjects/ObjectRegistry.cpp
         includes/Network/Packet/Packets/GameReady.hpp
+        includes/Network/GameState.hpp
+        src/Network/GameState.cpp
 )
 
 # DO NOT use precompiled headers - they cause issues with SDL3
