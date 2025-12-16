@@ -13,6 +13,9 @@ public:
     static ObjectRegistry& getInstance();
 
     GameObject* getObject(int key);
+
+    void insert(GameObject *obj, int key);
+
     int registerObject(GameObject* obj);
     void removeObject(int key);
 

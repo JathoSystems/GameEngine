@@ -18,6 +18,7 @@ private:
 
 public:
     GameObject();
+    GameObject(int id);
 
     virtual ~GameObject();
 

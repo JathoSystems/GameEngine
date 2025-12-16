@@ -23,6 +23,10 @@ GameObject* ObjectRegistry::getObject(int key) {
     return (it != _objects.end()) ? it->second : nullptr;
 }
 
+void ObjectRegistry::insert(GameObject *obj, int key) {
+    _objects[key] = obj;
+}
+
 int ObjectRegistry::registerObject(GameObject* obj) {
     int key;
     do {

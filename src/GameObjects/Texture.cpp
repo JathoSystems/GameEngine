@@ -11,7 +11,7 @@ void Texture::load(Window *window) {
 
     SDL_Surface *surface = IMG_Load(_path.c_str());
     if (!surface) {
-        std::cerr << "Failed to load image!" << std::endl;
+        // std::cerr << "Failed to load image!" << std::endl;
         return;
     }
 

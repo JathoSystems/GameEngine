@@ -12,6 +12,11 @@ GameObject::GameObject() {
     _id = ObjectRegistry::getInstance().registerObject(this);
 }
 
+GameObject::GameObject(int id) {
+    _id = id;
+    ObjectRegistry::getInstance().insert(this, id);
+}
+
 GameObject::~GameObject() {
     ObjectRegistry& registry = ObjectRegistry::getInstance();
     registry.removeObject(_id);
