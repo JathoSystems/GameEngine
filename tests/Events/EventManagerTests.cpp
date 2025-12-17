@@ -13,7 +13,7 @@ TEST_CASE("EventManager", "[events][manager]") {
     SECTION("broadcast returns false for null event") {
         EventManager manager(nullptr);
         std::shared_ptr<IEvent> nullEvent = nullptr;
-        REQUIRE(manager.broadcast(nullEvent) == false);
+        REQUIRE(manager.broadcast(1, nullEvent) == false);
     }
 
     SECTION("broadcast with null middleware calls local callback") {
@@ -23,7 +23,7 @@ TEST_CASE("EventManager", "[events][manager]") {
         std::string receivedEventName;
 
         // Set local callback (voor offline mode)
-        manager.setEventCallback([&](std::shared_ptr<IEvent> event) {
+        manager.setEventCallback([&](int parentId, std::shared_ptr<IEvent> event) {
             callbackTriggered = true;
             if (event) {
                 receivedEventName = event->getName();
@@ -31,7 +31,7 @@ TEST_CASE("EventManager", "[events][manager]") {
         });
 
         auto ev = std::make_shared<MockEvent>("local_test");
-        bool result = manager.broadcast(ev);
+        bool result = manager.broadcast(1, ev);
 
         REQUIRE(result == true);
         REQUIRE(callbackTriggered == true);
@@ -51,7 +51,7 @@ TEST_CASE("EventManager", "[events][manager]") {
         auto ev = std::make_shared<MockEvent>("serialize_test");
         REQUIRE(ev->serializeCalled == false);
 
-        manager.broadcast(ev);
+        manager.broadcast(1, ev);
 
         // Serialize wordt NIET meer direct in EventManager aangeroepen
         // Het gebeurt nu in NetworkMiddleware::sendEvent

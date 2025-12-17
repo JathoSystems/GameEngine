@@ -209,7 +209,6 @@ add_library(Engine SHARED
         src/Network/NetworkMiddleware.cpp
         includes/Network/Packet/Packets/NetworkEventPacket.h
         src/Network/Packet/PlayerAssignPacket.cpp
-        game/ChatEvent.h
         src/Network/NetworkSystem.cpp
         includes/GameObjects/ObjectRegistry.hpp
         src/GameObjects/ObjectRegistry.cpp

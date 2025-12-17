@@ -5,7 +5,7 @@
 #include "Engine/TimeManager.h"
 
 TEST_CASE("GameEngine provides TimeManager access", "[GameEngine]") {
-    GameEngine engine;
+    GameEngine& engine = GameEngine::getInstance();
     engine.init("Test", 800, 600);
     
     SECTION("TimeManager is accessible") {

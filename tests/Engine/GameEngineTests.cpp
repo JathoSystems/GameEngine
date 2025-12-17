@@ -41,7 +41,7 @@ public:
 
 TEST_CASE("GameEngine basic behaviour", "[GameEngine]") {
 
-    GameEngine engine;
+    GameEngine& engine = GameEngine::getInstance();
 
     SECTION("Init creates window and systems") {
         // Replace actual window
@@ -57,7 +57,7 @@ TEST_CASE("GameEngine basic behaviour", "[GameEngine]") {
 
     SECTION("Start triggers system updates") {
         // We maken eerst een engine en injecteren systemen
-        GameEngine engineLocal;
+        GameEngine& engineLocal = GameEngine::getInstance();
 
         // Inject fake window
         engineLocal.init("TestGame", 800, 600);
@@ -96,7 +96,7 @@ TEST_CASE("GameEngine basic behaviour", "[GameEngine]") {
     }
 
     SECTION("getSystem returns correct type") {
-        GameEngine engineLocal;
+        GameEngine& engineLocal = GameEngine::getInstance();
         engineLocal.init("TestGame", 800, 600);
 
         // In init worden 3 systemen toegevoegd:

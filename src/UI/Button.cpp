@@ -56,14 +56,13 @@ void Button::update(float deltaTime) {
     bool isMouseOver = (mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                         mouseY >= rect.y && mouseY <= rect.y + rect.h);
 
-    static bool wasPressed = false;
     bool isPressed = (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_LMASK) != 0;
 
-    if (isMouseOver && isPressed && !wasPressed) {
+    if (isMouseOver && isPressed && !_wasPressed) {
         onClick();
     }
 
-    wasPressed = isPressed;
+    _wasPressed = isPressed;
 }
 
 void Button::render(const std::unique_ptr<Window> &window) {

@@ -12,6 +12,7 @@ class Button : public Component {
 private:
     int _paddingX = 20;
     int _paddingY = 10;
+    bool _wasPressed = false;
     std::string _text;
     std::unique_ptr<Font> _font;
     std::unique_ptr<Color> _backgroundColor;
