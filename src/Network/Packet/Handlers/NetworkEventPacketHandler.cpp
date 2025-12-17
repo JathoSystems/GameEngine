@@ -1,7 +1,6 @@
 #include "Network/Packet/Handler/NetworkEventPacketHandler.hpp"
 #include <iostream>
 
-#include "SpawnEvent.hpp"
 #include "Events/EventRegistry.h"
 #include "GameObjects/ObjectRegistry.hpp"
 

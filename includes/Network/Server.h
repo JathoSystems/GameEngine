@@ -9,10 +9,10 @@
 
 class Server {
 private:
-    asio::io_context& m_io_context; // Renamed
-    int m_port;                     // Renamed
-    std::unique_ptr<INetworkListener> m_listener; // Renamed
-    std::shared_ptr<SessionManager> m_sessionManager; // Renamed
+    asio::io_context& m_io_context;
+    int m_port;
+    std::unique_ptr<INetworkListener> m_listener;
+    std::shared_ptr<SessionManager> m_sessionManager;
 
     std::function<void(int32_t, const Packet&)> m_onPacketReceived;
     std::function<void(int32_t)> m_onClientConnected;

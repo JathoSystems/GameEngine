@@ -22,7 +22,6 @@ public:
     void send(const Packet& p);
     void asyncSend(const Packet& p, std::function<void(bool)> callback);
 
-    // AANGEPAST: nu met disconnect callback
     void startReceiving(
         std::function<void(const Packet&)> onPacket,
         std::function<void()> onDisconnect
