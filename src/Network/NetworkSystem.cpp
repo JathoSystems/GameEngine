@@ -2,6 +2,9 @@
 #include "Network/Sockets/TcpNetworkSocket.h"
 #include <iostream>
 
+#include "Network/Packet/Handler/NetworkEventPacketHandler.hpp"
+#include "Network/Packet/Handler/PacketHandlerFactory.hpp"
+
 NetworkResult NetworkSystem::connect(const std::string& ip, int port) {
     if (currentState == ConnectionState::CONNECTED) {
         return {NetworkError::SUCCESS, "Already connected"};
@@ -75,6 +78,10 @@ void NetworkSystem::update(float deltaTime) {
 
 void NetworkSystem::shutdown() {
     disconnect();
+}
+
+NetworkSystem::NetworkSystem() {
+    PacketHandlerFactory::getInstance().registerHandler(100, std::make_shared<NetworkEventPacketHandler>());
 }
 
 NetworkSystem::~NetworkSystem() {

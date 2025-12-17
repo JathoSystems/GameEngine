@@ -20,7 +20,7 @@ private:
     ConnectionState currentState = ConnectionState::DISCONNECTED;
 
 public:
-    NetworkSystem() = default;
+    NetworkSystem();
     ~NetworkSystem();
 
     NetworkResult connect(const std::string& ip, int port);

@@ -3,7 +3,7 @@
 //
 
 
-#include "../../../includes/Network/Packet/Packets/PlayerAssignPacket.hpp"
+#include "../../../../../includes/server/packet/PlayerAssignPacket.hpp"
 
 void PlayerAssignPacket::serialize() {
     buffer.writeInt(packetId);

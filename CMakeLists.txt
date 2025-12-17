@@ -208,15 +208,18 @@ add_library(Engine SHARED
         src/SaveLoad/SaveLoadSystem.cpp
         src/Network/NetworkMiddleware.cpp
         includes/Network/Packet/Packets/NetworkEventPacket.h
-        includes/Network/Packet/Packets/PlayerAssignPacket.hpp
         src/Network/Packet/PlayerAssignPacket.cpp
         game/ChatEvent.h
         src/Network/NetworkSystem.cpp
         includes/GameObjects/ObjectRegistry.hpp
         src/GameObjects/ObjectRegistry.cpp
-        includes/Network/Packet/Packets/GameReady.hpp
         includes/Network/GameState.hpp
         src/Network/GameState.cpp
+        includes/Network/Packet/Handler/IPacketHandler.hpp
+        includes/Network/Packet/Handler/NetworkEventPacketHandler.hpp
+        includes/Network/Packet/Handler/PacketHandlerFactory.hpp
+        src/Network/Packet/Handlers/NetworkEventPacketHandler.cpp
+        src/Network/Packet/Handlers/PacketHandlerFactory.cpp
 )
 
 # DO NOT use precompiled headers - they cause issues with SDL3

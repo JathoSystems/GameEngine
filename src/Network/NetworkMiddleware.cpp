@@ -5,8 +5,9 @@
 
 #include "../../includes/Network/GameState.hpp"
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
-#include "../../includes/Network/Packet/Packets/PlayerAssignPacket.hpp"
+#include "../../../../includes/server/packet/PlayerAssignPacket.hpp"
 #include "Engine/GameEngine.h"
+#include "Network/Packet/Handler/PacketHandlerFactory.hpp"
 #include "scenes/Game.hpp"
 #include "Scenes/SceneSystem.h"
 
@@ -30,34 +31,27 @@ void NetworkMiddleware::sendPacket(std::shared_ptr<Packet> packet) {
     _client->send(*packet.get());
 }
 
-void NetworkMiddleware::sendGameObject(std::shared_ptr<GameObject> gameObject) {
-}
-
 void NetworkMiddleware::onPacketReceived(const Packet& packet) {
     // Check if it's a network event packet
-    if (packet.getId() == 110) {
-        PlayerAssignPacket assign;
-        assign.getBuffer().setData(packet.getBuffer().getData());
-        assign.deserialize();
 
-        std::cout << "PlayerAssignPacket received. Role: " << assign.getRole() << "\n";
-        GameState::getInstance().set("role", assign.getRole());
+    PacketHandlerFactory& factory = PacketHandlerFactory::getInstance();
+    std::shared_ptr<IPacketHandler> handler = factory.getHandler(packet.getId());
+
+    if (handler == nullptr) {
+        std::cerr << "Couldn't handle packet with id " << packet.getId() << "\n";
+        return;
+    }
+
+    handler->handle(packet);
+    return;
+
+    if (packet.getId() == 110) {
+
         return;
     }
 
     if (packet.getId() == 102) {
-        std::cout << "GameReadyPacket received. Enabling input.\n";
-        auto gameEngine = &GameEngine::getInstance();
-        auto system = gameEngine->getSystem<SceneSystem>();
 
-        if (system) {
-            std::cout << "Switching to Game scene.\n";
-            system->setScene("Game");
-        } else {
-            std::cerr << "Error: SceneSystem not found in GameEngine.\n";
-            return;
-        }
-        return;
     }
 
     if (packet.getId() != 100) {
