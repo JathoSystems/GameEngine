@@ -7,7 +7,6 @@
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
 #include "../../includes/Network/Packet/Packets/PlayerAssignPacket.hpp"
 #include "Engine/GameEngine.h"
-#include "scenes/Game.hpp"
 #include "Scenes/SceneSystem.h"
 
 NetworkMiddleware::NetworkMiddleware(std::shared_ptr<Client> client) : _client(client) {

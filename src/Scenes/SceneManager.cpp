@@ -41,7 +41,9 @@ void SceneManager::setScene(std::string name) {
     _activeScene = name;
 
     Scene* scene = getActiveSceneObj();
-    scene->onInitialRender();
+
+    if (scene)
+        scene->onInitialRender();
 }
 
 std::string SceneManager::getActiveScene() {
