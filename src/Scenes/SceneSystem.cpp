@@ -15,6 +15,11 @@ void SceneSystem::addScene(std::unique_ptr<Scene> scene) {
 }
 
 void SceneSystem::setScene(std::string name) {
+    if (_sceneManager == nullptr) {
+        std::cout << "SceneManager is null, cannot set scene to " << name << std::endl;
+        return;
+    }
+    std::cout << "Setting the scene \t\t" << name << std::endl;
     _sceneManager->setScene(name);
 }
 

@@ -33,6 +33,8 @@ const std::string& Scene::getName() const {
 
 void Scene::update(float deltaTime) {
     for (auto& obj : _objects) {
+        if (!obj) continue;
+
         obj->update(deltaTime);
     }
 }
@@ -59,6 +61,7 @@ void Scene::render(const std::unique_ptr<Window>& window, float delta) {
     }
 
     for (const std::unique_ptr<GameObject>& obj : _objects) {
+        if (!obj) continue;
 
         if (!viewport || viewport->isInViewPort(obj.get())) {
             obj->render(window);

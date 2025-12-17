@@ -11,7 +11,7 @@ void Texture::load(Window *window) {
 
     SDL_Surface *surface = IMG_Load(_path.c_str());
     if (!surface) {
-        std::cerr << "Failed to load image!" << std::endl;
+        // std::cerr << "Failed to load image!" << std::endl;
         return;
     }
 
@@ -79,9 +79,14 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     Size* size = parent->getTransform()->getSize();
     Position* pos = parent->getTransform()->getPosition();
 
+    float width = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
+    float height = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
+
     SDL_FRect dstRect;
-    dstRect.x = pos->getX();
-    dstRect.y = pos->getY();
+    // Transform position is CENTER point (same as Box2D physics)
+    // Calculate top-left corner for rendering
+    dstRect.x = pos->getX() - width / 2.0f;
+    dstRect.y = pos->getY() - height / 2.0f;
 
     // Apply viewport offset
     if (viewport) {
@@ -90,8 +95,8 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
         dstRect.y -= viewportPos.getY();
     }
 
-    dstRect.w = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
-    dstRect.h = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
+    dstRect.w = width;
+    dstRect.h = height;
 
     SDL_FRect srcRect;
     srcRect.x = frame->getX();

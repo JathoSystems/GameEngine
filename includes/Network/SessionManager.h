@@ -15,7 +15,6 @@ public:
     void broadcast(const Packet& packet);
     void sendTo(int32_t id, const Packet& packet);
 
-    // Additional methods
     std::shared_ptr<Session> getSession(int32_t id);
     size_t getSessionCount() const;
     void broadcastExcept(const Packet& packet, int32_t excludeId);

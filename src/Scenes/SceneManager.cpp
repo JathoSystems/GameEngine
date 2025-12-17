@@ -39,6 +39,11 @@ void SceneManager::addScene(std::unique_ptr<Scene> scene) {
 
 void SceneManager::setScene(std::string name) {
     _activeScene = name;
+
+    Scene* scene = getActiveSceneObj();
+
+    if (scene)
+        scene->onInitialRender();
 }
 
 std::string SceneManager::getActiveScene() {

@@ -2,8 +2,8 @@
 #include "Engine/ISystem.h"
 #include "Network/Client.h"
 #include "Network/NetworkMiddleware.h"
-#include "Network/NetworkResult.h"         // <--- Nieuw
-#include "Network/Enums/ConnectionState.h" // <--- Nieuw
+#include "Network/NetworkResult.h"
+#include "Network/Enums/ConnectionState.h"
 #include "asio.hpp"
 #include <thread>
 #include <memory>
@@ -20,7 +20,7 @@ private:
     ConnectionState currentState = ConnectionState::DISCONNECTED;
 
 public:
-    NetworkSystem() = default;
+    NetworkSystem();
     ~NetworkSystem();
 
     NetworkResult connect(const std::string& ip, int port);

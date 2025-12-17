@@ -29,6 +29,11 @@ void Server::startServer()
     }
 }
 
+void Server::onConnect(std::function<void(int32_t)> callback)
+{
+    m_onClientConnected = callback;
+}
+
 void Server::stopServer()
 {
     std::cout << "Stopping server...\n";
@@ -61,6 +66,10 @@ void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
                 m_sessionManager->removeSession(clientId);
             }
         );
+    }
+
+    if (m_onClientConnected) {
+        m_onClientConnected(clientId);
     }
 }
 

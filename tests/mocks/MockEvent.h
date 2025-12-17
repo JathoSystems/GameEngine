@@ -30,7 +30,7 @@ public:
         return Data{0x02};
     }
 
-    void apply(std::shared_ptr<GameObject> gameObject) override {
+    void apply(GameObject *gameObject) override {
         (void)gameObject;
         applyCalled = true;
     }

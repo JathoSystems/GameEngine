@@ -18,6 +18,6 @@ public:
     virtual std::string getName() const = 0;
     virtual Package serialize() const = 0;
     virtual Data deserialize(const Package& package) = 0;
-    virtual void apply(std::shared_ptr<GameObject> gameObject) = 0;
+    virtual void apply(GameObject* gameObject) = 0;
 };
 #endif

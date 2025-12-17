@@ -28,9 +28,10 @@ private:
     float _height;
     
 public:
-    BoxCollider(float width, float height) 
+    BoxCollider() : Collider(ColliderType::BOX), _width(0), _height(0) {}
+    BoxCollider(float width, float height)
         : Collider(ColliderType::BOX), _width(width), _height(height) {}
-    
+
     float getWidth() const { return _width; }
     float getHeight() const { return _height; }
     void setSize(float width, float height) { _width = width; _height = height; }
@@ -39,8 +40,9 @@ public:
 class CircleCollider : public Collider {
 private:
     float _radius;
-    
+
 public:
+    CircleCollider() : Collider(ColliderType::CIRCLE), _radius(0) {}
     explicit CircleCollider(float radius) 
         : Collider(ColliderType::CIRCLE), _radius(radius) {}
     
