@@ -208,7 +208,6 @@ add_library(Engine SHARED
         src/SaveLoad/SaveLoadSystem.cpp
         src/Network/NetworkMiddleware.cpp
         includes/Network/Packet/Packets/NetworkEventPacket.h
-#        src/Network/Packet/PlayerAssignPacket.cpp
         src/Network/NetworkSystem.cpp
         includes/GameObjects/ObjectRegistry.hpp
         src/GameObjects/ObjectRegistry.cpp
