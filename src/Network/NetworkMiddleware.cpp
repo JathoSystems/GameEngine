@@ -3,13 +3,7 @@
 #include "Events/EventRegistry.h"
 #include <iostream>
 
-#include "../../includes/Network/GameState.hpp"
-#include "../../includes/GameObjects/ObjectRegistry.hpp"
-#include "../../../../includes/server/packet/PlayerAssignPacket.hpp"
-#include "Engine/GameEngine.h"
 #include "Network/Packet/Handler/PacketHandlerFactory.hpp"
-#include "scenes/Game.hpp"
-#include "Scenes/SceneSystem.h"
 
 NetworkMiddleware::NetworkMiddleware(std::shared_ptr<Client> client) : _client(client) {
     _client->startReceiving([this](const Packet& packet) {
