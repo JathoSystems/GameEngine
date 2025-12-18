@@ -15,9 +15,7 @@ ObjectRegistry& ObjectRegistry::getInstance() {
 }
 
 int ObjectRegistry::generateToken() {
-    static thread_local std::mt19937 rng{ std::random_device{}() };
-    std::uniform_int_distribution<int> dist(10, 99);
-    return dist(rng);
+    return _objects.size();
 }
 
 GameObject* ObjectRegistry::getObject(int key) {

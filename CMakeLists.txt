@@ -218,6 +218,8 @@ add_library(Engine SHARED
         includes/Network/Packet/Handler/PacketHandlerFactory.hpp
         src/Network/Packet/Handlers/NetworkEventPacketHandler.cpp
         src/Network/Packet/Handlers/PacketHandlerFactory.cpp
+        includes/GameObjects/Broadcastable.h
+        src/GameObjects/Broadcastable.cpp
 )
 
 # DO NOT use precompiled headers - they cause issues with SDL3
