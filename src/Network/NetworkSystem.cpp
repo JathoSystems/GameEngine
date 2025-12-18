@@ -72,6 +72,14 @@ void NetworkSystem::disconnect() {
     std::cout << "[NetworkSystem] Disconnected.\n";
 }
 
+void NetworkSystem::send(const Packet& packet) {
+    if (client && client->isConnected()) {
+        client->send(packet);
+    } else {
+        std::cerr << "[NetworkSystem] Cannot send packet: not connected\n";
+    }
+}
+
 void NetworkSystem::update(float deltaTime) {
 
 }
