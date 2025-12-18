@@ -11,42 +11,12 @@ void Scene::setCamera(std::unique_ptr<Camera> camera) {
 }
 
 void Scene::addObject(std::unique_ptr<GameObject> newObject) {
-    _pendingObjects.push_back(std::move(newObject));
-}
-
-void Scene::flushPendingObjects() {
-    if (_pendingObjects.empty()) return;
-    
-    _objects.reserve(_objects.size() + _pendingObjects.size());
-    for (auto& obj : _pendingObjects) {
-        _objects.push_back(std::move(obj));
-    }
-    _pendingObjects.clear();
-    
-    // Re-sort by layer
-    std::stable_sort(_objects.begin(), _objects.end(),
+    auto pos = std::lower_bound(_objects.begin(), _objects.end(), newObject,
         [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
             return a->getLayer() < b->getLayer();
         });
-}
 
-void Scene::reservePendingObjects(size_t count) {
-    _pendingObjects.reserve(count);
-}
-
-void Scene::addObjects(std::vector<std::unique_ptr<GameObject>>& objects) {
-    _objects.reserve(_objects.size() + objects.size());
-    for (auto& obj : objects) {
-        _objects.push_back(std::move(obj));
-    }
-    std::stable_sort(_objects.begin(), _objects.end(),
-        [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
-            return a->getLayer() < b->getLayer();
-        });
-}
-
-void Scene::reserveObjects(size_t count) {
-    _objects.reserve(_objects.size() + count);
+    _objects.insert(pos, std::move(newObject));
 }
 
 std::vector<std::unique_ptr<GameObject>>& Scene::getObjects() {
@@ -67,8 +37,6 @@ void Scene::update(float deltaTime) {
 
         obj->update(deltaTime);
     }
-
-    flushPendingObjects();
 }
 
 void Scene::render(const std::unique_ptr<Window>& window, float delta) {
