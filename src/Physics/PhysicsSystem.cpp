@@ -24,6 +24,7 @@ void PhysicsSystem::update(float deltaTime) {
     _box2DFacade->step(deltaTime, 6);
 
     for (auto* component : _components) {
+        if (!component) continue;
         component->update(deltaTime);
     }
 
