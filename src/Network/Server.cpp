@@ -75,9 +75,6 @@ void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
 
 void Server::handleClientPacket(int32_t clientId, const Packet& packet)
 {
-    std::cout << "Received packet from client " << clientId
-              << " (ID: " << packet.getId() << ")\n";
-
     if (m_onPacketReceived) {
         m_onPacketReceived(clientId, packet);
     }

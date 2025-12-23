@@ -14,8 +14,15 @@ ObjectRegistry& ObjectRegistry::getInstance() {
     return instance;
 }
 
+#include <random>
+
 int ObjectRegistry::generateToken() {
-    return _nextTokenId++;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dist(0, 1000);
+
+    _nextTokenId = dist(gen);
+    return _nextTokenId;
 }
 
 GameObject* ObjectRegistry::getObject(int key) {

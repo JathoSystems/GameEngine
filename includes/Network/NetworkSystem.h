@@ -4,6 +4,7 @@
 #include "Network/NetworkMiddleware.h"
 #include "Network/NetworkResult.h"
 #include "Network/Enums/ConnectionState.h"
+#include "Network/Packet/Packet.h"
 #include "asio.hpp"
 #include <thread>
 #include <memory>
@@ -26,6 +27,8 @@ public:
     NetworkResult connect(const std::string& ip, int port);
 
     void disconnect();
+
+    void send(const Packet& packet);
 
     // Getters
     std::shared_ptr<NetworkMiddleware> getMiddleware() const { return middleware; }
