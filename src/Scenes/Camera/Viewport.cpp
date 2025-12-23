@@ -3,31 +3,26 @@
 #include <iostream>
 
 Viewport::Viewport() : _size{800, 600}, _position{0, 0} {
-    std::cout << "Viewport created" << std::endl;
 }
 
 Viewport::Viewport(Size size, Position position)
     : _size(size), _position(position) {
-    std::cout << "Viewport created with size and position" << std::endl;
 }
 
 bool Viewport::isInViewPort(GameObject* object) const {
     if (!object) {
-        std::cout << "object is null" << std::endl;
         return false;
     }
 
     Transform* transform = object->getTransform();
 
     if (!transform) {
-        std::cout << "transform is null" << std::endl;
         return false;
     }
 
     Position *objPos = transform->getPosition();
 
     if (!objPos) {
-        std::cout << "objPos is null" << std::endl;
         return false;
     }
 

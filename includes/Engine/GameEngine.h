@@ -30,7 +30,6 @@ public:
 	TimeManager* getTimeManager() const { return _timeManager.get(); }
 
 	template<typename T>  T* getSystem() {
-		std::cout << "Systems count: " << _systems.size() << std::endl;
 		for (auto& system : _systems) {
 			if (T* casted = dynamic_cast<T*>(system.get())) {
 				return casted;

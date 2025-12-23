@@ -14,8 +14,15 @@ ObjectRegistry& ObjectRegistry::getInstance() {
     return instance;
 }
 
+#include <random>
+
 int ObjectRegistry::generateToken() {
-    return _objects.size();
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dist(0, 1000);
+
+    _nextTokenId = dist(gen);
+    return _nextTokenId;
 }
 
 GameObject* ObjectRegistry::getObject(int key) {
@@ -33,9 +40,12 @@ void ObjectRegistry::insert(GameObject *obj, int key) {
 
 int ObjectRegistry::registerObject(GameObject* obj) {
     int key;
+    int limit = 100;
+    int counter = 0;
     do {
         key = generateToken();
-    } while (_objects.contains(key));
+        counter++;
+    } while (limit > counter || _objects.contains(key));
 
     _objects[key] = obj;
     return key;

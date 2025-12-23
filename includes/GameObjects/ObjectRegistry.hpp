@@ -20,6 +20,8 @@ public:
     void removeObject(int key);
 
 private:
+    int _nextTokenId = 1;
+
     ObjectRegistry() = default;
 
     int generateToken();
