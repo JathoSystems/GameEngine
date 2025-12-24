@@ -19,7 +19,7 @@ ObjectRegistry& ObjectRegistry::getInstance() {
 int ObjectRegistry::generateToken() {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dist(0, 1000);
+    static std::uniform_int_distribution<> dist(0, MAX_BROADCASTABLE);
 
     _nextTokenId = dist(gen);
     return _nextTokenId;
@@ -39,13 +39,20 @@ void ObjectRegistry::insert(GameObject *obj, int key) {
 }
 
 int ObjectRegistry::registerObject(GameObject* obj) {
-    int key;
-    int limit = 100;
+    int key = -1;
+    int limit = MAX_BROADCASTABLE;
     int counter = 0;
     do {
         key = generateToken();
         counter++;
     } while (counter < limit && _objects.contains(key));
+
+    if (key == -1) {
+        std::cerr << "Failed to register object after " << limit
+                 << " attempts. Registry may be full or experiencing excessive collisions.\n"
+                 << "       Current registry size: " << _objects.size() << "\n";
+        return -1;
+    }
 
     _objects[key] = obj;
     return key;
