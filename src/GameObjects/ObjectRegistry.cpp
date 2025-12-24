@@ -45,7 +45,7 @@ int ObjectRegistry::registerObject(GameObject* obj) {
     do {
         key = generateToken();
         counter++;
-    } while (limit > counter || _objects.contains(key));
+    } while (counter < limit && _objects.contains(key));
 
     _objects[key] = obj;
     return key;
