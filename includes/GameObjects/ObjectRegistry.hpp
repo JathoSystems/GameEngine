@@ -20,6 +20,7 @@ public:
     void removeObject(int key);
 
 private:
+    int MAX_BROADCASTABLE = 1000;
     int _nextTokenId = 1;
 
     ObjectRegistry() = default;
