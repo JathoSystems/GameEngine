@@ -29,7 +29,7 @@ public:
     void render(const std::unique_ptr<Window>& window) override {}
 
     void setParent(GameObject *game_object) override;
-
+    void setPosition(float x, float y);
     void setBodyType(BodyType type);
     void setCollider(std::unique_ptr<Collider> collider);
     void setMaterial(const Material& material);

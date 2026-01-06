@@ -220,6 +220,8 @@ add_library(Engine SHARED
         src/Network/Packet/Handlers/PacketHandlerFactory.cpp
         includes/GameObjects/Broadcastable.h
         src/GameObjects/Broadcastable.cpp
+        includes/GameObjects/Component/RectangleRenderer.h
+        src/GameObjects/Component/RectangleRenderer.cpp
 )
 
 # DO NOT use precompiled headers - they cause issues with SDL3
