@@ -11,6 +11,7 @@
 class GameObject {
 private:
     int _layer = 1;
+    bool _destroy = false;
     std::unique_ptr<GameObject> _parent;
     std::vector<std::unique_ptr<Component> > _components;
     std::unique_ptr<Transform> _transform = std::make_unique<Transform>();
@@ -27,6 +28,9 @@ public:
 
     virtual void onCollisionEnter(const CollisionData& collision) {}
     virtual void onCollisionExit(const CollisionData& collision) {}
+
+    bool shouldBeDestroyed() const {return _destroy;}
+    void destroy() {_destroy = true;}
 
     template<typename T>
     std::vector<T *> getComponents() {

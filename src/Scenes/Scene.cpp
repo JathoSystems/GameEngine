@@ -34,9 +34,24 @@ const std::string& Scene::getName() const {
 void Scene::update(float deltaTime) {
     for (auto& obj : _objects) {
         if (!obj) continue;
+        if (obj->shouldBeDestroyed()) continue;
 
         obj->update(deltaTime);
     }
+
+    _objects.erase(
+        std::remove_if(_objects.begin(), _objects.end(),
+            [](const auto& obj) {
+                if (obj && obj->shouldBeDestroyed()) {
+                    std::cout << "Removing object\n";
+                    return true;
+                }
+                return false;
+            }),
+        _objects.end()
+    );
+
+    onUpdate(deltaTime);
 }
 
 void Scene::render(const std::unique_ptr<Window>& window, float delta) {

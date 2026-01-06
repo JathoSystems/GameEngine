@@ -2,8 +2,10 @@
 
 #include <iostream>
 
+#include "Engine/GameEngine.h"
 #include "Physics/Box2DFacade.h"
 #include "GameObjects/GameObject.h"
+#include "Physics/PhysicsSystem.h"
 
 PhysicsComponent::PhysicsComponent(Box2DFacade* facade)
     : _box2DFacade(facade), _initialized(false) {
@@ -12,6 +14,10 @@ PhysicsComponent::PhysicsComponent(Box2DFacade* facade)
 }
 
 PhysicsComponent::~PhysicsComponent() {
+    GameEngine *gameEngine = &GameEngine::getInstance();
+    PhysicsSystem *physicsSystem = gameEngine->getSystem<PhysicsSystem>();
+    physicsSystem->unregisterComponent(this);
+
     if (B2_IS_NON_NULL(_bodyId)) {
         _box2DFacade->destroyBody(_bodyId);
     }

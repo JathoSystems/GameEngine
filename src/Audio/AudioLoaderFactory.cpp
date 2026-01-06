@@ -2,6 +2,7 @@
 #include "Audio/Decoder/WavDecoder.h"
 #include "Audio/Decoder/Mp3Decoder.h"
 #include <algorithm>
+#include <iostream>
 
 void AudioLoaderFactory::registerDecoder(const std::string& ext, std::function<std::unique_ptr<IAudioDecoder>()> factory) {
     decoderFactories[ext] = std::move(factory);

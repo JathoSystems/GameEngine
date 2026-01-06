@@ -32,6 +32,7 @@ public:
     void update(float deltaTime);
     void render(const std::unique_ptr<Window>& window, float delta);
 
+    virtual void onUpdate(float deltaTime) {};
     virtual void onInitialRender() { };
 };
 
