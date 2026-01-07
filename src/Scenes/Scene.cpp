@@ -32,8 +32,9 @@ const std::string& Scene::getName() const {
 }
 
 void Scene::update(float deltaTime) {
+
     for (auto& obj : _objects) {
-        if (!obj) continue;
+        if (!obj || !obj.get()) continue;
         if (obj->shouldBeDestroyed()) continue;
 
         obj->update(deltaTime);
