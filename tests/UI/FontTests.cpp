@@ -8,21 +8,21 @@
 
 TEST_CASE_METHOD(SDLTestFixture, "Font") {
     SECTION("Constructing a font and loading works") {
-        Font font("../tests/fonts/default.ttf", "TestFont");
-        REQUIRE(font.getSdlFont() != nullptr);
+        auto font = Font::getDefaultFont();
+        REQUIRE(font->getSdlFont() != nullptr);
     }
 
     SECTION("Cleanup works without crashing") {
-        Font font("../tests/fonts/default.ttf", "TestFont");
-        font.cleanup();
-        REQUIRE(font.getSdlFont() != nullptr); // load wordt automatisch opnieuw gedaan
+        auto font = Font::getDefaultFont();
+        font->cleanup();
+        REQUIRE(font->getSdlFont() != nullptr); // load wordt automatisch opnieuw gedaan
     }
 
     SECTION("setSize reloads font") {
-        Font font("../tests/fonts/default.ttf", "TestFont");
-        TTF_Font *oldFont = font.getSdlFont();
-        font.setSize(24);
-        TTF_Font *newFont = font.getSdlFont();
+        auto font = Font::getDefaultFont();
+        TTF_Font *oldFont = font->getSdlFont();
+        font->setSize(24);
+        TTF_Font *newFont = font->getSdlFont();
         REQUIRE(newFont != nullptr);
     }
 
