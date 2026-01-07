@@ -16,7 +16,9 @@ PhysicsComponent::PhysicsComponent(Box2DFacade* facade)
 PhysicsComponent::~PhysicsComponent() {
     GameEngine *gameEngine = &GameEngine::getInstance();
     PhysicsSystem *physicsSystem = gameEngine->getSystem<PhysicsSystem>();
-    physicsSystem->unregisterComponent(this);
+    if (physicsSystem) {
+        physicsSystem->unregisterComponent(this);
+    }
 
     if (B2_IS_NON_NULL(_bodyId)) {
         _box2DFacade->destroyBody(_bodyId);

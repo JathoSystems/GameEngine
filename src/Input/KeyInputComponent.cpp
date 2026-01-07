@@ -8,7 +8,10 @@ KeyInputComponent::KeyInputComponent(GameObject *gameObject)
 }
 
 KeyInputComponent::~KeyInputComponent() {
-    GameEngine::getInstance().getSystem<InputSystem>()->unregisterKeyComponent(this);
+    InputSystem* system = GameEngine::getInstance().getSystem<InputSystem>();
+    if (system) {
+        system->unregisterKeyComponent(this);
+    }
 }
 
 void KeyInputComponent::setListener(IKeyListener *listener) {
