@@ -59,3 +59,12 @@ Scene* SceneManager::getActiveSceneObj() {
     std::cout << "Failed to fetch scene object: no scene name corresponds to: " << _activeScene << " in _scenes vector\n";
     return nullptr;
 }
+
+Scene * SceneManager::getScene(const std::string &name) {
+    for (const std::unique_ptr<Scene> & scene : _scenes) {
+        if (scene->getName() == name)
+            return scene.get();
+    }
+
+    return nullptr;
+}

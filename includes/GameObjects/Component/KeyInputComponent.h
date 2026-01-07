@@ -12,6 +12,7 @@ private:
 
 public:
     explicit KeyInputComponent(GameObject *gameObject);
+    ~KeyInputComponent();
 
     void setListener(IKeyListener *listener);
 

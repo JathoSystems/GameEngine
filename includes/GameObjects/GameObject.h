@@ -1,6 +1,7 @@
 #ifndef GAMEENGINE_GAMEOBJECT_H
 #define GAMEENGINE_GAMEOBJECT_H
 
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -11,22 +12,43 @@
 class GameObject {
 private:
     int _layer = 1;
+    bool _destroy = false;
     std::unique_ptr<GameObject> _parent;
     std::vector<std::unique_ptr<Component> > _components;
     std::unique_ptr<Transform> _transform = std::make_unique<Transform>();
 
 public:
+    ~GameObject() {
+        std::cout << "Destroying GameObject at " << this << std::endl;
+    }
+
     void addComponent(std::unique_ptr<Component> component);
 
     void render(const std::unique_ptr<Window> &window);
+
     virtual void update(float delta);
+
     void setLayer(int layer);
 
     int getLayer();
-    Transform* getTransform();
 
-    virtual void onCollisionEnter(const CollisionData& collision) {}
-    virtual void onCollisionExit(const CollisionData& collision) {}
+    Transform *getTransform();
+
+    virtual void onCollisionEnter(const CollisionData &collision) {
+    }
+
+    virtual void onCollisionExit(const CollisionData &collision) {
+    }
+
+    bool shouldBeDestroyed() const { return _destroy; }
+
+    void destroy() {
+        if (_destroy) {
+            std::cout << "Object " << this << " marked for destruction\n";
+        }
+
+        _destroy = true;
+    }
 
     template<typename T>
     std::vector<T *> getComponents() {

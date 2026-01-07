@@ -1,7 +1,17 @@
 #include "GameObjects/Component/KeyInputComponent.h"
 
+#include "Engine/GameEngine.h"
+#include "Input/InputSystem.h"
+
 KeyInputComponent::KeyInputComponent(GameObject *gameObject)
     : _gameObject(gameObject), _listener(nullptr) {
+}
+
+KeyInputComponent::~KeyInputComponent() {
+    InputSystem* system = GameEngine::getInstance().getSystem<InputSystem>();
+    if (system) {
+        system->unregisterKeyComponent(this);
+    }
 }
 
 void KeyInputComponent::setListener(IKeyListener *listener) {

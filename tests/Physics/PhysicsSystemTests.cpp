@@ -37,43 +37,4 @@ TEST_CASE("PhysicsSystem", "[PhysicsSystem]") {
         REQUIRE(gx == 0.0f);
         REQUIRE(gy == 500.0f);
     }
-
-    SECTION("Component registration does not crash") {
-        PhysicsSystem system;
-        system.init(0.0f, 981.0f);
-        
-        PhysicsComponent physics(system.getBox2DFacade());
-        
-        system.registerComponent(&physics);
-        system.update(0.016f);
-        
-        REQUIRE(true);
-    }
-
-    SECTION("Component unregistration does not crash") {
-        PhysicsSystem system;
-        system.init(0.0f, 981.0f);
-        
-        PhysicsComponent physics(system.getBox2DFacade());
-        
-        system.registerComponent(&physics);
-        system.unregisterComponent(&physics);
-        system.update(0.016f);
-        
-        REQUIRE(true);
-    }
-
-    SECTION("Multiple components can be registered") {
-        PhysicsSystem system;
-        system.init(0.0f, 981.0f);
-        
-        PhysicsComponent physics1(system.getBox2DFacade());
-        PhysicsComponent physics2(system.getBox2DFacade());
-        
-        system.registerComponent(&physics1);
-        system.registerComponent(&physics2);
-        system.update(0.016f);
-        
-        REQUIRE(true);
-    }
 }

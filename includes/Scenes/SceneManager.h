@@ -21,6 +21,8 @@ public:
     void setScene(std::string name);
     std::string getActiveScene();
     Scene* getActiveSceneObj();
+
+    Scene * getScene(const std::string & name);
 };
 
 #endif

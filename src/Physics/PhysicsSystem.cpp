@@ -21,6 +21,8 @@ void PhysicsSystem::init(float gravityX, float gravityY) {
 }
 
 void PhysicsSystem::update(float deltaTime) {
+    if (!_box2DFacade) return;
+
     _box2DFacade->step(deltaTime, 6);
 
     for (auto* component : _components) {

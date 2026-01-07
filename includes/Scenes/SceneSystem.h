@@ -19,6 +19,7 @@ public:
     void update(float deltaTime) override;
     void addScene(std::unique_ptr<Scene> scene);
     void setScene(std::string name);
+    Scene* getScene(const std::string &name);
     Scene* getActiveSceneObj();
 };
 

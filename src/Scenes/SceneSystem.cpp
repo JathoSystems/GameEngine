@@ -22,6 +22,10 @@ void SceneSystem::setScene(std::string name) {
     _sceneManager->setScene(name);
 }
 
+Scene * SceneSystem::getScene(const std::string& name) {
+    return _sceneManager->getScene(name);
+}
+
 Scene* SceneSystem::getActiveSceneObj() {
     return _sceneManager->getActiveSceneObj();
 }
