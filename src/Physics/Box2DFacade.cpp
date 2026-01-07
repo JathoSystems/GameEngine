@@ -136,6 +136,13 @@ void Box2DFacade::getPosition(b2BodyId bodyId, float& x, float& y) {
     }
 }
 
+void Box2DFacade::setPosition(b2BodyId bodyId, float x, float y) {
+    if (B2_IS_NON_NULL(bodyId)) {
+        b2Rot angle = b2Body_GetRotation(bodyId);
+        b2Body_SetTransform(bodyId, {x, y}, angle);
+    }
+}
+
 float Box2DFacade::getRotation(b2BodyId bodyId) {
     if (B2_IS_NON_NULL(bodyId)) {
         b2Rot rot = b2Body_GetRotation(bodyId);

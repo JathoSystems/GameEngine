@@ -33,6 +33,12 @@ void PhysicsComponent::setParent(GameObject *game_object) {
     }
 }
 
+void PhysicsComponent::setPosition(float x, float y) {
+    if (_initialized && _box2DFacade) {
+        _box2DFacade->setPosition(_bodyId, x, y);
+    }
+}
+
 void PhysicsComponent::update(float deltaTime) {
     if (!_initialized && _parent) {
         initializePhysicsBody();

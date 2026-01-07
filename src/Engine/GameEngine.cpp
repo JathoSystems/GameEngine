@@ -15,6 +15,8 @@
 #include "Physics/PhysicsSystem.h"
 #include "SDL/Window.h"
 
+std::mutex eventMutex;
+std::vector<std::function<void()>> eventQueue;
 
 GameEngine::GameEngine() {
 }
@@ -47,6 +49,14 @@ void GameEngine::start() {
 
     while (_isRunning) {
         float deltaTime = _timeManager->update();
+
+        {
+            std::lock_guard<std::mutex> lock(eventMutex);
+            for (auto& task : eventQueue) {
+                task();
+            }
+            eventQueue.clear();
+        }
 
         for (const std::unique_ptr<ISystem>& system : _systems) {
             system->update(deltaTime);

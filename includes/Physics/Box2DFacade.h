@@ -29,6 +29,7 @@ public:
                           float offsetX, float offsetY, const Material& material);
 
     void getPosition(b2BodyId bodyId, float& x, float& y);
+    void setPosition(b2BodyId bodyId, float x, float y);
     float getRotation(b2BodyId bodyId);
     void setVelocity(b2BodyId bodyId, float vx, float vy);
     void getVelocity(b2BodyId bodyId, float& vx, float& vy);
