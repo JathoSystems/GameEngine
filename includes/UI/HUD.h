@@ -17,6 +17,9 @@ public:
     void clear();
 
     void setFPSCounter(std::unique_ptr<FPSCounter> fpsCounter);
+
+    void removeFpsCounter();
+
     FPSCounter* getFPSCounter() const;
 
     std::vector<std::unique_ptr<GameObject>>& getObjects();
