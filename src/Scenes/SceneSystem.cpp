@@ -14,6 +14,14 @@ void SceneSystem::addScene(std::unique_ptr<Scene> scene) {
     _sceneManager->addScene(std::move(scene));
 }
 
+void SceneSystem::removeScene(const std::string &name) {
+    _sceneManager->removeScene(name);
+}
+
+void SceneSystem::processPendingRemovals() {
+    _sceneManager->processPendingRemovals();
+}
+
 void SceneSystem::setScene(std::string name) {
     if (_sceneManager == nullptr) {
         std::cout << "SceneManager is null, cannot set scene to " << name << std::endl;

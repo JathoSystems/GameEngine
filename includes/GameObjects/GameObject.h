@@ -18,9 +18,7 @@ private:
     std::unique_ptr<Transform> _transform = std::make_unique<Transform>();
 
 public:
-    ~GameObject() {
-        std::cout << "Destroying GameObject at " << this << std::endl;
-    }
+    virtual ~GameObject() = default;
 
     void addComponent(std::unique_ptr<Component> component);
 

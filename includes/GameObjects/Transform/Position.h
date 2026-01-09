@@ -9,8 +9,8 @@
 
 class Position {
 private:
-    int _x;
-    int _y;
+    int _x = 0;
+    int _y = 0;
 
 public:
     Position(int x, int y);

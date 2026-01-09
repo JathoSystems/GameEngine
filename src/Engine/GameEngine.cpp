@@ -61,6 +61,8 @@ void GameEngine::start() {
         for (const std::unique_ptr<ISystem>& system : _systems) {
             system->update(deltaTime);
         }
+
+        getSystem<SceneSystem>()->processPendingRemovals();
     }
 }
 

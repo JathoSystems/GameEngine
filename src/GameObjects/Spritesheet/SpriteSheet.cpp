@@ -25,6 +25,8 @@ void SpriteSheet::initFrames(const std::unique_ptr<Texture> &unique) {
 }
 
 void SpriteSheet::renderFrame(Window *window, int current_frame, GameObject *parent) {
+    if (!parent) return;
+
     if (_frames.empty()) {
         _texture->load(window);
         initFrames(_texture);
@@ -33,7 +35,12 @@ void SpriteSheet::renderFrame(Window *window, int current_frame, GameObject *par
     try {
         Frame &frame = *_frames.at(current_frame);
 
-        Size *size = parent->getTransform()->getSize();
+        Transform* transform = parent->getTransform();
+        if (!transform) return;
+
+        Size *size = transform->getSize();
+        if (!size) return;
+
         if (size->getHeight() == 0) size->setHeight(frame.getHeight());
         if (size->getWidth() == 0) size->setWidth(frame.getWidth());
 

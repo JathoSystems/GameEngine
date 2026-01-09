@@ -12,10 +12,13 @@ SpriteRenderer::SpriteRenderer(std::string path) {
 }
 
 void SpriteRenderer::update(float delta) {
-    Transform *transform = _parent->getTransform();
-    if (!transform || !_texture) return;
+    if (!_parent || !_texture) return;
 
-    Size* size = _parent->getTransform()->getSize();
+    Transform *transform = _parent->getTransform();
+    if (!transform) return;
+
+    Size* size = transform->getSize();
+    if (!size) return;
 
     if (size->getHeight() == 0)
         size->setHeight(_texture->getHeight());

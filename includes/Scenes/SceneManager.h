@@ -10,6 +10,7 @@
 class SceneManager {
 private:
     std::vector<std::unique_ptr<Scene>> _scenes;
+    std::vector<std::string> _pendingRemovals;
     std::string _activeScene;
 
 public:
@@ -18,6 +19,8 @@ public:
     void update(float deltaTime);
     void render(const std::unique_ptr<Window>& window, float delta);
     void addScene(std::unique_ptr<Scene> scene);
+    void removeScene(const std::string &name);
+    void processPendingRemovals();
     void setScene(std::string name);
     std::string getActiveScene();
     Scene* getActiveSceneObj();

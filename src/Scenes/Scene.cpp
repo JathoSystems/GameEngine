@@ -11,12 +11,27 @@ void Scene::setCamera(std::unique_ptr<Camera> camera) {
 }
 
 void Scene::addObject(std::unique_ptr<GameObject> newObject) {
-    auto pos = std::lower_bound(_objects.begin(), _objects.end(), newObject,
-        [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
-            return a->getLayer() < b->getLayer();
-        });
+    if (!newObject) return;
+    
+    std::lock_guard<std::mutex> lock(_objectsMutex);
+    _pendingObjects.push_back(std::move(newObject));
+}
 
-    _objects.insert(pos, std::move(newObject));
+void Scene::processPendingObjects() {
+    std::lock_guard<std::mutex> lock(_objectsMutex);
+    
+    for (auto& newObject : _pendingObjects) {
+        if (!newObject) continue;
+        
+        auto pos = std::lower_bound(_objects.begin(), _objects.end(), newObject,
+            [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
+                if (!a || !b) return false;
+                return a->getLayer() < b->getLayer();
+            });
+
+        _objects.insert(pos, std::move(newObject));
+    }
+    _pendingObjects.clear();
 }
 
 std::vector<std::unique_ptr<GameObject>>& Scene::getObjects() {
@@ -32,27 +47,21 @@ const std::string& Scene::getName() const {
 }
 
 void Scene::update(float deltaTime) {
-
+    processPendingObjects();
+    
     for (auto& obj : _objects) {
-        if (!obj || !obj.get()) continue;
-        if (obj->shouldBeDestroyed()) continue;
+        if (!obj || obj->shouldBeDestroyed()) continue;
 
         obj->update(deltaTime);
     }
-
+    
     _objects.erase(
         std::remove_if(_objects.begin(), _objects.end(),
-            [](const auto& obj) {
-                if (obj && obj->shouldBeDestroyed()) {
-                    std::cout << "Removing object\n";
-                    return true;
-                }
-                return false;
+            [](const std::unique_ptr<GameObject>& obj) {
+                return !obj || obj->shouldBeDestroyed();
             }),
         _objects.end()
     );
-
-    onUpdate(deltaTime);
 }
 
 void Scene::render(const std::unique_ptr<Window>& window, float delta) {
@@ -77,7 +86,7 @@ void Scene::render(const std::unique_ptr<Window>& window, float delta) {
     }
 
     for (const std::unique_ptr<GameObject>& obj : _objects) {
-        if (!obj) continue;
+        if (!obj || obj->shouldBeDestroyed()) continue;
 
         if (!viewport || viewport->isInViewPort(obj.get())) {
             obj->render(window);

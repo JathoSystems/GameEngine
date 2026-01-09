@@ -3,8 +3,11 @@
 #include <stdexcept>
 
 void HUD::addObject(std::unique_ptr<GameObject> object) {
+    if (!object) return;
+    
     auto pos = std::lower_bound(_hudObjects.begin(), _hudObjects.end(), object,
         [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
+            if (!a || !b) return false;
             return a->getLayer() < b->getLayer();
         });
     _hudObjects.insert(pos, std::move(object));
@@ -51,6 +54,7 @@ void HUD::update(float delta) {
     }
 
     for (const auto& obj : _hudObjects) {
+        if (!obj || obj->shouldBeDestroyed()) continue;
         obj->update(delta);
     }
 }
@@ -64,6 +68,7 @@ void HUD::render(const std::unique_ptr<Window>& window) {
     }
 
     for (const auto& obj : _hudObjects) {
+        if (!obj || obj->shouldBeDestroyed()) continue;
         obj->render(window);
     }
 

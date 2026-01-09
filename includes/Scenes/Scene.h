@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 #include "GameObjects/GameObject.h"
@@ -14,7 +15,9 @@ private:
     std::string _name;
     std::unique_ptr<HUD> _hud;
     std::vector<std::unique_ptr<GameObject>> _objects;
+    std::vector<std::unique_ptr<GameObject>> _pendingObjects;
     std::unique_ptr<Camera> _camera;
+    mutable std::mutex _objectsMutex;
 
 public:
     explicit Scene(std::string name);
@@ -31,8 +34,8 @@ public:
 
     void update(float deltaTime);
     void render(const std::unique_ptr<Window>& window, float delta);
+    void processPendingObjects();
 
-    virtual void onUpdate(float deltaTime) {};
     virtual void onInitialRender() { };
 };
 

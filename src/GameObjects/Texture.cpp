@@ -72,12 +72,16 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     if (!_texture || !frame) {
         load(window);
     }
-    if (!frame) return;
+    if (!frame || !parent) return;
+
+    Transform* transform = parent->getTransform();
+    if (!transform) return;
 
     const Viewport* viewport = window->getActiveViewport();
 
-    Size* size = parent->getTransform()->getSize();
-    Position* pos = parent->getTransform()->getPosition();
+    Size* size = transform->getSize();
+    Position* pos = transform->getPosition();
+    if (!size || !pos) return;
 
     float width = size->getWidth() == 0 ? frame->getWidth() : size->getWidth();
     float height = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
@@ -110,11 +114,15 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
 void Texture::transform(Transform *transform) {
     if (!transform) return;
 
-    float width = transform->getSize()->getWidth();
-    float height = transform->getSize()->getHeight();
+    Size* size = transform->getSize();
+    Position* pos = transform->getPosition();
+    if (!size || !pos) return;
 
-    _rectangle.x = transform->getPosition()->getX() - width / 2.0f;
-    _rectangle.y = transform->getPosition()->getY() - height / 2.0f;
+    float width = size->getWidth();
+    float height = size->getHeight();
+
+    _rectangle.x = pos->getX() - width / 2.0f;
+    _rectangle.y = pos->getY() - height / 2.0f;
     _rectangle.w = width;
     _rectangle.h = height;
 }

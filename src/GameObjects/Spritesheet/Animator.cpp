@@ -29,6 +29,7 @@ void Animator::update(float deltaTime) {
 
 
 void Animator::render(const std::unique_ptr<Window> &window) {
+    if (!_parent) return;
     _sheet->renderFrame(window.get(), _currentFrame, _parent);
 }
 

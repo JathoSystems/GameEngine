@@ -37,6 +37,28 @@ void SceneManager::addScene(std::unique_ptr<Scene> scene) {
     _scenes.push_back(std::move(scene));
 }
 
+void SceneManager::removeScene(const std::string& name) {
+    std::cout << "Scene '" << name << "' is awaiting removal" << std::endl;
+    _pendingRemovals.push_back(name);
+}
+
+void SceneManager::processPendingRemovals() {
+    for (const auto& name : _pendingRemovals) {
+        _scenes.erase(
+            std::remove_if(_scenes.begin(), _scenes.end(),
+                [&name](const std::unique_ptr<Scene>& scene) {
+                    if (scene->getName() == name) {
+                        std::cout << "Removing scene: " << name << std::endl;
+                        return true;
+                    }
+                    return false;
+                }),
+            _scenes.end()
+        );
+    }
+    _pendingRemovals.clear();
+}
+
 void SceneManager::setScene(std::string name) {
     _activeScene = name;
 

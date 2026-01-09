@@ -92,7 +92,7 @@ void Animation::render(const std::unique_ptr<Window> &window) {
     if (t < 0.0f) t = 0.0f;
     if (t > 1.0f) t = 1.0f;
 
-    if (current && next && _converter) {
+    if (current && next && _converter && _parent) {
         current->transition(
             _converter.get(),
             current->getTransform(),
