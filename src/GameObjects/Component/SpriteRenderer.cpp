@@ -12,7 +12,7 @@ SpriteRenderer::SpriteRenderer(std::string path) {
 }
 
 void SpriteRenderer::update(float delta) {
-    Transform *transform = _parent->getTransform();
+    std::shared_ptr<Transform> transform = _parent->getTransform();
     if (!transform || !_texture) return;
 
     Size* size = _parent->getTransform()->getSize();

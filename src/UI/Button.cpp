@@ -31,7 +31,7 @@ void Button::setPadding(int paddingX, int paddingY) {
 void Button::update(float deltaTime) {
     if (!_parent) return;
 
-    Transform* transform = _parent->getTransform();
+    std::shared_ptr<Transform> transform = _parent->getTransform();
     if (!transform) return;
 
     SDL_FRect rect = transform->toFRect();
@@ -71,7 +71,7 @@ void Button::render(const std::unique_ptr<Window> &window) {
     SDL_Renderer *renderer = window->getRenderer();
     if (!renderer) return;
 
-    Transform *transform = _parent->getTransform();
+    std::shared_ptr<Transform> transform = _parent->getTransform();
     if (!transform) return;
 
     SDL_FRect rect = transform->toFRect();

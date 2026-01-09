@@ -15,7 +15,7 @@ private:
     bool _destroy = false;
     std::unique_ptr<GameObject> _parent;
     std::vector<std::unique_ptr<Component> > _components;
-    std::unique_ptr<Transform> _transform = std::make_unique<Transform>();
+    std::shared_ptr<Transform> _transform = std::make_shared<Transform>();
 
 public:
     ~GameObject() {
@@ -32,7 +32,7 @@ public:
 
     int getLayer();
 
-    Transform *getTransform();
+    std::shared_ptr<Transform> getTransform();
 
     virtual void onCollisionEnter(const CollisionData &collision) {
     }

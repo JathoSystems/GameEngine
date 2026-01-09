@@ -20,7 +20,7 @@ void RectangleRenderer::update(float delta) {
 void RectangleRenderer::render(const std::unique_ptr<Window> &window) {
     if (!_parent) return;
 
-    Transform* transform = _parent->getTransform();
+    std::shared_ptr<Transform> transform = _parent->getTransform();
     if (!transform) return;
 
     Position* pos = transform->getPosition();

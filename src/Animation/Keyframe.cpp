@@ -11,7 +11,7 @@ Keyframe::Keyframe(std::unique_ptr<Transform> transform) {
 }
 
 void Keyframe::transition(IConverter *converter, Transform *prev, Transform *target, GameObject *parent, float time) {
-    Transform* currentTransform = parent->getTransform();
+    std::shared_ptr<Transform> currentTransform = parent->getTransform();
 
     Position* currentPosition = currentTransform->getPosition();
     Position* beginPosition = prev->getPosition();

@@ -33,6 +33,6 @@ int GameObject::getLayer() {
     return _layer;
 }
 
-Transform *GameObject::getTransform() {
-    return _transform.get();
+std::shared_ptr<Transform> GameObject::getTransform() {
+    return _transform;
 }

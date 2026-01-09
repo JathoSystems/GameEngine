@@ -26,7 +26,7 @@ public:
     void load(Window* window);
     void render(Window* window);
     void render(Window* window, Frame* frame, GameObject* parent);
-    void transform(Transform* transform);
+    void transform(std::shared_ptr<Transform> transform);
     SDL_Texture* getTexture(Window* window);
 
     int getWidth();

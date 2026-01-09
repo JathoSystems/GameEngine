@@ -14,7 +14,7 @@ bool Viewport::isInViewPort(GameObject* object) const {
         return false;
     }
 
-    Transform* transform = object->getTransform();
+    std::shared_ptr<Transform> transform = object->getTransform();
 
     if (!transform) {
         return false;

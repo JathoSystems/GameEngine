@@ -107,7 +107,7 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     SDL_RenderTexture(window->getRenderer(), _texture, &srcRect, &dstRect);
 }
 
-void Texture::transform(Transform *transform) {
+void Texture::transform(std::shared_ptr<Transform> transform) {
     if (!transform) return;
 
     float width = transform->getSize()->getWidth();

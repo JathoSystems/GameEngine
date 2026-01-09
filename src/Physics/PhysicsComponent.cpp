@@ -57,7 +57,7 @@ void PhysicsComponent::update(float deltaTime) {
 void PhysicsComponent::initializePhysicsBody() {
     if (!_parent) return;
 
-    Transform* transform = _parent->getTransform();
+    std::shared_ptr<Transform> transform = _parent->getTransform();
     float x = transform->getPosition()->getX();
     float y = transform->getPosition()->getY();
 
@@ -125,7 +125,7 @@ void PhysicsComponent::syncTransformFromPhysics() {
     _box2DFacade->getPosition(_bodyId, x, y);
     float angle = _box2DFacade->getRotation(_bodyId);
 
-    Transform* transform = _parent->getTransform();
+    std::shared_ptr<Transform> transform = _parent->getTransform();
 
     transform->getPosition()->setX(x);
     transform->getPosition()->setY(y);
