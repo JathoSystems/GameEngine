@@ -20,22 +20,25 @@ void FpsToggleListener::onKeyPress(Key key) {
     Scene *scene = sceneSystem->getActiveSceneObj();
     if (!scene) return;
 
-    if (_shown) {
-        scene->getHUD()->removeFpsCounter();
-        _shown = false;
-        return;
+    HUD* hud = scene->getHUD();
+    if (!hud) {
+        // Maak alleen een HUD aan als die nog niet bestaat
+        auto newHud = std::make_unique<HUD>();
+        hud = newHud.get();
+        scene->setHUD(std::move(newHud));
     }
 
-    auto hud = std::make_unique<HUD>();
-
-    auto fpsCounter = std::make_unique<FPSCounter>();
-    fpsCounter->setPosition(5.0f, 5.0f);
-    fpsCounter->setSize(80.0f, 30.0f);
-    fpsCounter->setFontSize(20);
-    hud->setFPSCounter(std::move(fpsCounter));
-
-    scene->setHUD(std::move(hud));
-    _shown = true;
+    if (_shown) {
+        hud->removeFpsCounter();
+        _shown = false;
+    } else {
+        auto fpsCounter = std::make_unique<FPSCounter>();
+        fpsCounter->setPosition(5.0f, 5.0f);
+        fpsCounter->setSize(80.0f, 30.0f);
+        fpsCounter->setFontSize(20);
+        hud->setFPSCounter(std::move(fpsCounter));
+        _shown = true;
+    }
 }
 
 void FpsToggleListener::onKeyRelease(Key key) {
