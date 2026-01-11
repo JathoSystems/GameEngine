@@ -11,6 +11,7 @@ class GameObject;
 class Box2DFacade {
 private:
     b2WorldId _worldId;
+    bool _isDestroying = false;
 
 public:
     Box2DFacade();
@@ -42,6 +43,12 @@ public:
     void setFixedRotation(b2BodyId bodyId, bool fixed);
 
     b2WorldId getWorldId() const { return _worldId; }
+    void setWorldId(b2WorldId id) { _worldId = id; }
+    bool isWorldValid() const {
+        return B2_IS_NON_NULL(_worldId) && !_isDestroying;
+    }
+
+    void markDestroying() { _isDestroying = true; }
 };
 
 #endif

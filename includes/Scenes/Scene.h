@@ -12,12 +12,12 @@
 class Scene {
 private:
     std::string _name;
-    std::unique_ptr<HUD> _hud;
-    std::vector<std::unique_ptr<GameObject>> _objects;
     std::unique_ptr<Camera> _camera;
 
 public:
     explicit Scene(std::string name);
+    std::unique_ptr<HUD> _hud;
+    std::vector<std::unique_ptr<GameObject>> _objects;
 
     void setHUD(std::unique_ptr<HUD> hud);
     HUD* getHUD();

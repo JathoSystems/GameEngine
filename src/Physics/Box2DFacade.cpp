@@ -8,8 +8,10 @@ Box2DFacade::Box2DFacade() {
 }
 
 Box2DFacade::~Box2DFacade() {
+    _isDestroying = true;  // Mark that we're destroying
     if (B2_IS_NON_NULL(_worldId)) {
-        b2DestroyWorld(_worldId);
+        b2DestroyWorld(_worldId);  // This destroys ALL bodies automatically
+        _worldId = b2_nullWorldId;
     }
 }
 
@@ -69,7 +71,8 @@ b2BodyId Box2DFacade::createBody(GameObject* userData, BodyType type, float x, f
 }
 
 void Box2DFacade::destroyBody(b2BodyId bodyId) {
-    if (B2_IS_NON_NULL(bodyId)) {
+    if (_isDestroying) return;
+    if (B2_IS_NON_NULL(bodyId) && B2_IS_NON_NULL(_worldId)) {
         b2DestroyBody(bodyId);
     }
 }

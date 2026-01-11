@@ -6,6 +6,7 @@
 #include "Physics/Box2DFacade.h"
 #include "GameObjects/GameObject.h"
 #include "Physics/PhysicsSystem.h"
+#include "server/GlobalFlags.h"
 
 PhysicsComponent::PhysicsComponent(Box2DFacade* facade)
     : _box2DFacade(facade), _initialized(false) {
@@ -14,38 +15,49 @@ PhysicsComponent::PhysicsComponent(Box2DFacade* facade)
 }
 
 PhysicsComponent::~PhysicsComponent() {
+    // Don't destroy body if it's already been cleared
+    if (B2_IS_NULL(_bodyId)) {
+        return;
+    }
+
     GameEngine *gameEngine = &GameEngine::getInstance();
     PhysicsSystem *physicsSystem = gameEngine->getSystem<PhysicsSystem>();
+
     if (physicsSystem) {
         physicsSystem->unregisterComponent(this);
     }
 
-    if (B2_IS_NON_NULL(_bodyId)) {
-        _box2DFacade->destroyBody(_bodyId);
+    if (B2_IS_NON_NULL(_bodyId) && _box2DFacade) {
+        std::cout << "[PhysicsComponent] WARNING: Body not cleaned up properly, destroying in destructor" << std::endl;
+        try {
+            _box2DFacade->destroyBody(_bodyId);
+        } catch (...) {
+            std::cout << "[PhysicsComponent] Error destroying body in destructor" << std::endl;
+        }
     }
+
+    _bodyId = b2_nullBodyId;
 }
 
 void PhysicsComponent::setParent(GameObject *game_object) {
     Component::setParent(game_object);
-    // Initialize physics body immediately when parent is set, using current Transform position
-    // Only initialize if we have both parent and collider set
-    if (!_initialized && _parent) {
-        // Wait for collider to be set if not already set
-        // Initialization will happen in update() or when collider is set
-    }
 }
 
 void PhysicsComponent::setPosition(float x, float y) {
-    if (_initialized && _box2DFacade) {
+    if (_initialized && _box2DFacade && B2_IS_NON_NULL(_bodyId)) {
         _box2DFacade->setPosition(_bodyId, x, y);
     }
 }
 
 void PhysicsComponent::update(float deltaTime) {
+    // CRITICAL: Don't update during cleanup
+    if (GlobalFlags::isLevelCleaning) {
+        return;
+    }
+
     if (!_initialized && _parent) {
         initializePhysicsBody();
         _initialized = true;
-        // Don't sync on first frame to preserve initial Transform position
         return;
     }
 
@@ -56,12 +68,15 @@ void PhysicsComponent::update(float deltaTime) {
 
 void PhysicsComponent::initializePhysicsBody() {
     if (!_parent) return;
+    if (GlobalFlags::isLevelCleaning) return;
 
     Transform* transform = _parent->getTransform();
+    if (!transform) return;
+
     float x = transform->getPosition()->getX();
     float y = transform->getPosition()->getY();
-
     float angle = transform->getRotation()->getRotation();
+
     _bodyId = _box2DFacade->createBody(_parent, _rigidBody.getBodyType(), x, y, angle);
 
     if (!_collider) {
@@ -98,7 +113,7 @@ void PhysicsComponent::initializePhysicsBody() {
         if (radius <= 0) {
             float width = transform->getSize()->getWidth();
             float height = transform->getSize()->getHeight();
-            radius = (width + height) / 4.0f; // Average half-size
+            radius = (width + height) / 4.0f;
             circleCollider->setRadius(radius);
         }
 
@@ -112,26 +127,53 @@ void PhysicsComponent::initializePhysicsBody() {
     _box2DFacade->setGravityScale(_bodyId, _rigidBody.getGravityScale());
     _box2DFacade->setFixedRotation(_bodyId, _rigidBody.isFixedRotation());
 
-    // Set initial velocity to zero to prevent falling through ground on first frame
     if (_rigidBody.getBodyType() == BodyType::DYNAMIC) {
         _box2DFacade->setVelocity(_bodyId, 0.0f, 0.0f);
     }
 }
 
 void PhysicsComponent::syncTransformFromPhysics() {
-    if (!_parent) return;
+    // CRITICAL: Multiple safety checks
+    if (GlobalFlags::isLevelCleaning) {
+        return;
+    }
+
+    // ADD THIS: Check if physics system is shutting down
+    GameEngine *gameEngine = &GameEngine::getInstance();
+    PhysicsSystem *physicsSystem = gameEngine->getSystem<PhysicsSystem>();
+    if (physicsSystem && physicsSystem->isShuttingDown()) {
+        return;
+    }
+
+    if (!_parent) {
+        return;
+    }
+
+    Transform* transform = _parent->getTransform();
+    if (!transform) {
+        return;
+    }
+
+    if (B2_IS_NULL(_bodyId)) {
+        return;
+    }
 
     float x, y;
     _box2DFacade->getPosition(_bodyId, x, y);
     float angle = _box2DFacade->getRotation(_bodyId);
 
-    Transform* transform = _parent->getTransform();
+    Position* pos = transform->getPosition();
+    Rotation* rot = transform->getRotation();
 
-    transform->getPosition()->setX(x);
-    transform->getPosition()->setY(y);
-    transform->getRotation()->setRotation(angle);
+    if (pos) {
+        pos->setX(x);
+        pos->setY(y);
+    }
+
+    if (rot) {
+        rot->setRotation(angle);
+    }
 }
-
 
 void PhysicsComponent::setBodyType(BodyType type) {
     _rigidBody.setBodyType(type);
@@ -139,8 +181,7 @@ void PhysicsComponent::setBodyType(BodyType type) {
 
 void PhysicsComponent::setCollider(std::unique_ptr<Collider> collider) {
     _collider = std::move(collider);
-    // If parent is already set, initialize physics body now
-    if (!_initialized && _parent && _collider) {
+    if (!_initialized && _parent && _collider && !GlobalFlags::isLevelCleaning) {
         initializePhysicsBody();
         _initialized = true;
     }
@@ -165,31 +206,42 @@ void PhysicsComponent::setFixedRotation(bool fixed) {
 }
 
 void PhysicsComponent::setVelocity(float vx, float vy) {
-    if (B2_IS_NON_NULL(_bodyId)) {
+    if (B2_IS_NON_NULL(_bodyId) && !GlobalFlags::isLevelCleaning) {
         _box2DFacade->setVelocity(_bodyId, vx, vy);
     }
 }
 
 void PhysicsComponent::getVelocity(float& vx, float& vy) {
-    if (B2_IS_NON_NULL(_bodyId)) {
+    if (B2_IS_NON_NULL(_bodyId) && !GlobalFlags::isLevelCleaning) {
         _box2DFacade->getVelocity(_bodyId, vx, vy);
+    } else {
+        vx = 0.0f;
+        vy = 0.0f;
     }
 }
 
 void PhysicsComponent::applyForce(float fx, float fy) {
-    if (B2_IS_NON_NULL(_bodyId)) {
+    if (B2_IS_NON_NULL(_bodyId) && !GlobalFlags::isLevelCleaning) {
         _box2DFacade->applyForce(_bodyId, fx, fy);
     }
 }
 
 void PhysicsComponent::applyImpulse(float ix, float iy) {
-    if (B2_IS_NON_NULL(_bodyId)) {
+    if (B2_IS_NON_NULL(_bodyId) && !GlobalFlags::isLevelCleaning) {
         _box2DFacade->applyImpulse(_bodyId, ix, iy);
     }
 }
 
 void PhysicsComponent::applyTorque(float torque) {
-    if (B2_IS_NON_NULL(_bodyId)) {
+    if (B2_IS_NON_NULL(_bodyId) && !GlobalFlags::isLevelCleaning) {
         _box2DFacade->applyTorque(_bodyId, torque);
     }
+}
+
+b2BodyId PhysicsComponent::getBodyId() const {
+    return _bodyId;
+}
+
+void PhysicsComponent::clearBodyId() {
+    _bodyId = b2_nullBodyId;
 }

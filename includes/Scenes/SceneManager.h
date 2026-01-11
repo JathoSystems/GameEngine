@@ -23,6 +23,8 @@ public:
     Scene* getActiveSceneObj();
 
     Scene * getScene(const std::string & name);
+
+    void removeScene(const std::string & name);
 };
 
 #endif

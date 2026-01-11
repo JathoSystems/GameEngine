@@ -14,6 +14,8 @@ private:
 public:
     ~SceneSystem() = default;
 
+    void removeScene(const std::string & name);
+
     SceneSystem(const std::unique_ptr<Window> &window, SceneManager* sceneManager);  // Add parameter
 
     void update(float deltaTime) override;

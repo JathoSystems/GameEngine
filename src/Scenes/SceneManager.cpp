@@ -68,3 +68,18 @@ Scene * SceneManager::getScene(const std::string &name) {
 
     return nullptr;
 }
+
+void SceneManager::removeScene(const std::string &name) {
+    auto it = std::remove_if(_scenes.begin(), _scenes.end(),
+        [&name](const std::unique_ptr<Scene>& scene) {
+            return scene->getName() == name;
+        });
+
+    if (it != _scenes.end()) {
+        if (_activeScene == name) {
+            _activeScene = "";
+        }
+
+        _scenes.erase(it, _scenes.end());
+    }
+}

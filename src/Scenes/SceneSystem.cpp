@@ -2,7 +2,7 @@
 #include <iostream>
 
 SceneSystem::SceneSystem(const std::unique_ptr<Window>& window, SceneManager* sceneManager)
-    : _window(window), _sceneManager(sceneManager) {
+    : _sceneManager(sceneManager), _window(window) {
 }
 
 void SceneSystem::update(float deltaTime) {
@@ -28,4 +28,10 @@ Scene * SceneSystem::getScene(const std::string& name) {
 
 Scene* SceneSystem::getActiveSceneObj() {
     return _sceneManager->getActiveSceneObj();
+}
+
+void SceneSystem::removeScene(const std::string &name) {
+    if (_sceneManager) {
+        _sceneManager->removeScene(name);
+    }
 }

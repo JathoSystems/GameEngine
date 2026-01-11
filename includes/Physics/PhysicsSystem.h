@@ -5,6 +5,7 @@
 #include "Box2DFacade.h"
 #include <memory>
 #include <vector>
+#include <mutex>  // ADD THIS
 
 class PhysicsComponent;
 
@@ -14,6 +15,10 @@ private:
     std::vector<PhysicsComponent*> _components;
     float _gravityX;
     float _gravityY;
+    bool _isUpdating = false;
+
+    std::mutex _physicsMutex;  // ADD THIS
+    bool _isShuttingDown = false;  // ADD THIS
 
     void processCollisions();
 
@@ -28,6 +33,14 @@ public:
     void unregisterComponent(PhysicsComponent* component);
 
     Box2DFacade* getBox2DFacade() { return _box2DFacade.get(); }
+    bool isUpdating() const;
+
+    // ADD THESE
+    void lockPhysics() { _physicsMutex.lock(); }
+    void unlockPhysics() { _physicsMutex.unlock(); }
+    void beginShutdown() { _isShuttingDown = true; }
+    bool isShuttingDown() const { return _isShuttingDown; }
+    void endShutdown() { _isShuttingDown = false; }
 
     void setGravity(float x, float y);
     void getGravity(float& x, float& y) const;

@@ -21,6 +21,7 @@ private:
     void initializePhysicsBody();
     void syncTransformFromPhysics();
 
+
 public:
     PhysicsComponent(Box2DFacade* facade);
     ~PhysicsComponent();
@@ -41,6 +42,9 @@ public:
     void applyImpulse(float ix, float iy);
     void applyTorque(float torque);
     bool isInitialized() const { return B2_IS_NON_NULL(_bodyId); }
+
+    b2BodyId getBodyId() const;
+    void clearBodyId();
 };
 
 #endif

@@ -5,9 +5,10 @@
 #include "Physics/PhysicsComponent.h"
 #include "GameObjects/GameObject.h"
 #include "Collision/CollisionData.h"
+#include "server/GlobalFlags.h"
 #include <box2d/box2d.h>
 
-PhysicsSystem::PhysicsSystem() : _gravityX(0.0f), _gravityY(981.0f) {
+PhysicsSystem::PhysicsSystem() : _gravityX(0.0f), _gravityY(981.0f), _isUpdating(false) {
     this->init(_gravityX, _gravityY);
 }
 
@@ -21,7 +22,16 @@ void PhysicsSystem::init(float gravityX, float gravityY) {
 }
 
 void PhysicsSystem::update(float deltaTime) {
-    if (!_box2DFacade) return;
+    if (!_box2DFacade || _isShuttingDown) return;
+
+    std::lock_guard<std::mutex> lock(_physicsMutex);  // ADD THIS
+
+    _isUpdating = true;
+
+    if (GlobalFlags::isLevelCleaning) {
+        _isUpdating = false;
+        return;
+    }
 
     _box2DFacade->step(deltaTime, 6);
 
@@ -31,6 +41,8 @@ void PhysicsSystem::update(float deltaTime) {
     }
 
     processCollisions();
+
+    _isUpdating = false;
 }
 
 void PhysicsSystem::processCollisions() {
@@ -108,4 +120,8 @@ void PhysicsSystem::setGravity(float x, float y) {
 void PhysicsSystem::getGravity(float& x, float& y) const {
     x = _gravityX;
     y = _gravityY;
+}
+
+bool PhysicsSystem::isUpdating() const {
+    return _isUpdating;
 }
