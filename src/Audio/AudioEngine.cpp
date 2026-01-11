@@ -184,3 +184,27 @@ bool AudioEngine::isStreamValid(int streamHandle) const {
            m_activeStreams[streamHandle] &&
            m_activeStreams[streamHandle]->stream;
 }
+
+void AudioEngine::stopAudio(int streamHandle) {
+    if (!isStreamValid(streamHandle)) {
+        return;
+    }
+
+    auto& audioStream = m_activeStreams[streamHandle];
+
+    if (audioStream && audioStream->stream) {
+        // Pause de stream eerst
+        SDL_PauseAudioStreamDevice(audioStream->stream);
+
+        // Verwijder alle pending audio data
+        SDL_ClearAudioStream(audioStream->stream);
+
+        // Destroy de stream
+        SDL_DestroyAudioStream(audioStream->stream);
+        audioStream->stream = nullptr;
+    }
+
+    // Optioneel: verwijder de stream uit de actieve lijst
+    // of markeer als inactive
+    m_activeStreams[streamHandle] = nullptr;
+}
