@@ -59,6 +59,9 @@ void SceneManager::render(const std::unique_ptr<Window>& window, float delta) {
 }
 
 void SceneManager::addScene(std::unique_ptr<Scene> scene) {
+    // Process any pending removals first to avoid conflicts with same-named scenes
+    processRemoveQueue();
+    
     // Check if scene with same name already exists
     std::string sceneName = scene->getName();
     for (const auto& existingScene : _scenes) {

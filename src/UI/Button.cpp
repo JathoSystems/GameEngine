@@ -76,12 +76,32 @@ void Button::render(const std::unique_ptr<Window> &window) {
 
     SDL_FRect rect = transform->toFRect();
 
+    // Check font and text BEFORE creating surface
+    if (!_font || !_font->getSdlFont() || _text.empty()) {
+        // Still render the background even without text
+        SDL_SetRenderDrawColor(renderer,
+                               _backgroundColor->getR(),
+                               _backgroundColor->getG(),
+                               _backgroundColor->getB(),
+                               _backgroundColor->getA());
+        SDL_RenderFillRect(renderer, &rect);
+        return;
+    }
 
     SDL_Surface *surface = TTF_RenderText_Solid(_font->getSdlFont(), _text.c_str(), 0, _textColor->toSdlColor());
-    if (!surface) return;
+    if (!surface) {
+        // Render background even if text rendering failed
+        SDL_SetRenderDrawColor(renderer,
+                               _backgroundColor->getR(),
+                               _backgroundColor->getG(),
+                               _backgroundColor->getB(),
+                               _backgroundColor->getA());
+        SDL_RenderFillRect(renderer, &rect);
+        return;
+    }
 
     if (rect.w == 0) rect.w = surface->w + (_paddingX * 2);
-    if (rect.h == 0)rect.h = surface->h + (_paddingY * 2);
+    if (rect.h == 0) rect.h = surface->h + (_paddingY * 2);
 
     SDL_SetRenderDrawColor(renderer,
                            _backgroundColor->getR(),
@@ -90,10 +110,12 @@ void Button::render(const std::unique_ptr<Window> &window) {
                            _backgroundColor->getA());
 
     SDL_RenderFillRect(renderer, &rect);
-    if (!_font || _text.empty()) return;
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (!texture) return;
+    if (!texture) {
+        SDL_DestroySurface(surface);
+        return;
+    }
 
     float textX = rect.x + (rect.w - surface->w) / 2.0f;
     float textY = rect.y + (rect.h - surface->h) / 2.0f;
