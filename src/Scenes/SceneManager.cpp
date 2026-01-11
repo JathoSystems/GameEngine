@@ -2,11 +2,19 @@
 #include <chrono>
 #include <iostream>
 #include <algorithm>
+#include <atomic>
+
+extern std::atomic<uint64_t> sceneGeneration;
 
 SceneManager::SceneManager() {
 }
 
 void SceneManager::processRemoveQueue() {
+    if (!_removeQueue.empty()) {
+        // Increment scene generation to invalidate any pending events for removed scenes
+        sceneGeneration.fetch_add(1);
+    }
+    
     for (const auto& name : _removeQueue) {
         _scenes.erase(
             std::remove_if(_scenes.begin(), _scenes.end(),
@@ -55,6 +63,10 @@ void SceneManager::addScene(std::unique_ptr<Scene> scene) {
 }
 
 void SceneManager::setScene(std::string name) {
+    if (_activeScene != name) {
+        // Increment scene generation when switching scenes
+        sceneGeneration.fetch_add(1);
+    }
     _activeScene = name;
 
     Scene* scene = getActiveSceneObj();

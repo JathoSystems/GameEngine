@@ -1,5 +1,6 @@
 #include "Network/NetworkMiddleware.h"
 #include "Network/Packet/Packets/NetworkEventPacket.h"
+#include "Network/Packet/PacketRegistery.h"
 #include "Events/EventRegistry.h"
 #include <iostream>
 
@@ -26,17 +27,58 @@ void NetworkMiddleware::sendPacket(std::shared_ptr<Packet> packet) {
 }
 
 void NetworkMiddleware::onPacketReceived(const Packet& packet) {
-    // Check if it's a network event packet
+    // Queue the packet for processing on the main thread
+    // This is called from the network thread - DO NOT access game objects here!
+    std::lock_guard<std::mutex> lock(_packetQueueMutex);
+    _packetQueue.emplace_back(packet.getId(), packet.getBuffer().getData());
+}
 
-    PacketHandlerFactory& factory = PacketHandlerFactory::getInstance();
-    std::shared_ptr<IPacketHandler> handler = factory.getHandler(packet.getId());
-
-    if (handler == nullptr) {
-        std::cerr << "Couldn't handle packet with id " << packet.getId() << "\n";
-        return;
+void NetworkMiddleware::processPacketQueue() {
+    // Reset the abort flag at the start of processing
+    _abortProcessing.store(false);
+    
+    // Swap out the queue so we don't hold the lock while processing
+    std::deque<std::pair<int, std::vector<uint8_t>>> packetsToProcess;
+    {
+        std::lock_guard<std::mutex> lock(_packetQueueMutex);
+        packetsToProcess.swap(_packetQueue);
     }
+    
+    // Now process all packets on the main thread - safe to access game objects
+    for (const auto& [packetId, packetData] : packetsToProcess) {
+        // Check if we should abort (e.g., scene changed)
+        if (_abortProcessing.load()) {
+            std::cout << "[NetworkMiddleware] Aborting packet processing due to scene change" << std::endl;
+            break;
+        }
+        
+        PacketHandlerFactory& factory = PacketHandlerFactory::getInstance();
+        std::shared_ptr<IPacketHandler> handler = factory.getHandler(packetId);
 
-    handler->handle(packet);
+        if (handler == nullptr) {
+            std::cerr << "Couldn't handle packet with id " << packetId << "\n";
+            continue;
+        }
+
+        // Create a packet instance from the registry
+        std::unique_ptr<Packet> tempPacket = PacketRegistery::getInstance().createPacket(packetId);
+        if (!tempPacket) {
+            std::cerr << "Failed to create packet with id " << packetId << "\n";
+            continue;
+        }
+        
+        tempPacket->getBuffer().setData(packetData);
+        handler->handle(*tempPacket);
+    }
+}
+
+void NetworkMiddleware::clearPacketQueue() {
+    // Set abort flag to stop any ongoing processing
+    _abortProcessing.store(true);
+    
+    std::lock_guard<std::mutex> lock(_packetQueueMutex);
+    _packetQueue.clear();
+    std::cout << "[NetworkMiddleware] Cleared packet queue and set abort flag" << std::endl;
 }
 
 void NetworkMiddleware::setOnEventReceived(std::function<void(int id, std::shared_ptr<IEvent>)> callback) {

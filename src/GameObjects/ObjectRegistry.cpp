@@ -62,3 +62,8 @@ void ObjectRegistry::removeObject(int key) {
     _objects.erase(key);
 }
 
+void ObjectRegistry::clear() {
+    _objects.clear();
+    std::cout << "[ObjectRegistry] Cleared all objects" << std::endl;
+}
+

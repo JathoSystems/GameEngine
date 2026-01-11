@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <memory>
+#include <atomic>
 #include <SDL3/SDL.h>
 #include <cmath>
 
@@ -20,6 +21,7 @@
 
 std::mutex eventMutex;
 std::vector<std::function<void()>> eventQueue;
+std::atomic<uint64_t> sceneGeneration{0};
 
 GameEngine::GameEngine() {
 }

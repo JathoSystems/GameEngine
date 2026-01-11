@@ -18,6 +18,7 @@ public:
 
     int registerObject(GameObject* obj);
     void removeObject(int key);
+    void clear();
 
 private:
     int MAX_BROADCASTABLE = 1000;
