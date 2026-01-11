@@ -1,11 +1,28 @@
 #include "Scenes/SceneManager.h"
 #include <chrono>
 #include <iostream>
+#include <algorithm>
 
 SceneManager::SceneManager() {
 }
 
+void SceneManager::processRemoveQueue() {
+    for (const auto& name : _removeQueue) {
+        _scenes.erase(
+            std::remove_if(_scenes.begin(), _scenes.end(),
+                [&name](const std::unique_ptr<Scene>& scene) {
+                    return scene && scene->getName() == name;
+                }),
+            _scenes.end()
+        );
+        std::cout << "Removed scene: " << name << std::endl;
+    }
+    _removeQueue.clear();
+}
+
 void SceneManager::update(float deltaTime) {
+    processRemoveQueue();
+
     Scene* currentScene = nullptr;
     for (const auto& scene : _scenes) {
         if (scene->getName() == _activeScene) {
@@ -67,4 +84,13 @@ Scene * SceneManager::getScene(const std::string &name) {
     }
 
     return nullptr;
+}
+
+void SceneManager::removeScene(const std::string& name) {
+    if (name == _activeScene) {
+        std::cout << "Warning: Cannot remove active scene: " << name << std::endl;
+        return;
+    }
+    std::cout << "Queueing scene for removal: " << name << std::endl;
+    _removeQueue.push_back(name);
 }

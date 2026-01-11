@@ -18,6 +18,7 @@ private:
 
 public:
     explicit Scene(std::string name);
+    virtual ~Scene() = default;
 
     void setHUD(std::unique_ptr<HUD> hud);
     HUD* getHUD();

@@ -22,6 +22,14 @@ void SceneSystem::setScene(std::string name) {
     _sceneManager->setScene(name);
 }
 
+void SceneSystem::removeScene(const std::string& name) {
+    if (_sceneManager == nullptr) {
+        std::cout << "SceneManager is null, cannot remove scene: " << name << std::endl;
+        return;
+    }
+    _sceneManager->removeScene(name);
+}
+
 Scene * SceneSystem::getScene(const std::string& name) {
     return _sceneManager->getScene(name);
 }
