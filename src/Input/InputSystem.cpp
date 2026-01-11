@@ -25,7 +25,8 @@ static const std::unordered_map<SDL_Keycode, Key> SDL_TO_KEY_MAP = {
     {SDLK_LALT, Key::ALT_LEFT}, {SDLK_RALT, Key::ALT_RIGHT},
     {SDLK_F1, Key::F1}, {SDLK_F2, Key::F2}, {SDLK_F3, Key::F3}, {SDLK_F4, Key::F4},
     {SDLK_F5, Key::F5}, {SDLK_F6, Key::F6}, {SDLK_F7, Key::F7}, {SDLK_F8, Key::F8},
-    {SDLK_F9, Key::F9}, {SDLK_F10, Key::F10}, {SDLK_F11, Key::F11}, {SDLK_F12, Key::F12}
+    {SDLK_F9, Key::F9}, {SDLK_F10, Key::F10}, {SDLK_F11, Key::F11}, {SDLK_F12, Key::F12},
+    {SDLK_PAGEUP, Key::PAGE_UP}, {SDLK_PAGEDOWN, Key::PAGE_DOWN}, {SDLK_HOME, Key::HOME}
 };
 
 void InputSystem::registerKeyComponent(KeyInputComponent *component) {

@@ -26,6 +26,10 @@ void HUD::setFPSCounter(std::unique_ptr<FPSCounter> fpsCounter) {
     _fpsCounter = std::move(fpsCounter);
 }
 
+void HUD::removeFpsCounter() {
+    _fpsCounter.reset();
+}
+
 FPSCounter* HUD::getFPSCounter() const {
     return _fpsCounter.get();
 }

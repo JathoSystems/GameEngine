@@ -10,8 +10,11 @@
 
 #include "AI/system/AiSystem.hpp"
 #include "Engine/TimeManager.h"
+#include "GameObjects/Component/KeyInputComponent.h"
 #include "Scenes/SceneSystem.h"
 #include "Input/InputSystem.h"
+#include "Input/listeners/FpsToggleListener.hpp"
+#include "Input/listeners/SpeedToggleListener.hpp"
 #include "Physics/PhysicsSystem.h"
 #include "SDL/Window.h"
 
@@ -43,6 +46,19 @@ void GameEngine::init(std::string name, int width, int height) {
 }
 
 void GameEngine::start() {
+
+    if (InputSystem* input = getSystem<InputSystem>()) {
+        GameObject* dummy = new GameObject();
+        KeyInputComponent* keyInput = new KeyInputComponent(dummy);
+        keyInput->setListener(new FpsToggleListener());
+
+        KeyInputComponent* speedInput = new KeyInputComponent(dummy);
+        speedInput->setListener(new SpeedToggleListener());
+
+        input->registerKeyComponent(keyInput);
+        input->registerKeyComponent(speedInput);
+    }
+
     _isRunning = true;
 
     _timeManager->start();

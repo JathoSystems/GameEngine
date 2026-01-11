@@ -222,6 +222,10 @@ add_library(Engine SHARED
         src/GameObjects/Broadcastable.cpp
         includes/GameObjects/Component/RectangleRenderer.h
         src/GameObjects/Component/RectangleRenderer.cpp
+        includes/Input/listeners/FpsToggleListener.hpp
+        src/Input/listeners/FpsToggleListener.cpp
+        includes/Input/listeners/SpeedToggleListener.hpp
+        src/Input/listeners/SpeedToggleListener.cpp
 )
 
 # DO NOT use precompiled headers - they cause issues with SDL3
