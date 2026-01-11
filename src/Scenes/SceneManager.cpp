@@ -75,6 +75,10 @@ void SceneManager::setScene(std::string name) {
         // Increment scene generation when switching scenes
         sceneGeneration.fetch_add(1);
     }
+    
+    if (getActiveSceneObj())
+        getActiveSceneObj()->onExit();
+
     _activeScene = name;
 
     Scene* scene = getActiveSceneObj();

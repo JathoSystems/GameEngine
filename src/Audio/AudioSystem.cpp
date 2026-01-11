@@ -26,6 +26,7 @@ bool AudioSystem::initialize(int frequency, SDL_AudioFormat format, int channels
 }
 
 void AudioSystem::shutdown() {
+    isShuttingDown = true;
     stopMusic();
     
     if (cache) {
@@ -101,6 +102,10 @@ void AudioSystem::resumeMusic() {
 
 void AudioSystem::stopMusic() {
     if (currentMusicHandle != -1) {
+        // Only try to set volume if we're not shutting down and the engine is still valid
+        if (!isShuttingDown && engine && engine->isStreamValid(currentMusicHandle)) {
+            setVolume(currentMusicHandle, 0.0f);
+        }
         currentMusicHandle = -1;
         currentMusicKey.clear();
         isPaused = false;

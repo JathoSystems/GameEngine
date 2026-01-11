@@ -36,17 +36,12 @@ bool AudioEngine::initialize(int frequency, SDL_AudioFormat format, int channels
 }
 
 void AudioEngine::shutdown() {
-    for (auto& streamPtr : m_activeStreams) {
-        if (streamPtr && streamPtr->stream) {
-            SDL_DestroyAudioStream(streamPtr->stream);
-        }
-    }
-    m_activeStreams.clear();
-
     if (m_audioDevice) {
         SDL_CloseAudioDevice(m_audioDevice);
         m_audioDevice = 0;
     }
+    
+    m_activeStreams.clear();
 
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }

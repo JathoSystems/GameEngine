@@ -35,6 +35,7 @@ public:
 
     virtual void onUpdate(float deltaTime) {};
     virtual void onInitialRender() { };
+    virtual void onExit() {};
 };
 
 #endif
