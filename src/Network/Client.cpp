@@ -3,12 +3,10 @@
 #include <iostream>
 
 Client::Client(std::unique_ptr<INetworkSocket> sock)
-    : socket(std::move(sock)), connected(false)
-{
+    : socket(std::move(sock)), connected(false) {
 }
 
-void Client::connect(const std::string& ip, int port)
-{
+void Client::connect(const std::string &ip, int port) {
     if (connected) {
         std::cout << "Client already connected\n";
         return;
@@ -18,15 +16,14 @@ void Client::connect(const std::string& ip, int port)
         socket->connect(ip, std::to_string(port));
         connected = true;
         std::cout << "Client connected to " << ip << ":" << port << "\n";
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         std::cerr << "Connection failed: " << e.what() << "\n";
         connected = false;
         throw;
     }
 }
 
-void Client::send(const Packet& packet)
-{
+void Client::send(const Packet &packet) {
     if (!connected) {
         std::cerr << "Cannot send: Client not connected\n";
         return;
@@ -34,14 +31,13 @@ void Client::send(const Packet& packet)
 
     try {
         socket->send(packet);
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         std::cerr << "Send failed: " << e.what() << "\n";
         connected = false;
     }
 }
 
-void Client::disconnect()
-{
+void Client::disconnect() {
     if (!connected) {
         return;
     }
@@ -51,8 +47,7 @@ void Client::disconnect()
     std::cout << "Client disconnected\n";
 }
 
-void Client::startReceiving(std::function<void(const Packet&)> onPacketReceived)
-{
+void Client::startReceiving(std::function<void(const Packet &)> onPacketReceived) {
     if (!connected) {
         std::cerr << "Cannot start receiving: Client not connected\n";
         return;

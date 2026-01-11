@@ -1,11 +1,11 @@
 #include "Network/Session.h"
 #include <iostream>
 
-void Session::send(const Packet& p) {
+void Session::send(const Packet &p) {
     if (isActive && socket) {
         try {
             socket->send(p);
-        } catch (const std::exception& e) {
+        } catch (const std::exception &e) {
             std::cerr << "Session " << id << " send error: " << e.what() << "\n";
             isActive = false;
             if (onDisconnected) onDisconnected();
@@ -13,7 +13,7 @@ void Session::send(const Packet& p) {
     }
 }
 
-void Session::asyncSend(const Packet& p, std::function<void(bool)> callback) {
+void Session::asyncSend(const Packet &p, std::function<void(bool)> callback) {
     if (isActive && socket) {
         socket->asyncSend(p, [this, callback](bool success) {
             if (!success) {
@@ -27,19 +27,17 @@ void Session::asyncSend(const Packet& p, std::function<void(bool)> callback) {
     }
 }
 
-void Session::startReceiving(std::function<void(const Packet&)> onPacket, std::function<void()> onDisconnect) {
+void Session::startReceiving(std::function<void(const Packet &)> onPacket, std::function<void()> onDisconnect) {
     onDisconnected = onDisconnect;
 
     if (socket) {
-        // Geef BEIDE callbacks door
         socket->asyncReceive(
-            [this, onPacket](const Packet& packet) {
+            [this, onPacket](const Packet &packet) {
                 if (isActive) {
                     onPacket(packet);
                 }
             },
             [this]() {
-                // Disconnect gedetecteerd!
                 std::cout << "Session " << id << " disconnected\n";
                 isActive = false;
                 if (onDisconnected) {

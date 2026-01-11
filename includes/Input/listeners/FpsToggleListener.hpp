@@ -1,7 +1,3 @@
-//
-// Created by jusra on 9-1-2026.
-//
-
 #ifndef VUURJONGEN_WATERMEISJE_GAME_FPSTOGGLELISTENER_HPP
 #define VUURJONGEN_WATERMEISJE_GAME_FPSTOGGLELISTENER_HPP
 #include "Input/IKeyListener.h"
@@ -12,6 +8,7 @@ private:
 
 public:
     void onKeyPress(Key key) override;
+
     void onKeyRelease(Key key) override;
 };
 

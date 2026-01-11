@@ -1,11 +1,10 @@
 #include "Network/NetworkSystem.h"
 #include "Network/Sockets/TcpNetworkSocket.h"
 #include <iostream>
-
 #include "Network/Packet/Handler/NetworkEventPacketHandler.hpp"
 #include "Network/Packet/Handler/PacketHandlerFactory.hpp"
 
-NetworkResult NetworkSystem::connect(const std::string& ip, int port) {
+NetworkResult NetworkSystem::connect(const std::string &ip, int port) {
     if (currentState == ConnectionState::CONNECTED) {
         return {NetworkError::SUCCESS, "Already connected"};
     }
@@ -35,15 +34,14 @@ NetworkResult NetworkSystem::connect(const std::string& ip, int port) {
             auto work_guard = asio::make_work_guard(io_context);
             try {
                 io_context.run();
-            } catch (const std::exception& e) {
+            } catch (const std::exception &e) {
                 std::cerr << "[NetworkThread] Error: " << e.what() << "\n";
             }
         });
 
         currentState = ConnectionState::CONNECTED;
         return {NetworkError::SUCCESS, "Successfully connected"};
-
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         currentState = ConnectionState::DISCONNECTED;
         disconnect();
 
@@ -64,7 +62,6 @@ void NetworkSystem::disconnect() {
         networkThread.join();
     }
 
-    // Reset pointers zodat we schoon kunnen beginnen bij volgende connect
     client.reset();
     middleware.reset();
     currentState = ConnectionState::DISCONNECTED;
@@ -72,7 +69,7 @@ void NetworkSystem::disconnect() {
     std::cout << "[NetworkSystem] Disconnected.\n";
 }
 
-void NetworkSystem::send(const Packet& packet) {
+void NetworkSystem::send(const Packet &packet) {
     if (client && client->isConnected()) {
         client->send(packet);
     } else {
@@ -81,7 +78,6 @@ void NetworkSystem::send(const Packet& packet) {
 }
 
 void NetworkSystem::update(float deltaTime) {
-    // Process all queued packets on the main thread
     if (middleware) {
         middleware->processPacketQueue();
     }

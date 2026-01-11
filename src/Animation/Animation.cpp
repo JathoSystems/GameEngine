@@ -1,12 +1,7 @@
-//
-// Created by jusra on 14-11-2025.
-//
-
 #include "Animation/Animation.hpp"
 #include "Animation/Converter/ConverterFactory.hpp"
 #include "Animation/Keyframe.hpp"
 #include "SDL/Window.h"
-
 #include <cmath>
 #include <iostream>
 
@@ -56,7 +51,7 @@ void Animation::render(const std::unique_ptr<Window> &window) {
         current = it->second.get();
         next = current;
         currentTime = nextTime = animTime;
-    }else {
+    } else {
         if (it != _keyFrames.end()) {
             next = it->second.get();
             nextTime = it->first;

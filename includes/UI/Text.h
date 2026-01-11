@@ -1,7 +1,3 @@
-//
-// Created by jusra on 11-11-2025.
-//
-
 #ifndef GAMEENGINE_TEXT_H
 #define GAMEENGINE_TEXT_H
 #include "Color.h"

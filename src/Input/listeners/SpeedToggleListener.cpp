@@ -1,16 +1,11 @@
-//
-// Created by jusra on 9-1-2026.
-//
-
 #include "Input/listeners/SpeedToggleListener.hpp"
-
 #include "Engine/GameEngine.h"
 
 void SpeedToggleListener::onKeyPress(Key key) {
-    GameEngine& engine = GameEngine::getInstance();
-    TimeManager* time = engine.getTimeManager();
+    GameEngine &engine = GameEngine::getInstance();
+    TimeManager *time = engine.getTimeManager();
 
-    switch(key) {
+    switch (key) {
         case Key::PAGE_UP:
             if (time->getTimeScale() < 4.0f) {
                 time->setTimeScale(time->getTimeScale() + 0.25f);

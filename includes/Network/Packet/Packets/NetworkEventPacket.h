@@ -11,7 +11,7 @@ private:
 public:
     NetworkEventPacket() { packetId = 100; }
 
-    NetworkEventPacket(const std::string& name, const std::vector<uint8_t>& data)
+    NetworkEventPacket(const std::string &name, const std::vector<uint8_t> &data)
         : eventName(name), eventData(data) {
         packetId = 100;
     }
@@ -26,11 +26,7 @@ public:
 
     void deserialize() override {
         size_t offset = 0;
-
-        // first is packet id
         packetId = buffer.readInt(offset);
-
-        // then the event data
         eventName = buffer.readString(offset);
         int32_t size = buffer.readInt(offset);
         eventData = buffer.readBytes(offset, size);

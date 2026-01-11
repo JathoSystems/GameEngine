@@ -7,7 +7,6 @@
 #include <SDL3/SDL.h>
 #include <vector>
 #include <memory>
-
 #include "GameObjects/Transform/Position.h"
 
 class KeyInputComponent;
@@ -22,6 +21,7 @@ public:
     static Key sdlKeyToKey(SDL_Keycode sdlKey);
 
     static MouseButton sdlButtonToButton(uint8_t sdlButton);
+
     InputSystem() = default;
 
     void registerKeyComponent(KeyInputComponent *component);

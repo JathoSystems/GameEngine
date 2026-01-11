@@ -1,7 +1,3 @@
-//
-// Created by jusra on 14-11-2025.
-//
-
 #ifndef GAMEENGINE_BOUNCECONVERTER_HPP
 #define GAMEENGINE_BOUNCECONVERTER_HPP
 #include "IConverter.hpp"

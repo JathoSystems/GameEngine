@@ -8,8 +8,9 @@
 class IAudioDecoder {
 public:
     virtual ~IAudioDecoder() = default;
-    
-    virtual bool decode(const std::string& filepath, DecodedAudio& output) = 0;
+
+    virtual bool decode(const std::string &filepath, DecodedAudio &output) = 0;
+
     virtual std::list<std::string> getSupportedExtensions() const = 0;
 };
 

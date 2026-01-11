@@ -1,7 +1,3 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #ifndef GAMEENGINE_SIZE_H
 #define GAMEENGINE_SIZE_H
 
@@ -14,9 +10,11 @@ public:
     Size(int width, int height);
 
     int getWidth() const;
+
     void setWidth(int width);
 
     int getHeight() const;
+
     void setHeight(int height);
 };
 

@@ -12,14 +12,16 @@ private:
 
 public:
     Viewport();
+
     Viewport(Size size, Position position);
 
-    bool isInViewPort(GameObject* object) const;
+    bool isInViewPort(GameObject *object) const;
 
     void setPosition(Position position);
+
     void setSize(Size size);
 
     Position getPosition() const;
+
     Size getSize() const;
 };
-

@@ -14,23 +14,24 @@ private:
     std::vector<std::unique_ptr<ITransition> > _transitions;
 
 protected:
-    GameObject * _object;
+    GameObject *_object;
 
 public:
     virtual ~State() = default;
 
-    virtual  void onEnter();
+    virtual void onEnter();
 
     virtual void onUpdate(float deltaTime) = 0;
 
     virtual void onExit();
 
     void addTransition(std::unique_ptr<ITransition> transition);
-    void addTransition(const std::string& nextState, const std::function<bool()> predicate);
+
+    void addTransition(const std::string &nextState, const std::function<bool()> predicate);
 
     const std::vector<std::unique_ptr<ITransition> > &getTransitions() const;
 
-    void setGameObject(GameObject * object);
+    void setGameObject(GameObject *object);
 };
 
 #endif //GAMEENGINE_STATE_HPP

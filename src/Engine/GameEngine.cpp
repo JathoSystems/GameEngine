@@ -1,14 +1,8 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
 #include "Engine/GameEngine.h"
-
-#include <iostream>
 #include <memory>
 #include <atomic>
 #include <SDL3/SDL.h>
 #include <cmath>
-
 #include "AI/system/AiSystem.hpp"
 #include "Engine/TimeManager.h"
 #include "GameObjects/Component/KeyInputComponent.h"
@@ -20,19 +14,18 @@
 #include "SDL/Window.h"
 
 std::mutex eventMutex;
-std::vector<std::function<void()>> eventQueue;
+std::vector<std::function<void()> > eventQueue;
 std::atomic<uint64_t> sceneGeneration{0};
 
 GameEngine::GameEngine() {
 }
 
-GameEngine & GameEngine::getInstance()  {
+GameEngine &GameEngine::getInstance() {
     static GameEngine instance;
     return instance;
 }
 
 void GameEngine::init(std::string name, int width, int height) {
-
     _window = std::make_unique<Window>();
     _window->openWindow(width, height, name);
 
@@ -48,13 +41,12 @@ void GameEngine::init(std::string name, int width, int height) {
 }
 
 void GameEngine::start() {
-
-    if (InputSystem* input = getSystem<InputSystem>()) {
-        GameObject* dummy = new GameObject();
-        KeyInputComponent* keyInput = new KeyInputComponent(dummy);
+    if (InputSystem *input = getSystem<InputSystem>()) {
+        GameObject *dummy = new GameObject();
+        KeyInputComponent *keyInput = new KeyInputComponent(dummy);
         keyInput->setListener(new FpsToggleListener());
 
-        KeyInputComponent* speedInput = new KeyInputComponent(dummy);
+        KeyInputComponent *speedInput = new KeyInputComponent(dummy);
         speedInput->setListener(new SpeedToggleListener());
 
         input->registerKeyComponent(keyInput);
@@ -70,13 +62,13 @@ void GameEngine::start() {
 
         {
             std::lock_guard<std::mutex> lock(eventMutex);
-            for (auto& task : eventQueue) {
+            for (auto &task: eventQueue) {
                 task();
             }
             eventQueue.clear();
         }
 
-        for (const std::unique_ptr<ISystem>& system : _systems) {
+        for (const std::unique_ptr<ISystem> &system: _systems) {
             system->update(deltaTime);
         }
     }
@@ -86,6 +78,6 @@ void GameEngine::stop() {
     _isRunning = false;
 }
 
-const std::unique_ptr<Window> & GameEngine::getWindow() const {
+const std::unique_ptr<Window> &GameEngine::getWindow() const {
     return _window;
 }

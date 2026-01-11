@@ -1,9 +1,4 @@
-//
-// Created by jusra on 24-11-2025.
-//
-
 #include "AI/pathfinding/heuristics/ManhattenHeuristicCalculator.hpp"
-
 #include "AI/pathfinding/heuristics/IHeuristicCalculator.hpp"
 
 int ManhattenHeuristicCalculator::calculateHeuristic(const Position &a, const Position &b) {

@@ -8,20 +8,25 @@
 
 class SceneSystem : public ISystem {
 private:
-    SceneManager* _sceneManager;
-    const std::unique_ptr<Window> & _window;
+    SceneManager *_sceneManager;
+    const std::unique_ptr<Window> &_window;
 
 public:
     ~SceneSystem() = default;
 
-    SceneSystem(const std::unique_ptr<Window> &window, SceneManager* sceneManager);
+    SceneSystem(const std::unique_ptr<Window> &window, SceneManager *sceneManager);
 
     void update(float deltaTime) override;
+
     void addScene(std::unique_ptr<Scene> scene);
+
     void setScene(std::string name);
-    void removeScene(const std::string& name);
-    Scene* getScene(const std::string &name);
-    Scene* getActiveSceneObj();
+
+    void removeScene(const std::string &name);
+
+    Scene *getScene(const std::string &name);
+
+    Scene *getActiveSceneObj();
 };
 
 #endif //GAMEENGINE_SCENESYSTEM_H

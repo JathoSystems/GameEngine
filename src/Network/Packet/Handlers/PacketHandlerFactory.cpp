@@ -1,10 +1,6 @@
-//
-// Created by jusra on 17-12-2025.
-//
-
 #include "Network/Packet/Handler/PacketHandlerFactory.hpp"
 
-PacketHandlerFactory & PacketHandlerFactory::getInstance()  {
+PacketHandlerFactory &PacketHandlerFactory::getInstance() {
     static PacketHandlerFactory instance;
     return instance;
 }

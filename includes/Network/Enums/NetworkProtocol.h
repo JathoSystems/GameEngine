@@ -1,7 +1,6 @@
 #pragma once
 
-enum class NetworkProtocol
-{
+enum class NetworkProtocol {
     TCP,
     UDP
 };

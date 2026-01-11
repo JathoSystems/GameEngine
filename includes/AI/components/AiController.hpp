@@ -1,7 +1,3 @@
-//
-// Created by jusra on 21-11-2025.
-//
-
 #ifndef GAMEENGINE_AICONTROLLER_HPP
 #define GAMEENGINE_AICONTROLLER_HPP
 
@@ -16,6 +12,7 @@ private:
 
 public:
     AiController();
+
     ~AiController();
 
     void update(float deltaTime) override;

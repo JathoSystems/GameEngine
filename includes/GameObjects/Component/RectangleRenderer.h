@@ -11,18 +11,18 @@ private:
     bool _filled;
 
 public:
-    // Constructor with color (default: green with some transparency)
     RectangleRenderer(SDL_Color color = {0, 255, 0, 128}, bool filled = false);
 
-    // Constructor with RGB values
     RectangleRenderer(int r, int g, int b, int a = 255, bool filled = false);
 
     void update(float delta) override;
+
     void render(const std::unique_ptr<Window> &window) override;
 
-    // Setters for customization
     void setColor(SDL_Color color);
+
     void setColor(int r, int g, int b, int a = 255);
+
     void setFilled(bool filled);
 };
 

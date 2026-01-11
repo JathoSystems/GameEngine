@@ -9,10 +9,12 @@ public:
     virtual ~IMemento() = default;
 
     virtual std::string getTimestamp() const = 0;
-    virtual void setTimestamp(const std::string& timestamp) = 0;
+
+    virtual void setTimestamp(const std::string &timestamp) = 0;
 
     virtual nlohmann::json toJson() const = 0;
-    virtual void fromJson(const nlohmann::json& j) = 0;
+
+    virtual void fromJson(const nlohmann::json &j) = 0;
 
     virtual bool isValid() const = 0;
 };

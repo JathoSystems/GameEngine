@@ -11,16 +11,15 @@ SceneManager::SceneManager() {
 
 void SceneManager::processRemoveQueue() {
     if (!_removeQueue.empty()) {
-        // Increment scene generation to invalidate any pending events for removed scenes
         sceneGeneration.fetch_add(1);
     }
-    
-    for (const auto& name : _removeQueue) {
+
+    for (const auto &name: _removeQueue) {
         _scenes.erase(
             std::remove_if(_scenes.begin(), _scenes.end(),
-                [&name](const std::unique_ptr<Scene>& scene) {
-                    return scene && scene->getName() == name;
-                }),
+                           [&name](const std::unique_ptr<Scene> &scene) {
+                               return scene && scene->getName() == name;
+                           }),
             _scenes.end()
         );
         std::cout << "Removed scene: " << name << std::endl;
@@ -31,8 +30,8 @@ void SceneManager::processRemoveQueue() {
 void SceneManager::update(float deltaTime) {
     processRemoveQueue();
 
-    Scene* currentScene = nullptr;
-    for (const auto& scene : _scenes) {
+    Scene *currentScene = nullptr;
+    for (const auto &scene: _scenes) {
         if (scene->getName() == _activeScene) {
             currentScene = scene.get();
             break;
@@ -44,9 +43,9 @@ void SceneManager::update(float deltaTime) {
     }
 }
 
-void SceneManager::render(const std::unique_ptr<Window>& window, float delta) {
-    Scene* currentScene = nullptr;
-    for (const auto& scene : _scenes) {
+void SceneManager::render(const std::unique_ptr<Window> &window, float delta) {
+    Scene *currentScene = nullptr;
+    for (const auto &scene: _scenes) {
         if (scene->getName() == _activeScene) {
             currentScene = scene.get();
             break;
@@ -59,12 +58,10 @@ void SceneManager::render(const std::unique_ptr<Window>& window, float delta) {
 }
 
 void SceneManager::addScene(std::unique_ptr<Scene> scene) {
-    // Process any pending removals first to avoid conflicts with same-named scenes
     processRemoveQueue();
-    
-    // Check if scene with same name already exists
+
     std::string sceneName = scene->getName();
-    for (const auto& existingScene : _scenes) {
+    for (const auto &existingScene: _scenes) {
         if (existingScene && existingScene->getName() == sceneName) {
             std::cout << "Scene '" << sceneName << "' already exists, not adding duplicate" << std::endl;
             return;
@@ -75,16 +72,15 @@ void SceneManager::addScene(std::unique_ptr<Scene> scene) {
 
 void SceneManager::setScene(std::string name) {
     if (_activeScene != name) {
-        // Increment scene generation when switching scenes
         sceneGeneration.fetch_add(1);
     }
-    
+
     if (getActiveSceneObj())
         getActiveSceneObj()->onExit();
 
     _activeScene = name;
 
-    Scene* scene = getActiveSceneObj();
+    Scene *scene = getActiveSceneObj();
 
     if (scene)
         scene->onInitialRender();
@@ -94,18 +90,19 @@ std::string SceneManager::getActiveScene() {
     return _activeScene;
 }
 
-Scene* SceneManager::getActiveSceneObj() {
-    for (auto& scene : _scenes) {
+Scene *SceneManager::getActiveSceneObj() {
+    for (auto &scene: _scenes) {
         if (scene->getName() == _activeScene) {
             return scene.get();
         }
     }
-    std::cout << "Failed to fetch scene object: no scene name corresponds to: " << _activeScene << " in _scenes vector\n";
+    std::cout << "Failed to fetch scene object: no scene name corresponds to: " << _activeScene <<
+            " in _scenes vector\n";
     return nullptr;
 }
 
-Scene * SceneManager::getScene(const std::string &name) {
-    for (const std::unique_ptr<Scene> & scene : _scenes) {
+Scene *SceneManager::getScene(const std::string &name) {
+    for (const std::unique_ptr<Scene> &scene: _scenes) {
         if (scene->getName() == name)
             return scene.get();
     }
@@ -113,7 +110,7 @@ Scene * SceneManager::getScene(const std::string &name) {
     return nullptr;
 }
 
-void SceneManager::removeScene(const std::string& name) {
+void SceneManager::removeScene(const std::string &name) {
     if (name == _activeScene) {
         std::cout << "Warning: Cannot remove active scene: " << name << std::endl;
         return;

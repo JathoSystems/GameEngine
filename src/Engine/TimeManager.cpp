@@ -1,9 +1,4 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #include "Engine/TimeManager.h"
-
 #include <chrono>
 
 void TimeManager::start() {

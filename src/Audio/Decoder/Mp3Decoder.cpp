@@ -1,11 +1,11 @@
-#include "Audio/Decoder/Mp3Decoder.h"
-
 #define DR_MP3_IMPLEMENTATION
+
+#include "Audio/Decoder/Mp3Decoder.h"
 #include "dr_mp3.h"
 #include <cstring>
 #include <SDL3/SDL.h>
 
-bool Mp3Decoder::decode(const std::string& filepath, DecodedAudio& output) {
+bool Mp3Decoder::decode(const std::string &filepath, DecodedAudio &output) {
     decodeMp3ToFloat(filepath, output);
     return !output.pcmData.empty();
 }
@@ -14,7 +14,7 @@ std::list<std::string> Mp3Decoder::getSupportedExtensions() const {
     return {"mp3"};
 }
 
-void Mp3Decoder::decodeMp3ToFloat(const std::string& filepath, DecodedAudio& output) {
+void Mp3Decoder::decodeMp3ToFloat(const std::string &filepath, DecodedAudio &output) {
     drmp3 mp3Decoder{};
 
     if (!drmp3_init_file(&mp3Decoder, filepath.c_str(), nullptr)) {

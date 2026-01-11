@@ -5,8 +5,10 @@
 
 class JsonSaveFormat : public ISaveFormat {
 public:
-    std::string serialize(const IMemento& memento) const override;
-    bool deserialize(const std::string& data, IMemento& memento) const override;
+    std::string serialize(const IMemento &memento) const override;
+
+    bool deserialize(const std::string &data, IMemento &memento) const override;
+
     std::string getExtension() const override { return ".json"; }
 };
 

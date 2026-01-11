@@ -1,11 +1,11 @@
 #include "GameObjects/Component/AudioComponent.h"
 #include <SDL3/SDL.h>
 
-AudioComponent::AudioComponent(AudioSystem* audioSystem)
+AudioComponent::AudioComponent(AudioSystem *audioSystem)
     : _audioSystem(audioSystem) {
 }
 
-void AudioComponent::addClip(const std::string& key, const std::string& filepath, float defaultVolume) {
+void AudioComponent::addClip(const std::string &key, const std::string &filepath, float defaultVolume) {
     AudioClip clip;
     clip.filepath = filepath;
     clip.defaultVolume = defaultVolume;
@@ -14,14 +14,14 @@ void AudioComponent::addClip(const std::string& key, const std::string& filepath
     _clips[key] = clip;
 }
 
-void AudioComponent::playOneShot(const std::string& key) {
+void AudioComponent::playOneShot(const std::string &key) {
     auto it = _clips.find(key);
     if (it == _clips.end()) {
         SDL_Log("AudioComponent: Clip '%s' not found", key.c_str());
         return;
     }
 
-    auto& clip = it->second;
+    auto &clip = it->second;
 
     if (!clip.isLoaded) {
         if (!_audioSystem->loadSound(key, clip.filepath)) {
@@ -34,14 +34,14 @@ void AudioComponent::playOneShot(const std::string& key) {
     _audioSystem->playSound(key, clip.defaultVolume);
 }
 
-void AudioComponent::playOneShot(const std::string& key, float volumeOverride) {
+void AudioComponent::playOneShot(const std::string &key, float volumeOverride) {
     auto it = _clips.find(key);
     if (it == _clips.end()) {
         SDL_Log("AudioComponent: Clip '%s' not found", key.c_str());
         return;
     }
 
-    auto& clip = it->second;
+    auto &clip = it->second;
 
     if (!clip.isLoaded) {
         if (!_audioSystem->loadSound(key, clip.filepath)) {
@@ -54,7 +54,7 @@ void AudioComponent::playOneShot(const std::string& key, float volumeOverride) {
     _audioSystem->playSound(key, volumeOverride);
 }
 
-void AudioComponent::play(const std::string& key, bool loop) {
+void AudioComponent::play(const std::string &key, bool loop) {
     stop();
 
     auto it = _clips.find(key);
@@ -63,7 +63,7 @@ void AudioComponent::play(const std::string& key, bool loop) {
         return;
     }
 
-    auto& clip = it->second;
+    auto &clip = it->second;
 
     if (!clip.isLoaded) {
         if (!_audioSystem->loadSound(key, clip.filepath)) {
@@ -105,5 +105,5 @@ bool AudioComponent::isPlaying() const {
 void AudioComponent::update(float delta) {
 }
 
-void AudioComponent::render(const std::unique_ptr<Window>& window) {
+void AudioComponent::render(const std::unique_ptr<Window> &window) {
 }

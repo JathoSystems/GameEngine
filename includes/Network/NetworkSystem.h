@@ -22,13 +22,14 @@ private:
 
 public:
     NetworkSystem();
+
     ~NetworkSystem();
 
-    NetworkResult connect(const std::string& ip, int port);
+    NetworkResult connect(const std::string &ip, int port);
 
     void disconnect();
 
-    void send(const Packet& packet);
+    void send(const Packet &packet);
 
     // Getters
     std::shared_ptr<NetworkMiddleware> getMiddleware() const { return middleware; }
@@ -38,5 +39,6 @@ public:
     ConnectionState getState() const { return currentState; }
 
     void update(float deltaTime) override;
+
     void shutdown();
 };

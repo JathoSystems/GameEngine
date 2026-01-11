@@ -2,7 +2,6 @@
 #include <vector>
 #include <cstdint>
 #include <string>
-#include <cstring>
 
 class Buffer {
     std::vector<uint8_t> data;

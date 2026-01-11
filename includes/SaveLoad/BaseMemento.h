@@ -3,29 +3,29 @@
 #include "IMemento.h"
 #include <nlohmann/json.hpp>
 #include <chrono>
-#include <iomanip>
-#include <sstream>
 
 class BaseMemento : public IMemento {
 public:
-    BaseMemento() : m_version(1) {}
+    BaseMemento() : m_version(1) {
+    }
+
     virtual ~BaseMemento() = default;
 
     std::string getTimestamp() const override { return m_timestamp; }
-    void setTimestamp(const std::string& timestamp) override { m_timestamp = timestamp; }
+    void setTimestamp(const std::string &timestamp) override { m_timestamp = timestamp; }
 
     int getVersion() const { return m_version; }
     void setVersion(int version) { m_version = version; }
 
-    void setData(const std::string& key, const nlohmann::json& value) {
+    void setData(const std::string &key, const nlohmann::json &value) {
         m_data[key] = value;
     }
 
-    nlohmann::json getData(const std::string& key) const {
+    nlohmann::json getData(const std::string &key) const {
         return m_data.contains(key) ? m_data[key] : nlohmann::json();
     }
 
-    bool hasData(const std::string& key) const {
+    bool hasData(const std::string &key) const {
         return m_data.contains(key);
     }
 
@@ -37,7 +37,7 @@ public:
         return j;
     }
 
-    void fromJson(const nlohmann::json& j) override {
+    void fromJson(const nlohmann::json &j) override {
         if (j.contains("version")) m_version = j["version"];
         if (j.contains("timestamp")) m_timestamp = j["timestamp"];
         if (j.contains("data")) m_data = j["data"];

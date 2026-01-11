@@ -12,28 +12,27 @@ void Scene::setCamera(std::unique_ptr<Camera> camera) {
 
 void Scene::addObject(std::unique_ptr<GameObject> newObject) {
     auto pos = std::lower_bound(_objects.begin(), _objects.end(), newObject,
-        [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
-            return a->getLayer() < b->getLayer();
-        });
+                                [](const std::unique_ptr<GameObject> &a, const std::unique_ptr<GameObject> &b) {
+                                    return a->getLayer() < b->getLayer();
+                                });
 
     _objects.insert(pos, std::move(newObject));
 }
 
-std::vector<std::unique_ptr<GameObject>>& Scene::getObjects() {
+std::vector<std::unique_ptr<GameObject> > &Scene::getObjects() {
     return _objects;
 }
 
-std::unique_ptr<GameObject>& Scene::getObject(size_t index) {
+std::unique_ptr<GameObject> &Scene::getObject(size_t index) {
     return _objects.at(index);
 }
 
-const std::string& Scene::getName() const {
+const std::string &Scene::getName() const {
     return _name;
 }
 
 void Scene::update(float deltaTime) {
-
-    for (auto& obj : _objects) {
+    for (auto &obj: _objects) {
         if (!obj || !obj.get()) continue;
         if (obj->shouldBeDestroyed()) continue;
 
@@ -42,28 +41,28 @@ void Scene::update(float deltaTime) {
 
     _objects.erase(
         std::remove_if(_objects.begin(), _objects.end(),
-            [](const auto& obj) {
-                if (obj && obj->shouldBeDestroyed()) {
-                    std::cout << "Removing object\n";
-                    return true;
-                }
-                return false;
-            }),
+                       [](const auto &obj) {
+                           if (obj && obj->shouldBeDestroyed()) {
+                               std::cout << "Removing object\n";
+                               return true;
+                           }
+                           return false;
+                       }),
         _objects.end()
     );
 
     onUpdate(deltaTime);
 }
 
-void Scene::render(const std::unique_ptr<Window>& window, float delta) {
-    SDL_Renderer* renderer = window->getRenderer();
+void Scene::render(const std::unique_ptr<Window> &window, float delta) {
+    SDL_Renderer *renderer = window->getRenderer();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    const Viewport* viewport = nullptr;
+    const Viewport *viewport = nullptr;
     if (_camera) {
         auto cameraPosition = _camera->getPosition();
-        Viewport* vp = _camera->getViewPort();
+        Viewport *vp = _camera->getViewPort();
 
         if (vp) {
             Position viewportPos(
@@ -76,7 +75,7 @@ void Scene::render(const std::unique_ptr<Window>& window, float delta) {
         }
     }
 
-    for (const std::unique_ptr<GameObject>& obj : _objects) {
+    for (const std::unique_ptr<GameObject> &obj: _objects) {
         if (!obj) continue;
 
         if (!viewport || viewport->isInViewPort(obj.get())) {
@@ -97,7 +96,7 @@ void Scene::setHUD(std::unique_ptr<HUD> hud) {
     _hud = std::move(hud);
 }
 
-HUD* Scene::getHUD() {
+HUD *Scene::getHUD() {
     return _hud.get();
 }
 

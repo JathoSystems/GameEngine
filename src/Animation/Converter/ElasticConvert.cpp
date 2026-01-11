@@ -1,8 +1,4 @@
-//
-// Created by jusra on 14-11-2025.
-//
 #include <cmath>
-
 #include "Animation/Converter/ElesticConverter.hpp"
 
 int ElasticConverter::convert(int start, int end, float t) {

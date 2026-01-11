@@ -1,7 +1,3 @@
-//
-// Created by jusra on 24-11-2025.
-//
-
 #include "AI/transition/LambdaTransition.hpp"
 
 LambdaTransition::LambdaTransition(std::string target, std::function<bool()> predicate) {

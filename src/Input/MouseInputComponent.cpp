@@ -1,5 +1,4 @@
 #include "GameObjects/Component/MouseInputComponent.h"
-
 #include "GameObjects/Transform/Position.h"
 
 MouseInputComponent::MouseInputComponent(GameObject *gameObject)

@@ -20,14 +20,14 @@ void FPSCounter::update(float deltaTime) {
     }
 }
 
-void FPSCounter::render(const std::unique_ptr<Window>& window) {
+void FPSCounter::render(const std::unique_ptr<Window> &window) {
     if (!_isVisible) return;
 
     std::stringstream ss;
     ss << "FPS: " << _currentFPS;
     std::string fpsText = ss.str();
 
-    SDL_Surface* surface = TTF_RenderText_Blended(
+    SDL_Surface *surface = TTF_RenderText_Blended(
         _font->getSdlFont(),
         fpsText.c_str(),
         fpsText.length(),
@@ -36,7 +36,7 @@ void FPSCounter::render(const std::unique_ptr<Window>& window) {
 
     if (!surface) return;
 
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(window->getRenderer(), surface);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(window->getRenderer(), surface);
     SDL_DestroySurface(surface);
 
     if (!texture) return;

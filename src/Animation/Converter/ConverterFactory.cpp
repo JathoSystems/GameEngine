@@ -1,9 +1,4 @@
-//
-// Created by jusra on 14-11-2025.
-//
-
 #include "Animation/Converter/ConverterFactory.hpp"
-
 #include "Animation/Animation.hpp"
 #include "Animation/Converter/BounceConverter.hpp"
 #include "Animation/Converter/EieoConverter.hpp"

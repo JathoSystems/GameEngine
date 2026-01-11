@@ -9,12 +9,12 @@ Viewport::Viewport(Size size, Position position)
     : _size(size), _position(position) {
 }
 
-bool Viewport::isInViewPort(GameObject* object) const {
+bool Viewport::isInViewPort(GameObject *object) const {
     if (!object) {
         return false;
     }
 
-    Transform* transform = object->getTransform();
+    Transform *transform = object->getTransform();
 
     if (!transform) {
         return false;

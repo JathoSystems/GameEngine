@@ -1,20 +1,12 @@
-//
-// Created by jusra on 12-12-2025.
-//
-
 #include "../../includes/GameObjects/ObjectRegistry.hpp"
-
 #include <iostream>
 #include <random>
-
 #include "Network/NetworkSystem.h"
 
-ObjectRegistry& ObjectRegistry::getInstance() {
+ObjectRegistry &ObjectRegistry::getInstance() {
     static ObjectRegistry instance;
     return instance;
 }
-
-#include <random>
 
 int ObjectRegistry::generateToken() {
     static std::random_device rd;
@@ -25,7 +17,7 @@ int ObjectRegistry::generateToken() {
     return _nextTokenId;
 }
 
-GameObject* ObjectRegistry::getObject(int key) {
+GameObject *ObjectRegistry::getObject(int key) {
     auto it = _objects.find(key);
     return (it != _objects.end()) ? it->second : nullptr;
 }
@@ -38,7 +30,7 @@ void ObjectRegistry::insert(GameObject *obj, int key) {
     }
 }
 
-int ObjectRegistry::registerObject(GameObject* obj) {
+int ObjectRegistry::registerObject(GameObject *obj) {
     int key = -1;
     int limit = MAX_BROADCASTABLE;
     int counter = 0;
@@ -49,8 +41,8 @@ int ObjectRegistry::registerObject(GameObject* obj) {
 
     if (key == -1) {
         std::cerr << "Failed to register object after " << limit
-                 << " attempts. Registry may be full or experiencing excessive collisions.\n"
-                 << "       Current registry size: " << _objects.size() << "\n";
+                << " attempts. Registry may be full or experiencing excessive collisions.\n"
+                << "       Current registry size: " << _objects.size() << "\n";
         return -1;
     }
 
@@ -66,4 +58,3 @@ void ObjectRegistry::clear() {
     _objects.clear();
     std::cout << "[ObjectRegistry] Cleared all objects" << std::endl;
 }
-

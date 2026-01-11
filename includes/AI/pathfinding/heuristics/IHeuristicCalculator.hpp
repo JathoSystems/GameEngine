@@ -1,7 +1,3 @@
-//
-// Created by jusra on 24-11-2025.
-//
-
 #ifndef GAMEENGINE_IHEURISTICCALCULATOR_HPP
 #define GAMEENGINE_IHEURISTICCALCULATOR_HPP
 #include "GameObjects/Transform/Position.h"

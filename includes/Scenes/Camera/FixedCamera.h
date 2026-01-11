@@ -8,6 +8,8 @@ private:
 
 public:
     FixedCamera(std::unique_ptr<Viewport> viewport, Position position);
+
     void move(Position position);
+
     Position getPosition() const override;
 };

@@ -1,7 +1,6 @@
 #ifndef GAMEENGINE_TRANSFORM_H
 #define GAMEENGINE_TRANSFORM_H
 #include <memory>
-
 #include "Position.h"
 #include "Rotation.h"
 #include "Scale.h"
@@ -18,10 +17,14 @@ private:
 public:
     Transform();
 
-    Position* getPosition();
-    Rotation* getRotation();
-    Scale* getScale();
-    Size* getSize();
+    Position *getPosition();
+
+    Rotation *getRotation();
+
+    Scale *getScale();
+
+    Size *getSize();
+
     SDL_FRect toFRect();
 };
 

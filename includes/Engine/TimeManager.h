@@ -1,7 +1,3 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #ifndef GAMEENGINE_TIMEMANAGER_H
 #define GAMEENGINE_TIMEMANAGER_H
 #include <chrono>
@@ -14,13 +10,17 @@ private:
 
 public:
     float getTimeScale();
+
     void setTimeScale(float timeScale);
 
     bool isPaused();
+
     void pause();
+
     void resume();
 
     void start();
+
     float update();
 };
 

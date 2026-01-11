@@ -1,10 +1,4 @@
-//
-// Created by jusra on 10-11-2025.
-//
-
 #include "GameObjects/Spritesheet/Animator.h"
-
-#include <iostream>
 
 Animator::Animator(std::string path, int rows, int cols) {
     _sheet = std::make_unique<SpriteSheet>(path, rows, cols);

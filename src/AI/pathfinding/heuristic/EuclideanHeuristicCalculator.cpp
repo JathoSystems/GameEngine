@@ -1,9 +1,4 @@
-//
-// Created by jusra on 24-11-2025.
-//
-
 #include "AI/pathfinding/heuristics/EuclideanHeuristicCalculator.hpp"
-
 #include <cmath>
 
 int EuclideanHeuristicCalculator::calculateHeuristic(const Position &a, const Position &b) {

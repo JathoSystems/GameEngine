@@ -39,13 +39,11 @@ void Window::setActiveViewport(const Viewport *viewport) {
     _activeViewport = viewport;
 }
 
-const Viewport * Window::getActiveViewport() const {
+const Viewport *Window::getActiveViewport() const {
     return _activeViewport;
 }
 
 Window::~Window() {
-    // Check if SDL is still initialized before trying to destroy resources
-    // This prevents crashes from double-cleanup scenarios
     if (_renderer) {
         SDL_DestroyRenderer(_renderer);
         _renderer = nullptr;

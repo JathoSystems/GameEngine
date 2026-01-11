@@ -1,9 +1,4 @@
-//
-// Created by jusra on 24-11-2025.
-//
-
 #include <iostream>
-
 #include "AI/pathfinding/heuristics/HeuristicCalculatorFactory.hpp"
 #include "AI/pathfinding/heuristics/EuclideanHeuristicCalculator.hpp"
 #include "AI/pathfinding/heuristics/ManhattenHeuristicCalculator.hpp"
