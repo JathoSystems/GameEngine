@@ -31,8 +31,6 @@ public:
     bool isStreamValid(int streamHandle) const;
     float getMasterVolume() const { return m_masterVolume; }
 
-    void stopAudio(int current_music_handle);
-
 private:
     struct AudioStream {
         SDL_AudioStream* stream = nullptr;

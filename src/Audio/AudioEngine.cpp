@@ -36,17 +36,12 @@ bool AudioEngine::initialize(int frequency, SDL_AudioFormat format, int channels
 }
 
 void AudioEngine::shutdown() {
-    for (auto& streamPtr : m_activeStreams) {
-        if (streamPtr && streamPtr->stream) {
-            SDL_DestroyAudioStream(streamPtr->stream);
-        }
-    }
-    m_activeStreams.clear();
-
     if (m_audioDevice) {
         SDL_CloseAudioDevice(m_audioDevice);
         m_audioDevice = 0;
     }
+    
+    m_activeStreams.clear();
 
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
@@ -183,28 +178,4 @@ bool AudioEngine::isStreamValid(int streamHandle) const {
            streamHandle < static_cast<int>(m_activeStreams.size()) &&
            m_activeStreams[streamHandle] &&
            m_activeStreams[streamHandle]->stream;
-}
-
-void AudioEngine::stopAudio(int streamHandle) {
-    if (!isStreamValid(streamHandle)) {
-        return;
-    }
-
-    auto& audioStream = m_activeStreams[streamHandle];
-
-    if (audioStream && audioStream->stream) {
-        // Pause de stream eerst
-        SDL_PauseAudioStreamDevice(audioStream->stream);
-
-        // Verwijder alle pending audio data
-        SDL_ClearAudioStream(audioStream->stream);
-
-        // Destroy de stream
-        SDL_DestroyAudioStream(audioStream->stream);
-        audioStream->stream = nullptr;
-    }
-
-    // Optioneel: verwijder de stream uit de actieve lijst
-    // of markeer als inactive
-    m_activeStreams[streamHandle] = nullptr;
 }
