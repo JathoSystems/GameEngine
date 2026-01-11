@@ -109,3 +109,7 @@ void PhysicsSystem::getGravity(float& x, float& y) const {
     x = _gravityX;
     y = _gravityY;
 }
+
+void PhysicsSystem::clearAllComponents() {
+    _components.clear();
+}
