@@ -1,6 +1,7 @@
 #include "Input/InputSystem.h"
 #include "GameObjects/Component/KeyInputComponent.h"
 #include "GameObjects/Component/MouseInputComponent.h"
+#include "Engine/GameEngine.h"
 #include <algorithm>
 #include <unordered_map>
 
@@ -74,9 +75,10 @@ void InputSystem::processInput() {
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_EVENT_QUIT:
-                SDL_Quit();
-                exit(0);
-                break;
+                // Don't call SDL_Quit() and exit() here - let GameEngine handle cleanup properly
+                // This prevents double-cleanup crashes with D3D11 renderer
+                GameEngine::getInstance().stop();
+                return;  // Exit the input processing loop
             case SDL_EVENT_KEY_DOWN: {
                 Key key = sdlKeyToKey(event.key.key);
                 for (auto *component: _keyComponents) {

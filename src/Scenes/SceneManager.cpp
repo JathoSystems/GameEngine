@@ -59,6 +59,14 @@ void SceneManager::render(const std::unique_ptr<Window>& window, float delta) {
 }
 
 void SceneManager::addScene(std::unique_ptr<Scene> scene) {
+    // Check if scene with same name already exists
+    std::string sceneName = scene->getName();
+    for (const auto& existingScene : _scenes) {
+        if (existingScene && existingScene->getName() == sceneName) {
+            std::cout << "Scene '" << sceneName << "' already exists, not adding duplicate" << std::endl;
+            return;
+        }
+    }
     _scenes.push_back(std::move(scene));
 }
 
