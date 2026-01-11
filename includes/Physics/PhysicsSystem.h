@@ -31,6 +31,8 @@ public:
 
     void setGravity(float x, float y);
     void getGravity(float& x, float& y) const;
+
+    void clearAllComponents();
 };
 
 #endif

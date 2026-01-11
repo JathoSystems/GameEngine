@@ -9,6 +9,7 @@
 class Broadcastable {
 private:
     int _id;
+    GameObject* _gameObject;  // Store reference to check in destructor
 
 public:
     Broadcastable(GameObject* gameObject, int id);

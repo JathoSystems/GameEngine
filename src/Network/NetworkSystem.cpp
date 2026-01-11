@@ -81,7 +81,10 @@ void NetworkSystem::send(const Packet& packet) {
 }
 
 void NetworkSystem::update(float deltaTime) {
-
+    // Process all queued packets on the main thread
+    if (middleware) {
+        middleware->processPacketQueue();
+    }
 }
 
 void NetworkSystem::shutdown() {

@@ -17,6 +17,7 @@ private:
     int currentMusicHandle = -1;
     std::string currentMusicKey;
     bool isPaused = false;
+    bool isShuttingDown = false;
 
 public:
     AudioSystem();

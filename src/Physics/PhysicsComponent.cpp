@@ -193,3 +193,11 @@ void PhysicsComponent::applyTorque(float torque) {
         _box2DFacade->applyTorque(_bodyId, torque);
     }
 }
+
+void PhysicsComponent::destroyBody() {
+    if (B2_IS_NON_NULL(_bodyId) && _box2DFacade) {
+        _box2DFacade->destroyBody(_bodyId);
+        _bodyId = b2_nullBodyId;
+        _initialized = false;
+    }
+}

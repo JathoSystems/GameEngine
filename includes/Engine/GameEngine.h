@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <type_traits>
 
 #include "ISystem.h"
 #include "TimeManager.h"
@@ -28,6 +29,12 @@ public:
 	void stop();
 	const std::unique_ptr<Window>& getWindow() const;
 	TimeManager* getTimeManager() const { return _timeManager.get(); }
+
+	template<typename T>
+	void addSystem(std::unique_ptr<T> system) {
+		static_assert(std::is_base_of<ISystem, T>::value, "T must derive from ISystem");
+		_systems.push_back(std::move(system));
+	}
 
 	template<typename T>  T* getSystem() {
 		for (auto& system : _systems) {

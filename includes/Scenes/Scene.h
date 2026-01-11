@@ -18,6 +18,7 @@ private:
 
 public:
     explicit Scene(std::string name);
+    virtual ~Scene() = default;
 
     void setHUD(std::unique_ptr<HUD> hud);
     HUD* getHUD();
@@ -28,12 +29,14 @@ public:
     std::vector<std::unique_ptr<GameObject>>& getObjects();
     std::unique_ptr<GameObject>& getObject(size_t index);
     const std::string& getName() const;
+    void setName(const std::string& name) { _name = name; }
 
     void update(float deltaTime);
     void render(const std::unique_ptr<Window>& window, float delta);
 
     virtual void onUpdate(float deltaTime) {};
     virtual void onInitialRender() { };
+    virtual void onExit() {};
 };
 
 #endif

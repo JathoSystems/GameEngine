@@ -14,11 +14,12 @@ private:
 public:
     ~SceneSystem() = default;
 
-    SceneSystem(const std::unique_ptr<Window> &window, SceneManager* sceneManager);  // Add parameter
+    SceneSystem(const std::unique_ptr<Window> &window, SceneManager* sceneManager);
 
     void update(float deltaTime) override;
     void addScene(std::unique_ptr<Scene> scene);
     void setScene(std::string name);
+    void removeScene(const std::string& name);
     Scene* getScene(const std::string &name);
     Scene* getActiveSceneObj();
 };

@@ -41,6 +41,8 @@ public:
     void applyImpulse(float ix, float iy);
     void applyTorque(float torque);
     bool isInitialized() const { return B2_IS_NON_NULL(_bodyId); }
+
+    void destroyBody();
 };
 
 #endif

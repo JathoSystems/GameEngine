@@ -44,7 +44,15 @@ const Viewport * Window::getActiveViewport() const {
 }
 
 Window::~Window() {
-    if (_renderer) SDL_DestroyRenderer(_renderer);
-    if (_window) SDL_DestroyWindow(_window);
+    // Check if SDL is still initialized before trying to destroy resources
+    // This prevents crashes from double-cleanup scenarios
+    if (_renderer) {
+        SDL_DestroyRenderer(_renderer);
+        _renderer = nullptr;
+    }
+    if (_window) {
+        SDL_DestroyWindow(_window);
+        _window = nullptr;
+    }
     SDL_Quit();
 }

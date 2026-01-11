@@ -37,6 +37,11 @@ public:
         std::lock_guard<std::mutex> lock(_mutex);
         _data.erase(key);
     }
+
+    void clear() {
+        std::lock_guard<std::mutex> lock(_mutex);
+        _data.clear();
+    }
 };
 
 
