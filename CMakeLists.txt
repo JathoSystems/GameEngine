@@ -69,12 +69,12 @@ set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
 
 if (NOT DEFINED BOX2D_GIT_TAG)
     set(BOX2D_GIT_TAG "v3.0.0" CACHE STRING "Box2D git tag/branch/commit to fetch")
-endif()
+endif ()
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/box2d/CMakeLists.txt")
     message(STATUS "Using local external/box2d")
     add_subdirectory(external/box2d EXCLUDE_FROM_ALL)
-else()
+else ()
     message(STATUS "Fetching Box2D via FetchContent (ref: ${BOX2D_GIT_TAG})")
     FetchContent_Declare(
             box2d
@@ -85,13 +85,13 @@ else()
     set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(box2d)
-endif()
+endif ()
 
 # --- dr_mp3 Download ---
 set(DR_MP3_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(DR_MP3_FILE "${DR_MP3_DIR}/dr_mp3.h")
 
-if(NOT EXISTS ${DR_MP3_FILE})
+if (NOT EXISTS ${DR_MP3_FILE})
     message(STATUS "Downloading dr_mp3.h...")
     file(MAKE_DIRECTORY ${DR_MP3_DIR})
     file(DOWNLOAD
@@ -101,13 +101,13 @@ if(NOT EXISTS ${DR_MP3_FILE})
             STATUS DOWNLOAD_STATUS
     )
     list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
-    if(NOT STATUS_CODE EQUAL 0)
+    if (NOT STATUS_CODE EQUAL 0)
         message(FATAL_ERROR "Failed to download dr_mp3.h (status: ${DOWNLOAD_STATUS})")
-    endif()
+    endif ()
     message(STATUS "Downloaded dr_mp3.h successfully")
-else()
+else ()
     message(STATUS "dr_mp3.h already exists")
-endif()
+endif ()
 
 # --- ASIO ---
 FetchContent_Declare(
@@ -199,10 +199,6 @@ add_library(Engine SHARED
         src/Physics/PhysicsSystem.cpp
         src/Physics/PhysicsComponent.cpp
         src/Physics/Box2DFacade.cpp
-        src/Physics/Material.cpp
-        src/Physics/RigidBody.cpp
-        src/Physics/Collider.cpp
-        src/SaveLoad/BaseMemento.cpp
         src/SaveLoad/JsonSaveFormat.cpp
         src/SaveLoad/SaveCaretaker.cpp
         src/SaveLoad/SaveLoadSystem.cpp
@@ -233,10 +229,10 @@ add_library(Engine SHARED
 
 target_include_directories(Engine
         PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/includes
-            ${asio_SOURCE_DIR}/asio/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/includes
+        ${asio_SOURCE_DIR}/asio/include
         PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/external
+        ${CMAKE_CURRENT_SOURCE_DIR}/external
 )
 
 
@@ -250,13 +246,13 @@ target_link_libraries(Engine
 )
 
 # Platform-specific libraries for ASIO
-if(WIN32)
+if (WIN32)
     target_link_libraries(Engine PUBLIC ws2_32 mswsock)
-elseif(UNIX AND NOT APPLE)
+elseif (UNIX AND NOT APPLE)
     target_link_libraries(Engine PUBLIC pthread)
-elseif(APPLE)
+elseif (APPLE)
     target_link_libraries(Engine PUBLIC "-framework CoreFoundation")
-endif()
+endif ()
 
 # --- Game Executable ---
 add_executable(GameEngine

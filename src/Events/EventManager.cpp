@@ -1,7 +1,5 @@
 #include "Events/EventManager.h"
 
-#include <iostream>
-
 EventManager::EventManager(std::shared_ptr<NetworkMiddleware> network)
     : networkMiddleware(network) {
 }

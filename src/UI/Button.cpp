@@ -1,6 +1,3 @@
-//
-// Created by jusra on 11-11-2025.
-//
 #include "UI/Button.h"
 #include <iostream>
 
@@ -31,14 +28,15 @@ void Button::setPadding(int paddingX, int paddingY) {
 void Button::update(float deltaTime) {
     if (!_parent) return;
 
-    Transform* transform = _parent->getTransform();
+    Transform *transform = _parent->getTransform();
     if (!transform) return;
 
     SDL_FRect rect = transform->toFRect();
 
     if (rect.w == 0 || rect.h == 0) {
         if (_font && !_text.empty()) {
-            SDL_Surface* surface = TTF_RenderText_Solid(_font->getSdlFont(), _text.c_str(), 0, _textColor->toSdlColor());
+            SDL_Surface *surface =
+                    TTF_RenderText_Solid(_font->getSdlFont(), _text.c_str(), 0, _textColor->toSdlColor());
             if (surface) {
                 if (rect.w == 0) rect.w = surface->w + (_paddingX * 2);
                 if (rect.h == 0) rect.h = surface->h + (_paddingY * 2);
@@ -76,9 +74,7 @@ void Button::render(const std::unique_ptr<Window> &window) {
 
     SDL_FRect rect = transform->toFRect();
 
-    // Check font and text BEFORE creating surface
     if (!_font || !_font->getSdlFont() || _text.empty()) {
-        // Still render the background even without text
         SDL_SetRenderDrawColor(renderer,
                                _backgroundColor->getR(),
                                _backgroundColor->getG(),
@@ -90,7 +86,6 @@ void Button::render(const std::unique_ptr<Window> &window) {
 
     SDL_Surface *surface = TTF_RenderText_Solid(_font->getSdlFont(), _text.c_str(), 0, _textColor->toSdlColor());
     if (!surface) {
-        // Render background even if text rendering failed
         SDL_SetRenderDrawColor(renderer,
                                _backgroundColor->getR(),
                                _backgroundColor->getG(),

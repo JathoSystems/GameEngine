@@ -4,9 +4,9 @@
 
 void HUD::addObject(std::unique_ptr<GameObject> object) {
     auto pos = std::lower_bound(_hudObjects.begin(), _hudObjects.end(), object,
-        [](const std::unique_ptr<GameObject>& a, const std::unique_ptr<GameObject>& b) {
-            return a->getLayer() < b->getLayer();
-        });
+                                [](const std::unique_ptr<GameObject> &a, const std::unique_ptr<GameObject> &b) {
+                                    return a->getLayer() < b->getLayer();
+                                });
     _hudObjects.insert(pos, std::move(object));
 }
 
@@ -30,15 +30,15 @@ void HUD::removeFpsCounter() {
     _fpsCounter.reset();
 }
 
-FPSCounter* HUD::getFPSCounter() const {
+FPSCounter *HUD::getFPSCounter() const {
     return _fpsCounter.get();
 }
 
-std::vector<std::unique_ptr<GameObject>>& HUD::getObjects() {
+std::vector<std::unique_ptr<GameObject> > &HUD::getObjects() {
     return _hudObjects;
 }
 
-GameObject* HUD::getObject(size_t index) {
+GameObject *HUD::getObject(size_t index) {
     if (index >= _hudObjects.size()) {
         return nullptr;
     }
@@ -54,20 +54,20 @@ void HUD::update(float delta) {
         _fpsCounter->update(delta);
     }
 
-    for (const auto& obj : _hudObjects) {
+    for (const auto &obj: _hudObjects) {
         obj->update(delta);
     }
 }
 
-void HUD::render(const std::unique_ptr<Window>& window) {
-    const Viewport* currentViewport = window->getActiveViewport();
+void HUD::render(const std::unique_ptr<Window> &window) {
+    const Viewport *currentViewport = window->getActiveViewport();
     window->setActiveViewport(nullptr);
 
     if (_fpsCounter) {
         _fpsCounter->render(window);
     }
 
-    for (const auto& obj : _hudObjects) {
+    for (const auto &obj: _hudObjects) {
         obj->render(window);
     }
 

@@ -1,7 +1,3 @@
-//
-// Created by kikker234 on 07-11-2025.
-//
-
 #include "GameObjects/Transform/Position.h"
 
 Position::Position(int x, int y) {

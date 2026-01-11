@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <unordered_map>
 
-// Ugly maar nodig
 static const std::unordered_map<SDL_Keycode, Key> SDL_TO_KEY_MAP = {
     {SDLK_A, Key::A}, {SDLK_B, Key::B}, {SDLK_C, Key::C}, {SDLK_D, Key::D},
     {SDLK_E, Key::E}, {SDLK_F, Key::F}, {SDLK_G, Key::G}, {SDLK_H, Key::H},
@@ -58,7 +57,6 @@ Key InputSystem::sdlKeyToKey(SDL_Keycode sdlKey) {
 }
 
 
-
 MouseButton InputSystem::sdlButtonToButton(uint8_t sdlButton) {
     switch (sdlButton) {
         case SDL_BUTTON_LEFT: return MouseButton::LEFT;
@@ -75,10 +73,8 @@ void InputSystem::processInput() {
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_EVENT_QUIT:
-                // Don't call SDL_Quit() and exit() here - let GameEngine handle cleanup properly
-                // This prevents double-cleanup crashes with D3D11 renderer
                 GameEngine::getInstance().stop();
-                return;  // Exit the input processing loop
+                return;
             case SDL_EVENT_KEY_DOWN: {
                 Key key = sdlKeyToKey(event.key.key);
                 for (auto *component: _keyComponents) {

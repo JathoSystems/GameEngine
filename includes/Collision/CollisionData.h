@@ -4,13 +4,14 @@
 class GameObject;
 
 struct CollisionData {
-    GameObject* other;
+    GameObject *other;
     float normalX;
     float normalY;
     bool isTouching;
 
-    CollisionData(GameObject* obj, float nx, float ny, bool touching)
-        : other(obj), normalX(nx), normalY(ny), isTouching(touching) {}
+    CollisionData(GameObject *obj, float nx, float ny, bool touching)
+        : other(obj), normalX(nx), normalY(ny), isTouching(touching) {
+    }
 };
 
 #endif

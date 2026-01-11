@@ -6,12 +6,14 @@
 
 class WavDecoder : public IAudioDecoder {
 public:
-    bool decode(const std::string& filepath, DecodedAudio& output) override;
+    bool decode(const std::string &filepath, DecodedAudio &output) override;
+
     std::list<std::string> getSupportedExtensions() const override;
 
 private:
-    void loadWavFile(const std::string& filepath, DecodedAudio& output);
-    bool validateWavFormat(const SDL_AudioSpec& spec) const;
+    void loadWavFile(const std::string &filepath, DecodedAudio &output);
+
+    bool validateWavFormat(const SDL_AudioSpec &spec) const;
 };
 
 #endif

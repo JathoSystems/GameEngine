@@ -3,12 +3,10 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
-#include <cmath>
 #include <unordered_set>
 #include <queue>
 #include <iostream>
 #include <unordered_map>
-
 #include "AI/pathfinding/heuristics/HeuristicCalculatorFactory.hpp"
 #include "AI/pathfinding/heuristics/IHeuristicCalculator.hpp"
 
@@ -28,7 +26,6 @@ struct Node {
     }
 };
 
-// FixMe: check if object has an rigid body and only then consider it as obstacle
 static bool isWalkable(Scene *scene, const Position &pos, int cellSize) {
     if (!scene) {
         return false;
@@ -64,7 +61,8 @@ std::vector<std::unique_ptr<Position> > AStarPathfinder::getPath(Scene *scene,
                                                                  int cellSize,
                                                                  std::string heuristicType) {
     std::vector<std::unique_ptr<Position> > path;
-    std::unique_ptr<IHeuristicCalculator> heuristicCalculator = HeuristicCalculatorFactory::getHeuristicCalculator(heuristicType);
+    std::unique_ptr<IHeuristicCalculator> heuristicCalculator =
+            HeuristicCalculatorFactory::getHeuristicCalculator(heuristicType);
     if (!scene) {
         return path;
     }
@@ -96,7 +94,7 @@ std::vector<std::unique_ptr<Position> > AStarPathfinder::getPath(Scene *scene,
 
     std::priority_queue<Node, std::vector<Node>, std::greater<Node> > openSet;
     std::unordered_set<Position> closedSet;
-    std::unordered_map<Position, std::unique_ptr<Node>> nodeMap;
+    std::unordered_map<Position, std::unique_ptr<Node> > nodeMap;
 
     int heuristic = heuristicCalculator->calculateHeuristic(gridStart, gridEnd);
     auto startNode = std::make_unique<Node>(gridStart, 0, heuristic);
@@ -144,7 +142,7 @@ std::vector<std::unique_ptr<Position> > AStarPathfinder::getPath(Scene *scene,
             }
 
             int newG = current.cost + 1;
-            int newH =  heuristicCalculator->calculateHeuristic(neighbor, gridEnd);
+            int newH = heuristicCalculator->calculateHeuristic(neighbor, gridEnd);
 
             auto it = nodeMap.find(neighbor);
             if (it != nodeMap.end() && it->second->cost <= newG) {

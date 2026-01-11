@@ -1,6 +1,3 @@
-//
-// Created by jusra on 11-11-2025.
-//
 #ifndef GAMEENGINE_BUTTON_H
 #define GAMEENGINE_BUTTON_H
 #include <functional>
@@ -18,6 +15,7 @@ private:
     std::unique_ptr<Color> _backgroundColor;
     std::unique_ptr<Color> _textColor;
     std::function<void()> _onClickCallback;
+
 public:
     Button(std::string buttonText, std::unique_ptr<Color> backgroundColor);
 

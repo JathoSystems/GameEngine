@@ -1,6 +1,3 @@
-//
-// Created by jusra on 14-11-2025.
-//
 #include "Animation/Converter/EieoConverter.hpp"
 
 int EieoConverter::convert(int start, int end, float t) {

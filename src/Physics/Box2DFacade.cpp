@@ -36,7 +36,7 @@ void Box2DFacade::setGravity(float x, float y) {
     }
 }
 
-b2BodyId Box2DFacade::createBody(GameObject* userData, BodyType type, float x, float y, float angle) {
+b2BodyId Box2DFacade::createBody(GameObject *userData, BodyType type, float x, float y, float angle) {
     if (B2_IS_NULL(_worldId)) {
         std::cerr << "Cannot create body: world not initialized!" << std::endl;
         return b2_nullBodyId;
@@ -75,7 +75,7 @@ void Box2DFacade::destroyBody(b2BodyId bodyId) {
 }
 
 void Box2DFacade::createBoxShape(b2BodyId bodyId, float width, float height,
-                                  float offsetX, float offsetY, const Material& material) {
+                                 float offsetX, float offsetY, const Material &material) {
     if (B2_IS_NULL(bodyId)) {
         std::cerr << "Cannot create box shape: invalid body!" << std::endl;
         return;
@@ -86,14 +86,13 @@ void Box2DFacade::createBoxShape(b2BodyId bodyId, float width, float height,
     shapeDef.friction = material.getFriction();
     shapeDef.restitution = material.getRestitution();
 
-    // BOX2D EXPECTS HALF-WIDTHS, NOT FULL DIMENSIONS
     float halfWidth = width / 2.0f;
     float halfHeight = height / 2.0f;
 
     b2Polygon box;
     if (offsetX != 0.0f || offsetY != 0.0f) {
         b2Vec2 center = {offsetX, offsetY};
-        box = b2MakeOffsetBox(halfWidth, halfHeight, center, 0.0f);  // Pass 0.0f for no rotation
+        box = b2MakeOffsetBox(halfWidth, halfHeight, center, 0.0f);
     } else {
         box = b2MakeBox(halfWidth, halfHeight);
     }
@@ -106,7 +105,7 @@ void Box2DFacade::createBoxShape(b2BodyId bodyId, float width, float height,
 }
 
 void Box2DFacade::createCircleShape(b2BodyId bodyId, float radius,
-                                    float offsetX, float offsetY, const Material& material) {
+                                    float offsetX, float offsetY, const Material &material) {
     if (B2_IS_NULL(bodyId)) {
         std::cerr << "Cannot create circle shape: invalid body!" << std::endl;
         return;
@@ -128,7 +127,7 @@ void Box2DFacade::createCircleShape(b2BodyId bodyId, float radius,
     }
 }
 
-void Box2DFacade::getPosition(b2BodyId bodyId, float& x, float& y) {
+void Box2DFacade::getPosition(b2BodyId bodyId, float &x, float &y) {
     if (B2_IS_NON_NULL(bodyId)) {
         b2Vec2 pos = b2Body_GetPosition(bodyId);
         x = pos.x;
@@ -157,7 +156,7 @@ void Box2DFacade::setVelocity(b2BodyId bodyId, float vx, float vy) {
     }
 }
 
-void Box2DFacade::getVelocity(b2BodyId bodyId, float& vx, float& vy) {
+void Box2DFacade::getVelocity(b2BodyId bodyId, float &vx, float &vy) {
     if (B2_IS_NON_NULL(bodyId)) {
         b2Vec2 vel = b2Body_GetLinearVelocity(bodyId);
         vx = vel.x;

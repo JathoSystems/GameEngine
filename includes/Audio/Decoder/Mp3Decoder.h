@@ -5,11 +5,12 @@
 
 class Mp3Decoder : public IAudioDecoder {
 public:
-    bool decode(const std::string& filepath, DecodedAudio& output) override;
+    bool decode(const std::string &filepath, DecodedAudio &output) override;
+
     std::list<std::string> getSupportedExtensions() const override;
 
 private:
-    void decodeMp3ToFloat(const std::string& filepath, DecodedAudio& output);
+    void decodeMp3ToFloat(const std::string &filepath, DecodedAudio &output);
 };
 
 #endif

@@ -8,7 +8,8 @@ public:
     float restitution;
 
     Material(float density = 1.0f, float friction = 0.4f, float restitution = 0.0f)
-        : density(density), friction(friction), restitution(restitution) {}
+        : density(density), friction(friction), restitution(restitution) {
+    }
 
     float getDensity() const { return density; }
     float getFriction() const { return friction; }

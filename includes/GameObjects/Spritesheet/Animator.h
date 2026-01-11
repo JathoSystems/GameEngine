@@ -1,7 +1,3 @@
-//
-// Created by jusra on 10-11-2025.
-//
-
 #ifndef GAMEENGINE_ANIMATOR_H
 #define GAMEENGINE_ANIMATOR_H
 #include "Spritesheet.h"

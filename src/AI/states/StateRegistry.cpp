@@ -1,11 +1,8 @@
-//
-// Created by kikker234 on 22-11-2025.
-//
 #include "AI/states/StateRegistry.h"
 
 StateRegistry::StateRegistry() = default;
 
-StateRegistry& StateRegistry::getInstance() {
+StateRegistry &StateRegistry::getInstance() {
     static StateRegistry instance;
     return instance;
 }

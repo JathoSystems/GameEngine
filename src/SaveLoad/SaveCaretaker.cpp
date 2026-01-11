@@ -12,7 +12,7 @@ SaveCaretaker::SaveCaretaker(std::string saveDirectory, std::unique_ptr<ISaveFor
     fs::create_directories(m_saveDirectory);
 }
 
-std::string SaveCaretaker::getSavePath(const std::string& slotName) const {
+std::string SaveCaretaker::getSavePath(const std::string &slotName) const {
     return (fs::path(m_saveDirectory) / (slotName + m_formatStrategy->getExtension())).string();
 }
 
@@ -31,7 +31,7 @@ std::string SaveCaretaker::iso8601UtcNow() const {
     return ss.str();
 }
 
-bool SaveCaretaker::writeAtomically(const std::string& path, const std::string& data) const {
+bool SaveCaretaker::writeAtomically(const std::string &path, const std::string &data) const {
     try {
         fs::path target(path);
         fs::create_directories(target.parent_path());
@@ -53,11 +53,10 @@ bool SaveCaretaker::writeAtomically(const std::string& path, const std::string& 
     }
 }
 
-bool SaveCaretaker::save(const IMemento& memento, const std::string& slotName) {
+bool SaveCaretaker::save(const IMemento &memento, const std::string &slotName) {
     try {
-        // Auto-set timestamp if empty
         if (memento.getTimestamp().empty()) {
-            const_cast<IMemento&>(memento).setTimestamp(iso8601UtcNow());
+            const_cast<IMemento &>(memento).setTimestamp(iso8601UtcNow());
         }
 
         std::string serialized = m_formatStrategy->serialize(memento);
@@ -67,7 +66,7 @@ bool SaveCaretaker::save(const IMemento& memento, const std::string& slotName) {
     }
 }
 
-bool SaveCaretaker::load(IMemento& memento, const std::string& slotName) const {
+bool SaveCaretaker::load(IMemento &memento, const std::string &slotName) const {
     try {
         fs::path p(getSavePath(slotName));
         if (!fs::exists(p) || !fs::is_regular_file(p)) return false;
@@ -87,15 +86,13 @@ std::vector<SaveFileInfo> SaveCaretaker::listSaves() const {
     try {
         if (!fs::exists(m_saveDirectory)) return result;
 
-        for (const auto& entry : fs::directory_iterator(m_saveDirectory)) {
+        for (const auto &entry: fs::directory_iterator(m_saveDirectory)) {
             if (entry.is_regular_file() &&
                 entry.path().extension() == m_formatStrategy->getExtension()) {
-
                 SaveFileInfo info;
                 info.name = entry.path().stem().string();
                 info.path = entry.path().string();
 
-                // Try to read timestamp without full deserialization
                 try {
                     std::ifstream in(entry.path(), std::ios::binary);
                     std::string content((std::istreambuf_iterator<char>(in)), {});
@@ -103,16 +100,18 @@ std::vector<SaveFileInfo> SaveCaretaker::listSaves() const {
                     if (j.contains("timestamp")) {
                         info.timestamp = j["timestamp"];
                     }
-                } catch (...) {}
+                } catch (...) {
+                }
 
                 result.push_back(info);
             }
         }
-    } catch (...) {}
+    } catch (...) {
+    }
     return result;
 }
 
-bool SaveCaretaker::deleteSave(const std::string& slotName) {
+bool SaveCaretaker::deleteSave(const std::string &slotName) {
     try {
         return fs::remove(getSavePath(slotName));
     } catch (...) {
@@ -120,6 +119,6 @@ bool SaveCaretaker::deleteSave(const std::string& slotName) {
     }
 }
 
-bool SaveCaretaker::exists(const std::string& slotName) const {
+bool SaveCaretaker::exists(const std::string &slotName) const {
     return fs::exists(getSavePath(slotName));
 }

@@ -20,21 +20,28 @@ private:
 
 public:
     FPSCounter();
+
     ~FPSCounter() = default;
 
     void update(float deltaTime);
-    void render(const std::unique_ptr<Window>& window);
+
+    void render(const std::unique_ptr<Window> &window);
 
     void setPosition(float x, float y);
+
     void setSize(float width, float height);
 
     void toggleVisibility();
+
     void setVisible(bool visible);
+
     bool isVisible() const { return _isVisible; }
     int getFPS() const { return _currentFPS; }
 
     void setFont(std::string path, std::string fontName);
+
     void setColor(std::unique_ptr<Color> color);
+
     void setFontSize(int size);
 };
 

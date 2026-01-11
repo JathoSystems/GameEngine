@@ -40,28 +40,28 @@ void AudioEngine::shutdown() {
         SDL_CloseAudioDevice(m_audioDevice);
         m_audioDevice = 0;
     }
-    
+
     m_activeStreams.clear();
 
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
-bool AudioEngine::setNativeStreamGain(SDL_AudioStream* stream, float gain) {
+bool AudioEngine::setNativeStreamGain(SDL_AudioStream *stream, float gain) {
 #if defined(SDL_VERSION_ATLEAST)
     return SDL_SetAudioStreamGain(stream, gain);
 #else
-    (void)stream;
-    (void)gain;
+    (void) stream;
+    (void) gain;
     return false;
 #endif
 }
 
-int AudioEngine::playAudio(const DecodedAudio& audio, float volume) {
+int AudioEngine::playAudio(const DecodedAudio &audio, float volume) {
     if (!m_audioDevice) {
         return -1;
     }
 
-    SDL_AudioStream* sdlStream = SDL_OpenAudioDeviceStream(
+    SDL_AudioStream *sdlStream = SDL_OpenAudioDeviceStream(
         m_audioDevice,
         &audio.spec,
         nullptr,
@@ -89,11 +89,11 @@ int AudioEngine::playAudio(const DecodedAudio& audio, float volume) {
 }
 
 void AudioEngine::processAudioData(
-    const DecodedAudio& audio,
-    AudioStream* audioStream,
+    const DecodedAudio &audio,
+    AudioStream *audioStream,
     float effectiveVolume
 ) {
-    const uint8_t* sourceData = audio.pcmData.data();
+    const uint8_t *sourceData = audio.pcmData.data();
     const size_t dataSize = audio.pcmData.size();
 
     if (audioStream->supportsNativeGain) {
@@ -119,15 +119,15 @@ void AudioEngine::processAudioData(
 }
 
 void AudioEngine::scaleFloatAudio(
-    const uint8_t* sourceData,
+    const uint8_t *sourceData,
     size_t dataSize,
     float volume,
-    std::vector<uint8_t>& outputBuffer
+    std::vector<uint8_t> &outputBuffer
 ) {
     outputBuffer.resize(dataSize);
 
-    const float* inputSamples = reinterpret_cast<const float*>(sourceData);
-    float* outputSamples = reinterpret_cast<float*>(outputBuffer.data());
+    const float *inputSamples = reinterpret_cast<const float *>(sourceData);
+    float *outputSamples = reinterpret_cast<float *>(outputBuffer.data());
     const size_t sampleCount = dataSize / sizeof(float);
 
     for (size_t i = 0; i < sampleCount; ++i) {
@@ -136,16 +136,16 @@ void AudioEngine::scaleFloatAudio(
 }
 
 void AudioEngine::scaleInt16Audio(
-    const uint8_t* sourceData,
+    const uint8_t *sourceData,
     size_t dataSize,
     float volume,
-    std::vector<uint8_t>& outputBuffer
+    std::vector<uint8_t> &outputBuffer
 ) {
     const size_t sampleCount = dataSize / sizeof(int16_t);
     outputBuffer.resize(dataSize);
 
-    const int16_t* inputSamples = reinterpret_cast<const int16_t*>(sourceData);
-    int16_t* outputSamples = reinterpret_cast<int16_t*>(outputBuffer.data());
+    const int16_t *inputSamples = reinterpret_cast<const int16_t *>(sourceData);
+    int16_t *outputSamples = reinterpret_cast<int16_t *>(outputBuffer.data());
 
     for (size_t i = 0; i < sampleCount; ++i) {
         const int scaledValue = static_cast<int>(inputSamples[i] * volume);
@@ -161,7 +161,7 @@ void AudioEngine::setStreamVolume(int streamHandle, float volume) {
     }
 
     const float clampedVolume = clampVolume(volume);
-    auto& audioStream = m_activeStreams[streamHandle];
+    auto &audioStream = m_activeStreams[streamHandle];
     audioStream->volume = clampedVolume;
 
     if (audioStream->supportsNativeGain) {

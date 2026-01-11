@@ -1,7 +1,3 @@
-//
-// Created by kikker234 on 08-11-2025.
-//
-
 #ifndef GAMEENGINE_SPRITERENDERER_H
 #define GAMEENGINE_SPRITERENDERER_H
 
@@ -21,8 +17,10 @@ private:
 public:
     SpriteRenderer(std::string path);
 
-    void loadTexture(const std::unique_ptr<Window>& window);
+    void loadTexture(const std::unique_ptr<Window> &window);
+
     void update(float delta) override;
+
     void render(const std::unique_ptr<Window> &window) override;
 };
 

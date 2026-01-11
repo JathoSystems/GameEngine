@@ -1,29 +1,25 @@
 #include "Network/Packet/Buffer.h"
-
+#include <cstring>
 #include <stdexcept>
 
-void Buffer::writeInt(int32_t value)
-{
+void Buffer::writeInt(int32_t value) {
     data.push_back((value >> 24) & 0xFF);
     data.push_back((value >> 16) & 0xFF);
     data.push_back((value >> 8) & 0xFF);
     data.push_back(value & 0xFF);
 }
 
-void Buffer::writeFloat(float value)
-{
+void Buffer::writeFloat(float value) {
     uint32_t bits;
     std::memcpy(&bits, &value, sizeof(float));
     writeInt(static_cast<int32_t>(bits));
 }
 
-void Buffer::writeString(const std::string& str)
-{
+void Buffer::writeString(const std::string &str) {
     uint16_t length = static_cast<uint16_t>(str.length());
     data.push_back((length >> 8) & 0xFF);
     data.push_back(length & 0xFF);
 
-    // Write string data
     data.insert(data.end(), str.begin(), str.end());
 }
 
@@ -31,8 +27,7 @@ void Buffer::writeBytes(const std::vector<uint8_t> &bytes) {
     data.insert(data.end(), bytes.begin(), bytes.end());
 }
 
-int32_t Buffer::readInt(size_t& offset)
-{
+int32_t Buffer::readInt(size_t &offset) {
     if (offset + 4 > data.size()) {
         throw std::runtime_error("Packet::readInt - Not enough data");
     }
@@ -45,21 +40,18 @@ int32_t Buffer::readInt(size_t& offset)
     return value;
 }
 
-float Buffer::readFloat(size_t& offset)
-{
+float Buffer::readFloat(size_t &offset) {
     int32_t bits = readInt(offset);
     float value;
     std::memcpy(&value, &bits, sizeof(float));
     return value;
 }
 
-std::string Buffer::readString(size_t& offset)
-{
+std::string Buffer::readString(size_t &offset) {
     if (offset + 2 > data.size()) {
         throw std::runtime_error("Buffer::readString - Not enough data for length");
     }
 
-    // Read length
     uint16_t length = (static_cast<uint16_t>(data[offset]) << 8) |
                       static_cast<uint16_t>(data[offset + 1]);
     offset += 2;
@@ -68,7 +60,6 @@ std::string Buffer::readString(size_t& offset)
         throw std::runtime_error("Buffer::readString - Not enough data for string content");
     }
 
-    // Read string
     std::string str(data.begin() + offset, data.begin() + offset + length);
     offset += length;
     return str;

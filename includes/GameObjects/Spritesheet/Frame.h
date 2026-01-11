@@ -1,7 +1,6 @@
 #ifndef GAMEENGINE_FRAME_H
 #define GAMEENGINE_FRAME_H
 #include <memory>
-
 #include "GameObjects/Transform/Position.h"
 #include "GameObjects/Transform/Size.h"
 
@@ -16,12 +15,16 @@ private:
 public:
     Frame(int x, int y, int width, int height);
 
-    Size* getSize();
-    Position* getPosition() { return _position.get(); }
+    Size *getSize();
+
+    Position *getPosition() { return _position.get(); }
 
     int getX() const;
+
     int getY() const;
+
     int getWidth() const;
+
     int getHeight() const;
 };
 

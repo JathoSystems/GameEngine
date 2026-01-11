@@ -11,7 +11,6 @@ void Texture::load(Window *window) {
 
     SDL_Surface *surface = IMG_Load(_path.c_str());
     if (!surface) {
-        // std::cerr << "Failed to load image!" << std::endl;
         return;
     }
 
@@ -83,12 +82,9 @@ void Texture::render(Window* window, Frame* frame, GameObject* parent) {
     float height = size->getHeight() == 0 ? frame->getHeight() : size->getHeight();
 
     SDL_FRect dstRect;
-    // Transform position is CENTER point (same as Box2D physics)
-    // Calculate top-left corner for rendering
     dstRect.x = pos->getX() - width / 2.0f;
     dstRect.y = pos->getY() - height / 2.0f;
 
-    // Apply viewport offset
     if (viewport) {
         Position viewportPos = viewport->getPosition();
         dstRect.x -= viewportPos.getX();

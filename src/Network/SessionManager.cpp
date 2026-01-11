@@ -18,22 +18,22 @@ void SessionManager::removeSession(int32_t id) {
     }
 }
 
-void SessionManager::broadcast(const Packet& packet) {
-    for (auto& [id, session] : sessions) {
+void SessionManager::broadcast(const Packet &packet) {
+    for (auto &[id, session]: sessions) {
         try {
             session->send(packet);
-        } catch (std::exception& e) {
+        } catch (std::exception &e) {
             std::cerr << "Failed to broadcast to session " << id << ": " << e.what() << "\n";
         }
     }
 }
 
-void SessionManager::sendTo(int32_t id, const Packet& packet) {
+void SessionManager::sendTo(int32_t id, const Packet &packet) {
     auto it = sessions.find(id);
     if (it != sessions.end()) {
         try {
             it->second->send(packet);
-        } catch (std::exception& e) {
+        } catch (std::exception &e) {
             std::cerr << "Failed to send to session " << id << ": " << e.what() << "\n";
         }
     } else {
@@ -50,12 +50,12 @@ size_t SessionManager::getSessionCount() const {
     return sessions.size();
 }
 
-void SessionManager::broadcastExcept(const Packet& packet, int32_t excludeId) {
-    for (auto& [id, session] : sessions) {
+void SessionManager::broadcastExcept(const Packet &packet, int32_t excludeId) {
+    for (auto &[id, session]: sessions) {
         if (id != excludeId) {
             try {
                 session->send(packet);
-            } catch (std::exception& e) {
+            } catch (std::exception &e) {
                 std::cerr << "Failed to broadcast to session " << id << ": " << e.what() << "\n";
             }
         }

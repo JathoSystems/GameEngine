@@ -1,5 +1,4 @@
 #include "GameObjects/Component/KeyInputComponent.h"
-
 #include "Engine/GameEngine.h"
 #include "Input/InputSystem.h"
 
@@ -8,7 +7,7 @@ KeyInputComponent::KeyInputComponent(GameObject *gameObject)
 }
 
 KeyInputComponent::~KeyInputComponent() {
-    InputSystem* system = GameEngine::getInstance().getSystem<InputSystem>();
+    InputSystem *system = GameEngine::getInstance().getSystem<InputSystem>();
     if (system) {
         system->unregisterKeyComponent(this);
     }

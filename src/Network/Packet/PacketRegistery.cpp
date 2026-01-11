@@ -1,6 +1,6 @@
 #include "Network/Packet/PacketRegistery.h"
 
-PacketRegistery& PacketRegistery::getInstance() {
+PacketRegistery &PacketRegistery::getInstance() {
     static PacketRegistery instance;
     return instance;
 }

@@ -13,7 +13,7 @@ private:
     std::unique_ptr<AudioEngine> engine;
     std::unique_ptr<SoundCache> cache;
     std::unique_ptr<AudioLoaderFactory> loaderFactory;
-    
+
     int currentMusicHandle = -1;
     std::string currentMusicKey;
     bool isPaused = false;
@@ -21,6 +21,7 @@ private:
 
 public:
     AudioSystem();
+
     ~AudioSystem() override;
 
     bool initialize(
@@ -31,20 +32,24 @@ public:
 
     void shutdown();
 
-    // Music control (background track)
-    bool loadSound(const std::string& key, const std::string& path);
-    int playSound(const std::string& key, float volume = 1.0f);
+    bool loadSound(const std::string &key, const std::string &path);
+
+    int playSound(const std::string &key, float volume = 1.0f);
+
     void setVolume(int handle, float volume);
+
     void setMasterVolume(float volume);
-    
-    // Music-specific methods
-    bool playMusic(const std::string& key, float volume = 1.0f, bool loop = true);
+
+    bool playMusic(const std::string &key, float volume = 1.0f, bool loop = true);
+
     void pauseMusic();
+
     void resumeMusic();
+
     void stopMusic();
+
     bool isMusicPlaying() const;
 
-    // ISystem interface
     void update(float deltaTime) override;
 };
 

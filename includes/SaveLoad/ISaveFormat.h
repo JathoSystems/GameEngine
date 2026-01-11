@@ -9,8 +9,10 @@ class ISaveFormat {
 public:
     virtual ~ISaveFormat() = default;
 
-    virtual std::string serialize(const IMemento& memento) const = 0;
-    virtual bool deserialize(const std::string& data, IMemento& memento) const = 0;
+    virtual std::string serialize(const IMemento &memento) const = 0;
+
+    virtual bool deserialize(const std::string &data, IMemento &memento) const = 0;
+
     virtual std::string getExtension() const = 0;
 };
 

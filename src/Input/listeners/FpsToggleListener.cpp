@@ -1,7 +1,3 @@
-//
-// Created by jusra on 9-1-2026.
-//
-
 #include "Input/listeners/FpsToggleListener.hpp"
 
 #include <memory>
@@ -20,9 +16,8 @@ void FpsToggleListener::onKeyPress(Key key) {
     Scene *scene = sceneSystem->getActiveSceneObj();
     if (!scene) return;
 
-    HUD* hud = scene->getHUD();
+    HUD *hud = scene->getHUD();
     if (!hud) {
-        // Maak alleen een HUD aan als die nog niet bestaat
         auto newHud = std::make_unique<HUD>();
         hud = newHud.get();
         scene->setHUD(std::move(newHud));

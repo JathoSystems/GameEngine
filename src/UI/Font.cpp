@@ -1,10 +1,7 @@
-//
-// Created by jusra on 11-11-2025.
-//
 #include "UI/Font.h"
 #include <iostream>
 
-Font::Font(const std::string& path, const std::string& name)
+Font::Font(const std::string &path, const std::string &name)
     : _path(path), _name(name) {
     load();
 }
@@ -32,7 +29,7 @@ bool Font::load() {
     return true;
 }
 
-TTF_Font* Font::getSdlFont() {
+TTF_Font *Font::getSdlFont() {
     if (!_font) {
         load();
     }

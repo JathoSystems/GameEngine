@@ -3,8 +3,7 @@
 #include "Sockets/INetworkSocket.h"
 #include <functional>
 
-class Session
-{
+class Session {
 private:
     int id;
     std::unique_ptr<INetworkSocket> socket;
@@ -14,16 +13,18 @@ private:
 
 public:
     Session(int id, std::unique_ptr<INetworkSocket> sock)
-        : id(id), socket(std::move(sock)) {}
+        : id(id), socket(std::move(sock)) {
+    }
 
     int getId() const { return id; }
     bool active() const { return isActive; }
 
-    void send(const Packet& p);
-    void asyncSend(const Packet& p, std::function<void(bool)> callback);
+    void send(const Packet &p);
+
+    void asyncSend(const Packet &p, std::function<void(bool)> callback);
 
     void startReceiving(
-        std::function<void(const Packet&)> onPacket,
+        std::function<void(const Packet &)> onPacket,
         std::function<void()> onDisconnect
     );
 

@@ -1,9 +1,5 @@
-//
-// Created by jusra on 21-11-2025.
-//
 #include "AI/components/AiController.hpp"
 #include "AI/states/StateManager.hpp"
-
 #include <iostream>
 
 AiController::AiController() {
@@ -20,7 +16,7 @@ void AiController::render(const std::unique_ptr<Window> &window) {
 }
 
 void AiController::addState(std::string name) {
-    StateRegistry& registry = StateRegistry::getInstance();
+    StateRegistry &registry = StateRegistry::getInstance();
     std::unique_ptr<State> state = registry.getState(name);
 
     if (!state) {

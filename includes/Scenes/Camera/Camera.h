@@ -9,8 +9,10 @@ private:
 
 public:
     virtual ~Camera() = default;
+
     Camera(std::unique_ptr<Viewport> port);
-    Viewport* getViewPort();
+
+    Viewport *getViewPort();
+
     virtual Position getPosition() const = 0;
 };
-

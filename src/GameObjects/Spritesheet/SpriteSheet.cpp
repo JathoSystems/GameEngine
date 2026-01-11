@@ -1,8 +1,3 @@
-//
-// Created by jusra on 10-11-2025.
-//
-#include <iostream>
-
 #include "GameObjects/Spritesheet/Spritesheet.h"
 
 SpriteSheet::SpriteSheet(const std::string &path, int rows, int cols) {

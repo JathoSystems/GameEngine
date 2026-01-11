@@ -1,7 +1,3 @@
-//
-// Created by jusra on 14-11-2025.
-//
-
 #ifndef GAMEENGINE_ICONVERTER_HPP
 #define GAMEENGINE_ICONVERTER_HPP
 

@@ -1,7 +1,7 @@
 #include "Scenes/SceneSystem.h"
 #include <iostream>
 
-SceneSystem::SceneSystem(const std::unique_ptr<Window>& window, SceneManager* sceneManager)
+SceneSystem::SceneSystem(const std::unique_ptr<Window> &window, SceneManager *sceneManager)
     : _window(window), _sceneManager(sceneManager) {
 }
 
@@ -22,7 +22,7 @@ void SceneSystem::setScene(std::string name) {
     _sceneManager->setScene(name);
 }
 
-void SceneSystem::removeScene(const std::string& name) {
+void SceneSystem::removeScene(const std::string &name) {
     if (_sceneManager == nullptr) {
         std::cout << "SceneManager is null, cannot remove scene: " << name << std::endl;
         return;
@@ -30,10 +30,10 @@ void SceneSystem::removeScene(const std::string& name) {
     _sceneManager->removeScene(name);
 }
 
-Scene * SceneSystem::getScene(const std::string& name) {
+Scene *SceneSystem::getScene(const std::string &name) {
     return _sceneManager->getScene(name);
 }
 
-Scene* SceneSystem::getActiveSceneObj() {
+Scene *SceneSystem::getActiveSceneObj() {
     return _sceneManager->getActiveSceneObj();
 }

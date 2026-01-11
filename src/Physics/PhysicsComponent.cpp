@@ -1,13 +1,10 @@
 #include "Physics/PhysicsComponent.h"
-
-#include <iostream>
-
 #include "Engine/GameEngine.h"
 #include "Physics/Box2DFacade.h"
 #include "GameObjects/GameObject.h"
 #include "Physics/PhysicsSystem.h"
 
-PhysicsComponent::PhysicsComponent(Box2DFacade* facade)
+PhysicsComponent::PhysicsComponent(Box2DFacade *facade)
     : _box2DFacade(facade), _initialized(false) {
     _bodyId = b2_nullBodyId;
     _parent = nullptr;
@@ -27,11 +24,7 @@ PhysicsComponent::~PhysicsComponent() {
 
 void PhysicsComponent::setParent(GameObject *game_object) {
     Component::setParent(game_object);
-    // Initialize physics body immediately when parent is set, using current Transform position
-    // Only initialize if we have both parent and collider set
     if (!_initialized && _parent) {
-        // Wait for collider to be set if not already set
-        // Initialization will happen in update() or when collider is set
     }
 }
 
@@ -45,7 +38,6 @@ void PhysicsComponent::update(float deltaTime) {
     if (!_initialized && _parent) {
         initializePhysicsBody();
         _initialized = true;
-        // Don't sync on first frame to preserve initial Transform position
         return;
     }
 
@@ -57,7 +49,7 @@ void PhysicsComponent::update(float deltaTime) {
 void PhysicsComponent::initializePhysicsBody() {
     if (!_parent) return;
 
-    Transform* transform = _parent->getTransform();
+    Transform *transform = _parent->getTransform();
     float x = transform->getPosition()->getX();
     float y = transform->getPosition()->getY();
 
@@ -75,7 +67,7 @@ void PhysicsComponent::initializePhysicsBody() {
     }
 
     if (_collider->getType() == ColliderType::BOX) {
-        auto* boxCollider = static_cast<BoxCollider*>(_collider.get());
+        auto *boxCollider = static_cast<BoxCollider *>(_collider.get());
         float width = boxCollider->getWidth();
         float height = boxCollider->getHeight();
 
@@ -92,13 +84,13 @@ void PhysicsComponent::initializePhysicsBody() {
                                      boxCollider->getOffsetY(),
                                      _rigidBody.getMaterial());
     } else if (_collider->getType() == ColliderType::CIRCLE) {
-        auto* circleCollider = static_cast<CircleCollider*>(_collider.get());
+        auto *circleCollider = static_cast<CircleCollider *>(_collider.get());
         float radius = circleCollider->getRadius();
 
         if (radius <= 0) {
             float width = transform->getSize()->getWidth();
             float height = transform->getSize()->getHeight();
-            radius = (width + height) / 4.0f; // Average half-size
+            radius = (width + height) / 4.0f;
             circleCollider->setRadius(radius);
         }
 
@@ -112,7 +104,6 @@ void PhysicsComponent::initializePhysicsBody() {
     _box2DFacade->setGravityScale(_bodyId, _rigidBody.getGravityScale());
     _box2DFacade->setFixedRotation(_bodyId, _rigidBody.isFixedRotation());
 
-    // Set initial velocity to zero to prevent falling through ground on first frame
     if (_rigidBody.getBodyType() == BodyType::DYNAMIC) {
         _box2DFacade->setVelocity(_bodyId, 0.0f, 0.0f);
     }
@@ -125,7 +116,7 @@ void PhysicsComponent::syncTransformFromPhysics() {
     _box2DFacade->getPosition(_bodyId, x, y);
     float angle = _box2DFacade->getRotation(_bodyId);
 
-    Transform* transform = _parent->getTransform();
+    Transform *transform = _parent->getTransform();
 
     transform->getPosition()->setX(x);
     transform->getPosition()->setY(y);
@@ -139,14 +130,13 @@ void PhysicsComponent::setBodyType(BodyType type) {
 
 void PhysicsComponent::setCollider(std::unique_ptr<Collider> collider) {
     _collider = std::move(collider);
-    // If parent is already set, initialize physics body now
     if (!_initialized && _parent && _collider) {
         initializePhysicsBody();
         _initialized = true;
     }
 }
 
-void PhysicsComponent::setMaterial(const Material& material) {
+void PhysicsComponent::setMaterial(const Material &material) {
     _rigidBody.setMaterial(material);
 }
 
@@ -170,7 +160,7 @@ void PhysicsComponent::setVelocity(float vx, float vy) {
     }
 }
 
-void PhysicsComponent::getVelocity(float& vx, float& vy) {
+void PhysicsComponent::getVelocity(float &vx, float &vy) {
     if (B2_IS_NON_NULL(_bodyId)) {
         _box2DFacade->getVelocity(_bodyId, vx, vy);
     }

@@ -1,7 +1,3 @@
-//
-// Created by jusra on 24-11-2025.
-//
-
 #ifndef GAMEENGINE_HEURISTICCALCULATORFACTORY_HPP
 #define GAMEENGINE_HEURISTICCALCULATORFACTORY_HPP
 #include <memory>

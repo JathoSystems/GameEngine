@@ -1,14 +1,12 @@
-//
-// Created by jusra on 10-11-2025.
-//
 #include "GameObjects/Spritesheet/Frame.h"
 
 Frame::Frame(int x, int y, int width, int height)
-        : _size(std::make_unique<Size>(width, height)),
-          _position(std::make_unique<Position>(0,0)),
-          _srcX(x), _srcY(y) {}
+    : _size(std::make_unique<Size>(width, height)),
+      _position(std::make_unique<Position>(0, 0)),
+      _srcX(x), _srcY(y) {
+}
 
-Size * Frame::getSize() {
+Size *Frame::getSize() {
     return _size.get();
 }
 

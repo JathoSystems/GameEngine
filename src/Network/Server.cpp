@@ -2,15 +2,12 @@
 #include "Network/SessionManager.h"
 #include <iostream>
 
-Server::Server(asio::io_context& io, std::unique_ptr<INetworkListener> listener, int port)
+Server::Server(asio::io_context &io, std::unique_ptr<INetworkListener> listener, int port)
     : m_io_context(io),
-      m_listener(std::move(listener)), // Move argument into member
-      m_port(port)
-{
+      m_listener(std::move(listener)),
+      m_port(port) {
     m_sessionManager = std::make_shared<SessionManager>();
 
-    // FIX: Use m_listener (the member), which now holds the object.
-    // The argument 'listener' is empty now.
     m_listener->setSessionManager(m_sessionManager);
 
     m_listener->setClientConnectedCallback([this](std::unique_ptr<INetworkSocket> socket) {
@@ -20,8 +17,7 @@ Server::Server(asio::io_context& io, std::unique_ptr<INetworkListener> listener,
     std::cout << "Server created on port " << m_port << "\n";
 }
 
-void Server::startServer()
-{
+void Server::startServer() {
     std::cout << "Starting server on port " << m_port << "...\n";
     if (m_listener) {
         m_listener->start(m_port);
@@ -29,13 +25,11 @@ void Server::startServer()
     }
 }
 
-void Server::onConnect(std::function<void(int32_t)> callback)
-{
+void Server::onConnect(std::function<void(int32_t)> callback) {
     m_onClientConnected = callback;
 }
 
-void Server::stopServer()
-{
+void Server::stopServer() {
     std::cout << "Stopping server...\n";
     if (m_listener) {
         m_listener->stop();
@@ -43,24 +37,20 @@ void Server::stopServer()
     std::cout << "Server stopped\n";
 }
 
-void Server::run()
-{
+void Server::run() {
     m_io_context.run();
 }
 
-void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
-{
+void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket) {
     int32_t clientId = m_sessionManager->addSession(std::move(socket));
     std::cout << "New client assigned ID: " << clientId << "\n";
 
     auto session = m_sessionManager->getSession(clientId);
     if (session) {
         session->startReceiving(
-            // Packet callback
-            [this, clientId](const Packet& packet) {
+            [this, clientId](const Packet &packet) {
                 handleClientPacket(clientId, packet);
             },
-            // Disconnect callback - NIEUW!
             [this, clientId]() {
                 std::cout << "Client " << clientId << " disconnected\n";
                 m_sessionManager->removeSession(clientId);
@@ -73,30 +63,25 @@ void Server::handleNewClient(std::unique_ptr<INetworkSocket> socket)
     }
 }
 
-void Server::handleClientPacket(int32_t clientId, const Packet& packet)
-{
+void Server::handleClientPacket(int32_t clientId, const Packet &packet) {
     if (m_onPacketReceived) {
         m_onPacketReceived(clientId, packet);
     }
 }
 
-void Server::sendToClient(int32_t clientId, const Packet& packet)
-{
+void Server::sendToClient(int32_t clientId, const Packet &packet) {
     m_sessionManager->sendTo(clientId, packet);
 }
 
-void Server::broadcast(const Packet& packet)
-{
+void Server::broadcast(const Packet &packet) {
     m_sessionManager->broadcast(packet);
 }
 
-void Server::broadcastExcept(const Packet& packet, int32_t excludeClientId)
-{
+void Server::broadcastExcept(const Packet &packet, int32_t excludeClientId) {
     m_sessionManager->broadcastExcept(packet, excludeClientId);
 }
 
-void Server::disconnectClient(int32_t clientId)
-{
+void Server::disconnectClient(int32_t clientId) {
     auto session = m_sessionManager->getSession(clientId);
     if (session) {
         session->close();
@@ -104,12 +89,10 @@ void Server::disconnectClient(int32_t clientId)
     m_sessionManager->removeSession(clientId);
 }
 
-void Server::setPacketCallback(std::function<void(int32_t, const Packet&)> callback)
-{
+void Server::setPacketCallback(std::function<void(int32_t, const Packet &)> callback) {
     m_onPacketReceived = callback;
 }
 
-size_t Server::getClientCount() const
-{
+size_t Server::getClientCount() const {
     return m_sessionManager->getSessionCount();
 }
